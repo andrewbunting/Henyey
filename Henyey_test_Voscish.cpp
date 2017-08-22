@@ -94,7 +94,7 @@ int main()
     double zone[J], lnT[J], lnRho[J], grav[J], radius_cm[J], rmid_cm[J];
     double temperature[J], rho[J], pressure[J], grada[J], cp[J], chiRho[J], chiT[J];
     double opacity[J], dkap_dlnrho_face[J], dkap_dlnT_face[J], flux[J], brunt_A[J];
-    double K[J];
+    double K[J], rho_face[J];
 
     cout << "FLAG - about to take the input\n";
 
@@ -208,6 +208,46 @@ int main()
     }
 
     infile.close();
+    
+    double r_a, r_b, r_c;
+    
+    for (k=0; k < J-1; k = k+1) {
+        
+        // Here r_a and r_b are briefly being used as stand-ins for delta[0] and delta[1] respectively
+        
+        r_a = (rmid_cm[k+1] - radius_cm[k])/(rmid_cm[k+1] - rmid_cm[k]);
+        r_b = (radius_cm[k] - rmid_cm[k])/(rmid_cm[k+1] - rmid_cm[k]);
+        
+        rho_face[k] = r_a*rho[k] + r_b*rho[k+1];
+        
+        
+    }
+    
+    
+    /* This extrapolates to get the density at the outermost face, using: 
+     
+     x = ( r_c*a - r_a*c + (r_a/r_b)*((r_c - r_a)/(r_c - r_b))*( r_b*c - r_c*b ) ) / ( r_c - r_a - (r_a/r_b)*((r_c - r_a)/(r_c - r_b))*( r_c - r_b ) )
+     
+     where:
+     
+     a = rho[J-1]
+     b = rho[J-2]
+     c = rho[J-3]
+     
+     r_a = radius_cm[J-1] - rmid_cm[J-1]
+     r_b = radius_cm[J-1] - rmid_cm[J-2]
+     r_c = radius_cm[J-1] - rmid_cm[J-3]
+     
+     */
+    
+    r_a = radius_cm[J-1] - rmid_cm[J-1];
+    r_b = radius_cm[J-1] - rmid_cm[J-2];
+    r_c = radius_cm[J-1] - rmid_cm[J-3];
+    
+    rho_face[J-1] = ( r_c*rho[J-1] - r_a*rho[J-3] + (r_a/r_b)*((r_c - r_a)/(r_c - r_b))*( r_b*rho[J-3] - r_c*rho[J-2] ) ) / ( r_c - r_a - (r_a/r_b)*((r_c - r_a)/(r_c - r_b))*( r_c - r_b ) );
+    
+    
+    
 
 
 
@@ -338,9 +378,9 @@ semimajor_axis_jupiter ! = 7.7857d13 ! jupiter semimajor axis (cm)
 
     int n, N, count, label, L, E, U, Nmax, Nmin, Jold;
 
-    Nmax = 11;
+    Nmax = 11; // 11
 
-    L = 325;
+    L = 325; // 325
     
     U = L*(Nmax-1)+1;
     
@@ -642,13 +682,13 @@ semimajor_axis_jupiter ! = 7.7857d13 ! jupiter semimajor axis (cm)
     double lnT_HR[2], lnRho_HR[2], grav_HR[2], radius_cm_HR[2], rmid_cm_HR[2];
     double temperature_HR[2], rho_HR[2], pressure_HR[2], grada_HR[2], cp_HR[2], chiRho_HR[2], chiT_HR[2];
     double opacity_HR[2], dkap_dlnrho_face_HR[2], dkap_dlnT_face_HR[2], flux_HR[2], brunt_A_HR[2];
-    double K_HR[2];
+    double K_HR[2], rho_face_HR[2];
 
     // This is defined for the k and k+1 values of delta which help with linear interpolation: F_{at rmid[1]} = delta[0]*flux[0] + delta[1]*flux[1]
     double delta[2];
 
     // This is an exception, as this needs to be output at the end for plotting purposes
-    double radius_cm_HR_output[J],test[J];
+    double radius_cm_HR_output[J],rmid_cm_HR_output[J],test[J];
     
     
     
@@ -778,7 +818,7 @@ semimajor_axis_jupiter ! = 7.7857d13 ! jupiter semimajor axis (cm)
 
 
 
-                    // Redefine the variables here!! (e.g. F_{k,n})
+                    // Redefine the face variables here!! (e.g. F_{k,n})
 
                     radius_cm_HR_output[k] = radius_cm[kold-1] + (radius_cm[kold] - radius_cm[kold-1])*(n_doub+1.0)/N_doub;
 
@@ -787,6 +827,7 @@ semimajor_axis_jupiter ! = 7.7857d13 ! jupiter semimajor axis (cm)
                     dkap_dlnrho_face_HR[0] = dkap_dlnrho_face[kold-1] + (dkap_dlnrho_face[kold] - dkap_dlnrho_face[kold-1])*(n_doub+1.0)/N_doub;
                     dkap_dlnT_face_HR[0] = dkap_dlnT_face[kold-1] + (dkap_dlnT_face[kold] - dkap_dlnT_face[kold-1])*(n_doub+1.0)/N_doub;
                     opacity_HR[0] = opacity[kold-1] + (opacity[kold] - opacity[kold-1])*(n_doub+1.0)/N_doub;
+                    rho_face_HR[0] = rho_face[kold-1] + (rho_face[kold] - rho_face[kold-1])*(n_doub+1.0)/N_doub;
 
 
 
@@ -795,6 +836,8 @@ semimajor_axis_jupiter ! = 7.7857d13 ! jupiter semimajor axis (cm)
 
                     // This separates the r_mid definitions into their two halves so that we're strictly interpolating at all times
                     if ((n_doub+0.5)/N_doub <= 0.5) {
+                        
+                        rmid_cm_HR_output[k] = rmid_cm[kold] + ( (rmid_cm[kold] - rmid_cm[kold-1])/(rmid_cm[kold] - rmid_cm[kold-1]) )*( radius_cm[kold-1] - rmid_cm[kold] + (radius_cm[kold] - radius_cm[kold-1])*(n_doub+0.5)/N_doub );
 
                         rmid_cm_HR[0] = rmid_cm[kold] + ( (rmid_cm[kold] - rmid_cm[kold-1])/(rmid_cm[kold] - rmid_cm[kold-1]) )*( radius_cm[kold-1] - rmid_cm[kold] + (radius_cm[kold] - radius_cm[kold-1])*(n_doub+0.5)/N_doub );
                         lnRho_HR[0] = lnRho[kold] + ( (lnRho[kold] - lnRho[kold-1])/(rmid_cm[kold] - rmid_cm[kold-1]) )*( radius_cm[kold-1] - rmid_cm[kold] + (radius_cm[kold] - radius_cm[kold-1])*(n_doub+0.5)/N_doub );
@@ -812,6 +855,8 @@ semimajor_axis_jupiter ! = 7.7857d13 ! jupiter semimajor axis (cm)
 
 
                     } else {
+                        
+                        rmid_cm_HR_output[k] = rmid_cm[kold] + ( (rmid_cm[kold+1] - rmid_cm[kold])/(rmid_cm[kold+1] - rmid_cm[kold]) )*( radius_cm[kold-1] - rmid_cm[kold] + (radius_cm[kold] - radius_cm[kold-1])*(n_doub+0.5)/N_doub );
 
                         rmid_cm_HR[0] = rmid_cm[kold] + ( (rmid_cm[kold+1] - rmid_cm[kold])/(rmid_cm[kold+1] - rmid_cm[kold]) )*( radius_cm[kold-1] - rmid_cm[kold] + (radius_cm[kold] - radius_cm[kold-1])*(n_doub+0.5)/N_doub );
                         lnRho_HR[0] = lnRho[kold] + ( (lnRho[kold+1] - lnRho[kold])/(rmid_cm[kold+1] - rmid_cm[kold]) )*( radius_cm[kold-1] - rmid_cm[kold] + (radius_cm[kold] - radius_cm[kold-1])*(n_doub+0.5)/N_doub );
@@ -840,6 +885,7 @@ semimajor_axis_jupiter ! = 7.7857d13 ! jupiter semimajor axis (cm)
             if (k==0) {
 
                 radius_cm_HR_output[0] = radius_cm[0];
+                rmid_cm_HR_output[0] = rmid_cm[0];
 
 
                 radius_cm_HR[0] = radius_cm[0];
@@ -860,6 +906,7 @@ semimajor_axis_jupiter ! = 7.7857d13 ! jupiter semimajor axis (cm)
                 chiT_HR[0] = chiT[0];
                 grada_HR[0] = grada[0];
                 brunt_A_HR[0] = brunt_A[0];
+                rho_face_HR[0] = rho_face[0];
 
 
 
@@ -867,6 +914,7 @@ semimajor_axis_jupiter ! = 7.7857d13 ! jupiter semimajor axis (cm)
             } else {
 
                 radius_cm_HR_output[k] = radius_cm[k-E];
+                rmid_cm_HR_output[k] = rmid_cm[k-E];
 
                 radius_cm_HR[0] = radius_cm[k-E];
                 rmid_cm_HR[0] = rmid_cm[k-E];
@@ -886,6 +934,7 @@ semimajor_axis_jupiter ! = 7.7857d13 ! jupiter semimajor axis (cm)
                 chiT_HR[0] = chiT[k-E];
                 grada_HR[0] = grada[k-E];
                 brunt_A_HR[0] = brunt_A[k-E];
+                rho_face_HR[0] = rho_face[k-E];
 
             }
 
@@ -965,6 +1014,7 @@ semimajor_axis_jupiter ! = 7.7857d13 ! jupiter semimajor axis (cm)
             dkap_dlnrho_face_HR[1] = dkap_dlnrho_face[kold-1] + (dkap_dlnrho_face[kold] - dkap_dlnrho_face[kold-1])*(n_doub+1.0)/N_doub;
             dkap_dlnT_face_HR[1] = dkap_dlnT_face[kold-1] + (dkap_dlnT_face[kold] - dkap_dlnT_face[kold-1])*(n_doub+1.0)/N_doub;
             opacity_HR[1] = opacity[kold-1] + (opacity[kold] - opacity[kold-1])*(n_doub+1.0)/N_doub;
+            rho_face_HR[1] = rho_face[kold-1] + (rho_face[kold] - rho_face[kold-1])*(n_doub+1.0)/N_doub;
 
 
             // This separates the r_mid definitions into their two halves so that we're strictly interpolating at all times
@@ -1014,6 +1064,7 @@ semimajor_axis_jupiter ! = 7.7857d13 ! jupiter semimajor axis (cm)
 
                 // Obviously this is a bit pointless here, but I'm mainly keeping it the same for symmetry, because everybody likes symmetry.
                 radius_cm_HR_output[k+1] = radius_cm[0];
+                rmid_cm_HR_output[k+1] = rmid_cm[0];
 
                 radius_cm_HR[1] = radius_cm[0];
                 rmid_cm_HR[1] = rmid_cm[0];
@@ -1033,11 +1084,13 @@ semimajor_axis_jupiter ! = 7.7857d13 ! jupiter semimajor axis (cm)
                 chiT_HR[1] = chiT[0];
                 grada_HR[1] = grada[0];
                 brunt_A_HR[1] = brunt_A[0];
+                rho_face_HR[1] = rho_face[0];
 
 
             } else {
 
                 radius_cm_HR_output[k+1] = radius_cm[k+1-E];
+                rmid_cm_HR_output[k+1] = rmid_cm[k+1-E];
 
                 radius_cm_HR[1] = radius_cm[k+1-E];
                 rmid_cm_HR[1] = rmid_cm[k+1-E];
@@ -1057,6 +1110,7 @@ semimajor_axis_jupiter ! = 7.7857d13 ! jupiter semimajor axis (cm)
                 chiT_HR[1] = chiT[k+1-E];
                 grada_HR[1] = grada[k+1-E];
                 brunt_A_HR[1] = brunt_A[k+1-E];
+                rho_face_HR[1] = rho_face[k+1-E];
             }
 
 
@@ -1067,8 +1121,8 @@ semimajor_axis_jupiter ! = 7.7857d13 ! jupiter semimajor axis (cm)
 
 
         // This checks the interpolation of any given variable array
-        test[k] = rho_HR[0];
-        test[k+1] = rho_HR[1];
+        test[k] = cp_HR[0];
+        test[k+1] = cp_HR[1];
 
         // This defines the delta coefficients for interpolation
         delta[0] = (rmid_cm_HR[1] - radius_cm_HR[0])/(rmid_cm_HR[1] - rmid_cm_HR[0]);
@@ -1331,20 +1385,21 @@ semimajor_axis_jupiter ! = 7.7857d13 ! jupiter semimajor axis (cm)
         
         
         
-        a[0] = radius_cm_HR[0]/R;
-        a[1] = radius_cm_HR[1]/R;
+        a[0] = (radius_cm_HR[0]/R)*(radius_cm_HR[0]/R);
+        a[1] = (radius_cm_HR[1]/R)*(radius_cm_HR[1]/R);
         
-        b[0] = radius_cm_HR[0]/R;
-        b[1] = radius_cm_HR[1]/R;
+        b[0] = (radius_cm_HR[0]/R)*(radius_cm_HR[0]/R)*(radius_cm_HR[0]/R)*(radius_cm_HR[0]/R);
+        b[1] = (radius_cm_HR[1]/R)*(radius_cm_HR[1]/R)*(radius_cm_HR[1]/R)*(radius_cm_HR[1]/R);
         
-        c[0] = radius_cm_HR[0]/R;
-        c[1] = radius_cm_HR[1]/R;
+        c[0] = 2.0 - radius_cm_HR[0]/R;
+        c[1] = 2.0 - radius_cm_HR[1]/R;
         
-        d[0] = radius_cm_HR[0]/R;
-        d[1] = radius_cm_HR[1]/R;
+        d[0] = 10.0 - 9.0*radius_cm_HR[0]/R;
+        d[1] = 10.0 - 9.0*radius_cm_HR[1]/R;
+
         
         
-        
+        /*
         Mr[0][0][0] = (l*(l + 1.0)/(m*m*omega*omega*R*R))*rho_HR[1] * f * rmid_cm_HR[1] * rmid_cm_HR[1];
         Mr[0][1][0] = 0.0;
         
@@ -1354,12 +1409,29 @@ semimajor_axis_jupiter ! = 7.7857d13 ! jupiter semimajor axis (cm)
         
         Nr[0][0][0] = 0.0;
         Nr[0][1][0] = - 2.0*f*radius_cm_HR[0]*( (delta[0]*rho_HR[0]) + (delta[1]*rho_HR[1]) );
+
+        
+        Ni[0][0][0] = 0;
+        Ni[0][1][0] = 0;
+        */
         
         
+        Mr[0][0][0] = Ar[0][0][0]*a[0] + Ar[0][0][1]*b[0] + Cr[0][0][0]*a[1] + Cr[0][0][1]*b[1] + Dr[0][0][0]*c[1] + Dr[0][0][1]*d[1];
+        Mr[0][1][0] = Ar[0][1][0]*a[0] + Ar[0][1][1]*b[0] + Cr[0][1][0]*a[1] + Cr[0][1][1]*b[1] + Dr[0][1][0]*c[1] + Dr[0][1][1]*d[1];
+        
+        Mi[0][0][0] = 0.0;
+        Mi[0][1][0] = 0.0;
+        
+        
+        Nr[0][0][0] = Er[0][0][0]*a[0] + Er[0][0][1]*b[0] + Fr[0][0][0]*c[0] + Fr[0][0][1]*d[0] + Hr[0][0][0]*c[1] + Hr[0][0][1]*d[1];
+        Nr[0][1][0] = Er[0][1][0]*a[0] + Er[0][1][1]*b[0] + Fr[0][1][0]*c[0] + Fr[0][1][1]*d[0] + Hr[0][1][0]*c[1] + Hr[0][1][1]*d[1];
         
         
         Ni[0][0][0] = 0;
         Ni[0][1][0] = 0;
+        
+        
+        
         
         
         if (k == 0) {
@@ -1397,6 +1469,7 @@ semimajor_axis_jupiter ! = 7.7857d13 ! jupiter semimajor axis (cm)
             cout << "T_c = " << T_cr << " + " << T_ci << "i\n";
             cout << "T_d = " << T_dr << " + " << T_di << "i\n";
             
+            
             // If this section is active, then this prevents any rescaling
             T_ar = 1.0;
             T_ai = 0.0;
@@ -1406,6 +1479,7 @@ semimajor_axis_jupiter ! = 7.7857d13 ! jupiter semimajor axis (cm)
             T_ci = 0.0;
             T_dr = 1.0;
             T_di = 0.0;
+            
             
         }
         
@@ -1543,11 +1617,20 @@ semimajor_axis_jupiter ! = 7.7857d13 ! jupiter semimajor axis (cm)
             nui[0][1][0] = 0;
             nui[0][1][1] = 0;
             
+            /*
             xr[0][0][0] = 0.0;
             xr[0][1][0] = 0.0;
             
             xi[0][0][0] = 0;
             xi[0][1][0] = 0;
+            */
+            
+            xr[0][0][0] = etar[0][0][0]*a[0] + etar[0][0][1]*b[0] + mur[0][0][0]*a[1] + mur[0][0][1]*b[1] + nur[0][0][0]*c[1] + nur[0][0][1]*d[1];
+            xr[0][1][0] = etar[0][1][0]*a[0] + etar[0][1][1]*b[0] + mur[0][1][0]*a[1] + mur[0][1][1]*b[1] + nur[0][1][0]*c[1] + nur[0][1][1]*d[1];
+            
+            xi[0][0][0] = 0;
+            xi[0][1][0] = 0;
+            
             
         
             
@@ -3113,8 +3196,16 @@ semimajor_axis_jupiter ! = 7.7857d13 ! jupiter semimajor axis (cm)
          17- gammai[1][0]
          18- /xi_{r} m omega in units of mp/(mp + Mstar)
          19- test
+         20- checking alpha and gamma - a
+         21- checking alpha and gamma - b
+         22- checking alpha and gamma - c
+         23- checking alpha and gamma - d
+         24- rmid_cm
          */
-        outfile << radius_cm_HR_output[k]/R << "\t\t\t" << ur[k][0][0] << "\t\t" << ur[k][1][0] << "\t\t" << vr[k][0][0] << "\t\t" << vr[k][1][0] << "\t\t" << alphar[k][0][0] << "\t" << alphar[k][0][1] << "\t" << alphar[k][1][0] << "\t" << alphar[k][1][1] << "\t" << alphai[k][0][0] << "\t" << alphai[k][0][1] << "\t" << alphai[k][1][0] << "\t" << alphai[k][1][1] << "\t" << gammar[k][0][0] << "\t" << gammar[k][1][0] << "\t" << gammai[k][0][0] << "\t" << gammai[k][1][0] <<  "\t" << ur[k][0][0]*radius_cm_HR_output[k]*(1.0/100.0)*m*omega*((mp + Mstar)/(mp)) << "\t" << test[k] << "\n";
+        
+        
+        
+        outfile << radius_cm_HR_output[k]/R << "\t\t\t" << ur[k][0][0] << "\t\t" << ur[k][1][0] << "\t\t" << vr[k][0][0] << "\t\t" << vr[k][1][0] << "\t\t" << alphar[k][0][0] << "\t" << alphar[k][0][1] << "\t" << alphar[k][1][0] << "\t" << alphar[k][1][1] << "\t" << alphai[k][0][0] << "\t" << alphai[k][0][1] << "\t" << alphai[k][1][0] << "\t" << alphai[k][1][1] << "\t" << gammar[k][0][0] << "\t" << gammar[k][1][0] << "\t" << gammai[k][0][0] << "\t" << gammai[k][1][0] <<  "\t" << ur[k][0][0]*radius_cm_HR_output[k]*(1.0/100.0)*m*omega*((mp + Mstar)/(mp)) << "\t" << test[k] << "\t" << test[k] << "\t" << test[k] << "\t" << test[k] << "\t" << test[k] << "\t" << rmid_cm_HR_output[k]/R << "\n";
 
 
     }
