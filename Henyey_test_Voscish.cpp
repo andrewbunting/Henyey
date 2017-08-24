@@ -380,9 +380,9 @@ semimajor_axis_jupiter ! = 7.7857d13 ! jupiter semimajor axis (cm)
 
     int n, N, count, label, L, E, U, Nmax, Nmin, Jold;
 
-    Nmax = 75; // 11
+    Nmax = 187; // 11 // 8 // 187
 
-    L = 1; // 325
+    L = 1; // 325 // 523 // 1
     
     U = L*(Nmax-1)+1;
     
@@ -1122,8 +1122,8 @@ semimajor_axis_jupiter ! = 7.7857d13 ! jupiter semimajor axis (cm)
 
 
         // This checks the interpolation of any given variable array
-        test[k] = cp_HR[0];
-        test[k+1] = cp_HR[1];
+        test[k] = flux_HR[0];
+        test[k+1] = flux_HR[1];
         
         flux_HR_output[k] = flux_HR[0];
         flux_HR_output[k+1] = flux_HR[1];
@@ -1335,7 +1335,7 @@ semimajor_axis_jupiter ! = 7.7857d13 ! jupiter semimajor axis (cm)
         */
         
         
-        // Option 2
+        // Option 2  --  NB: I don't think this is currently correct
         /*
         Ar[0][0][0] = - radius_cm_HR[0]*radius_cm_HR[0]*rho_HR[0] / ( R*R*( radius_cm_HR[1] - radius_cm_HR[0] ) );
         Ar[0][0][1] = 0;
@@ -1402,6 +1402,72 @@ semimajor_axis_jupiter ! = 7.7857d13 ! jupiter semimajor axis (cm)
         
         // Option 2.i
         /*
+         Ar[0][0][0] = - radius_cm_HR[0]*radius_cm_HR[0]*rho_face_HR[0] / ( rho_HR[1]*R*( radius_cm_HR[1] - radius_cm_HR[0] ) ); // - radius_cm_HR[0]*radius_cm_HR[0]*radius_cm_HR[0]*rho_face_HR[0] / ( rho_HR[1]*R*R*( radius_cm_HR[1] - radius_cm_HR[0] ) );
+         Ar[0][0][1] = 0;
+         Ar[0][1][0] = 0;
+         Ar[0][1][1] = - ( radius_cm_HR[0]*radius_cm_HR[0]*flux_BC )/( m*omega*rho_HR[1]*temperature_HR[1]*cp_HR[1]*R*R*( radius_cm_HR[1] - radius_cm_HR[0] ) ); // - ( radius_cm_HR[0]*radius_cm_HR[0]*flux_HR[0] )/( m*omega*rho_HR[1]*temperature_HR[1]*cp_HR[1]*R*R*( radius_cm_HR[1] - radius_cm_HR[0] ) );
+         
+         Ai[0][0][0] = 0.0;
+         Ai[0][0][1] = 0.0;
+         Ai[0][1][0] = 0.0; // ( brunt_A_HR[1]/( R ) ) * ( chiRho_HR[1] / chiT_HR[1] ) * 0.5 * radius_cm_HR[0]; // ( brunt_A_HR[1]/( R*R ) ) * ( chiRho_HR[1] / chiT_HR[1] ) * 0.5 * radius_cm_HR[0] * radius_cm_HR[0];
+         Ai[0][1][1] = 0.0;
+         
+         Cr[0][0][0] = radius_cm_HR[1]*radius_cm_HR[1]*rho_face_HR[1] / ( rho_HR[1]*R*( radius_cm_HR[1] - radius_cm_HR[0] ) ); // radius_cm_HR[1]*radius_cm_HR[1]*radius_cm_HR[1]*rho_face_HR[1] / ( rho_HR[1]*R*R*( radius_cm_HR[1] - radius_cm_HR[0] ) );
+         Cr[0][0][1] = 0.0;
+         Cr[0][1][0] = 0.0;
+         Cr[0][1][1] = ( radius_cm_HR[1]*radius_cm_HR[1]*flux_BC )/( m*omega*rho_HR[1]*temperature_HR[1]*cp_HR[1]*R*R*( radius_cm_HR[1] - radius_cm_HR[0] ) ); // ( radius_cm_HR[1]*radius_cm_HR[1]*flux_HR[1] )/( m*omega*rho_HR[1]*temperature_HR[1]*cp_HR[1]*R*R*( radius_cm_HR[1] - radius_cm_HR[0] ) );
+         
+         Ci[0][0][0] = 0.0;
+         Ci[0][0][1] = 0.0;
+         Ci[0][1][0] = 0.0; // ( brunt_A_HR[1]/( R ) ) * ( chiRho_HR[1] / chiT_HR[1] ) * 0.5 * radius_cm_HR[1]; // ( brunt_A_HR[1]/( R*R ) ) * ( chiRho_HR[1] / chiT_HR[1] ) * 0.5 * radius_cm_HR[1] * radius_cm_HR[1];
+         Ci[0][1][1] = 0.0;
+         
+         Dr[0][0][0] = ( rmid_cm_HR[1]*rmid_cm_HR[1] / ( chiRho_HR[1]*R*R ) )  -  ( (l*(l+1.0)*pressure_HR[1])/(m*m*omega*omega*R*R*rho_HR[1]) );
+         Dr[0][0][1] = - (chiT_HR[1] / chiRho_HR[1]) * ( rmid_cm_HR[1]*rmid_cm_HR[1] / (R*R) );
+         Dr[0][1][0] = 0.0;
+         Dr[0][1][1] = ( l * ( l + 1.0 ) * K_HR[1] )/( m * omega * rho_HR[1] * cp_HR[1] * R * R );
+         
+         Di[0][0][0] = 0.0;
+         Di[0][0][1] = 0.0;
+         Di[0][1][0] = 0.0; // - grada_HR[1] * rmid_cm_HR[1] * rmid_cm_HR[1] / ( R*R );
+         Di[0][1][1] = 0.0; // rmid_cm_HR[1] * rmid_cm_HR[1] / ( R * R );
+         
+         Er[0][0][0] = 0.0;
+         Er[0][0][1] = - flux_BC * ( rmid_cm_HR[1] - rmid_cm_HR[0] ) * ( (delta[0]/K_HR[0]) + (delta[1]/K_HR[1]) ) / ( temperature_HR[1] - temperature_HR[0] ); // - flux_HR[0] * ( rmid_cm_HR[1] - rmid_cm_HR[0] ) * ( (delta[0]/K_HR[0]) + (delta[1]/K_HR[1]) ) / ( temperature_HR[1] - temperature_HR[0] );
+         Er[0][1][0] = - 1.0; // - radius_cm_HR[0] / R;
+         Er[0][1][1] = 0.0;
+         
+         Ei[0][0][0] = 0.0;
+         Ei[0][0][1] = 0.0;
+         Ei[0][1][0] = 0.0;
+         Ei[0][1][1] = 0.0;
+         
+         Fr[0][0][0] = ( delta[0] / chiRho_HR[0] ) * ( 1.0 + ( dkap_dlnrho_face_HR[0] / opacity_HR[0] ) );
+         Fr[0][0][1] = delta[0] * ( -4.0 + ( dkap_dlnT_face_HR[0] / opacity_HR[0] ) - ( chiT_HR[0]/chiRho_HR[0] )*( 1.0 + ( dkap_dlnrho_face_HR[0] / opacity_HR[0] ) ) )   +   ( (delta[0]*temperature_HR[0]) + (delta[1]*temperature_HR[1]) )/( temperature_HR[1] - temperature_HR[0] );
+         Fr[0][1][0] = (1.0/( m*m*omega*omega*R )) * (   (- pressure_HR[0] * ( (delta[0]/rho_HR[0]) + (delta[1]/rho_HR[1]) ))/( rmid_cm_HR[1] - rmid_cm_HR[0] )   +   ( delta[0] * grav_HR[0] / chiRho_HR[0] )   );
+         Fr[0][1][1] = - ( delta[0] * chiT_HR[0] * grav_HR[0] )/( m*m*omega*omega*R*chiRho_HR[0] );
+         
+         Fi[0][0][0] = 0.0;
+         Fi[0][0][1] = 0.0;
+         Fi[0][1][0] = 0.0;
+         Fi[0][1][1] = 0.0;
+         
+         Hr[0][0][0] = ( delta[1] / chiRho_HR[1] ) * ( 1.0 + ( dkap_dlnrho_face_HR[0] / opacity_HR[1] ) );
+         Hr[0][0][1] = delta[1] * ( -4.0 + ( dkap_dlnT_face_HR[0] / opacity_HR[1] ) - ( chiT_HR[1]/chiRho_HR[1] )*( 1.0 + ( dkap_dlnrho_face_HR[0] / opacity_HR[1] ) ) )   -   ( (delta[0]*temperature_HR[0]) + (delta[1]*temperature_HR[1]) )/( temperature_HR[1] - temperature_HR[0] );
+         Hr[0][1][0] = (1.0/( m*m*omega*omega*R )) * (   ( pressure_HR[1] * ( (delta[0]/rho_HR[0]) + (delta[1]/rho_HR[1]) ))/( rmid_cm_HR[1] - rmid_cm_HR[0] )   +   ( delta[1] * grav_HR[1] / chiRho_HR[1] )   );
+         Hr[0][1][1] = - ( delta[1] * chiT_HR[1] * grav_HR[1] )/( m*m*omega*omega*R*chiRho_HR[1] );
+         
+         Hi[0][0][0] = 0.0;
+         Hi[0][0][1] = 0.0;
+         Hi[0][1][0] = 0.0;
+         Hi[0][1][1] = 0.0;
+         */
+        
+        
+        
+        
+        
+        
         Ar[0][0][0] = - radius_cm_HR[0]*radius_cm_HR[0]*rho_face_HR[0] / ( rho_HR[1]*R*( radius_cm_HR[1] - radius_cm_HR[0] ) ); // - radius_cm_HR[0]*radius_cm_HR[0]*radius_cm_HR[0]*rho_face_HR[0] / ( rho_HR[1]*R*R*( radius_cm_HR[1] - radius_cm_HR[0] ) );
         Ar[0][0][1] = 0;
         Ar[0][1][0] = 0;
@@ -1453,74 +1519,8 @@ semimajor_axis_jupiter ! = 7.7857d13 ! jupiter semimajor axis (cm)
         Fi[0][1][1] = 0.0;
         
         Hr[0][0][0] = ( delta[1] / chiRho_HR[1] ) * ( 1.0 + ( dkap_dlnrho_face_HR[0] / opacity_HR[1] ) );
-        Hr[0][0][1] = delta[1] * ( -4.0 + ( dkap_dlnT_face_HR[0] / opacity_HR[1] ) - ( chiT_HR[1]/chiRho_HR[1] )*( 1.0 + ( dkap_dlnrho_face_HR[0] / opacity_HR[1] ) ) )   +   ( (delta[0]*temperature_HR[0]) + (delta[1]*temperature_HR[1]) )/( temperature_HR[1] - temperature_HR[0] );;
-        Hr[0][1][0] = (1.0/( m*m*omega*omega*R )) * (   (- pressure_HR[1] * ( (delta[0]/rho_HR[0]) + (delta[1]/rho_HR[1]) ))/( rmid_cm_HR[1] - rmid_cm_HR[0] )   +   ( delta[1] * grav_HR[1] / chiRho_HR[1] )   );
-        Hr[0][1][1] = - ( delta[1] * chiT_HR[1] * grav_HR[1] )/( m*m*omega*omega*R*chiRho_HR[1] );
-        
-        Hi[0][0][0] = 0.0;
-        Hi[0][0][1] = 0.0;
-        Hi[0][1][0] = 0.0;
-        Hi[0][1][1] = 0.0;
-        */
-        
-        
-        
-        
-        
-        
-        Ar[0][0][0] = - radius_cm_HR[0]*radius_cm_HR[0]*rho_face_HR[0] / ( rho_HR[1]*R*( radius_cm_HR[1] - radius_cm_HR[0] ) ); // - radius_cm_HR[0]*radius_cm_HR[0]*radius_cm_HR[0]*rho_face_HR[0] / ( rho_HR[1]*R*R*( radius_cm_HR[1] - radius_cm_HR[0] ) );
-        Ar[0][0][1] = 0;
-        Ar[0][1][0] = 0;
-        Ar[0][1][1] = - ( radius_cm_HR[0]*radius_cm_HR[0]*flux_BC )/( m*omega*rho_HR[1]*temperature_HR[1]*cp_HR[1]*R*R*( radius_cm_HR[1] - radius_cm_HR[0] ) ); // - ( radius_cm_HR[0]*radius_cm_HR[0]*flux_HR[0] )/( m*omega*rho_HR[1]*temperature_HR[1]*cp_HR[1]*R*R*( radius_cm_HR[1] - radius_cm_HR[0] ) );
-        
-        Ai[0][0][0] = 0.0;
-        Ai[0][0][1] = 0.0;
-        Ai[0][1][0] = 0.0; // ( brunt_A_HR[1]/( R ) ) * ( chiRho_HR[1] / chiT_HR[1] ) * 0.5 * radius_cm_HR[0]; // ( brunt_A_HR[1]/( R*R ) ) * ( chiRho_HR[1] / chiT_HR[1] ) * 0.5 * radius_cm_HR[0] * radius_cm_HR[0];
-        Ai[0][1][1] = 0.0;
-        
-        Cr[0][0][0] = radius_cm_HR[1]*radius_cm_HR[1]*rho_face_HR[1] / ( rho_HR[1]*R*( radius_cm_HR[1] - radius_cm_HR[0] ) ); // radius_cm_HR[1]*radius_cm_HR[1]*radius_cm_HR[1]*rho_face_HR[1] / ( rho_HR[1]*R*R*( radius_cm_HR[1] - radius_cm_HR[0] ) );
-        Cr[0][0][1] = 0.0;
-        Cr[0][1][0] = 0.0;
-        Cr[0][1][1] = ( radius_cm_HR[1]*radius_cm_HR[1]*flux_BC )/( m*omega*rho_HR[1]*temperature_HR[1]*cp_HR[1]*R*R*( radius_cm_HR[1] - radius_cm_HR[0] ) ); // ( radius_cm_HR[1]*radius_cm_HR[1]*flux_HR[1] )/( m*omega*rho_HR[1]*temperature_HR[1]*cp_HR[1]*R*R*( radius_cm_HR[1] - radius_cm_HR[0] ) );
-        
-        Ci[0][0][0] = 0.0;
-        Ci[0][0][1] = 0.0;
-        Ci[0][1][0] = 0.0; // ( brunt_A_HR[1]/( R ) ) * ( chiRho_HR[1] / chiT_HR[1] ) * 0.5 * radius_cm_HR[1]; // ( brunt_A_HR[1]/( R*R ) ) * ( chiRho_HR[1] / chiT_HR[1] ) * 0.5 * radius_cm_HR[1] * radius_cm_HR[1];
-        Ci[0][1][1] = 0.0;
-        
-        Dr[0][0][0] = ( rmid_cm_HR[1]*rmid_cm_HR[1] / ( chiRho_HR[1]*R*R ) )  -  ( (l*(l+1.0)*pressure_HR[1])/(m*m*omega*omega*R*R*rho_HR[1]) );
-        Dr[0][0][1] = - (chiT_HR[1] / chiRho_HR[1]) * ( rmid_cm_HR[1]*rmid_cm_HR[1] / (R*R) );
-        Dr[0][1][0] = 0.0;
-        Dr[0][1][1] = ( l * ( l + 1.0 ) * K_HR[1] )/( m * omega * rho_HR[1] * cp_HR[1] * R * R );
-        
-        Di[0][0][0] = 0.0;
-        Di[0][0][1] = 0.0;
-        Di[0][1][0] = 0.0; // - grada_HR[1] * rmid_cm_HR[1] * rmid_cm_HR[1] / ( R*R );
-        Di[0][1][1] = 0.0; // rmid_cm_HR[1] * rmid_cm_HR[1] / ( R * R );
-        
-        Er[0][0][0] = 0.0;
-        Er[0][0][1] = - flux_BC * ( rmid_cm_HR[1] - rmid_cm_HR[0] ) * ( (delta[0]/K_HR[0]) + (delta[1]/K_HR[1]) ) / ( temperature_HR[1] - temperature_HR[0] ); // - flux_HR[0] * ( rmid_cm_HR[1] - rmid_cm_HR[0] ) * ( (delta[0]/K_HR[0]) + (delta[1]/K_HR[1]) ) / ( temperature_HR[1] - temperature_HR[0] );
-        Er[0][1][0] = - 1.0; // - radius_cm_HR[0] / R;
-        Er[0][1][1] = 0.0;
-        
-        Ei[0][0][0] = 0.0;
-        Ei[0][0][1] = 0.0;
-        Ei[0][1][0] = 0.0;
-        Ei[0][1][1] = 0.0;
-        
-        Fr[0][0][0] = ( delta[0] / chiRho_HR[0] ) * ( 1.0 + ( dkap_dlnrho_face_HR[0] / opacity_HR[0] ) );
-        Fr[0][0][1] = delta[0] * ( -4.0 + ( dkap_dlnT_face_HR[0] / opacity_HR[0] ) - ( chiT_HR[0]/chiRho_HR[0] )*( 1.0 + ( dkap_dlnrho_face_HR[0] / opacity_HR[0] ) ) )   +   ( (delta[0]*temperature_HR[0]) + (delta[1]*temperature_HR[1]) )/( temperature_HR[1] - temperature_HR[0] );
-        Fr[0][1][0] = (1.0/( m*m*omega*omega*R )) * (   (- pressure_HR[0] * ( (delta[0]/rho_HR[0]) + (delta[1]/rho_HR[1]) ))/( rmid_cm_HR[1] - rmid_cm_HR[0] )   +   ( delta[0] * grav_HR[0] / chiRho_HR[0] )   );
-        Fr[0][1][1] = - ( delta[0] * chiT_HR[0] * grav_HR[0] )/( m*m*omega*omega*R*chiRho_HR[0] );
-        
-        Fi[0][0][0] = 0.0;
-        Fi[0][0][1] = 0.0;
-        Fi[0][1][0] = 0.0;
-        Fi[0][1][1] = 0.0;
-        
-        Hr[0][0][0] = ( delta[1] / chiRho_HR[1] ) * ( 1.0 + ( dkap_dlnrho_face_HR[0] / opacity_HR[1] ) );
-        Hr[0][0][1] = delta[1] * ( -4.0 + ( dkap_dlnT_face_HR[0] / opacity_HR[1] ) - ( chiT_HR[1]/chiRho_HR[1] )*( 1.0 + ( dkap_dlnrho_face_HR[0] / opacity_HR[1] ) ) )   +   ( (delta[0]*temperature_HR[0]) + (delta[1]*temperature_HR[1]) )/( temperature_HR[1] - temperature_HR[0] );;
-        Hr[0][1][0] = (1.0/( m*m*omega*omega*R )) * (   (- pressure_HR[1] * ( (delta[0]/rho_HR[0]) + (delta[1]/rho_HR[1]) ))/( rmid_cm_HR[1] - rmid_cm_HR[0] )   +   ( delta[1] * grav_HR[1] / chiRho_HR[1] )   );
+        Hr[0][0][1] = delta[1] * ( -4.0 + ( dkap_dlnT_face_HR[0] / opacity_HR[1] ) - ( chiT_HR[1]/chiRho_HR[1] )*( 1.0 + ( dkap_dlnrho_face_HR[0] / opacity_HR[1] ) ) )   -   ( (delta[0]*temperature_HR[0]) + (delta[1]*temperature_HR[1]) )/( temperature_HR[1] - temperature_HR[0] );
+        Hr[0][1][0] = (1.0/( m*m*omega*omega*R )) * (   ( pressure_HR[1] * ( (delta[0]/rho_HR[0]) + (delta[1]/rho_HR[1]) ))/( rmid_cm_HR[1] - rmid_cm_HR[0] )   +   ( delta[1] * grav_HR[1] / chiRho_HR[1] )   );
         Hr[0][1][1] = - ( delta[1] * chiT_HR[1] * grav_HR[1] )/( m*m*omega*omega*R*chiRho_HR[1] );
         
         Hi[0][0][0] = 0.0;
@@ -1533,17 +1533,17 @@ semimajor_axis_jupiter ! = 7.7857d13 ! jupiter semimajor axis (cm)
         
         
         
-        a[0] = sin(10.0*(radius_cm_HR[0]/R)*(radius_cm_HR[0]/R));
-        a[1] = sin(10.0*(radius_cm_HR[1]/R)*(radius_cm_HR[1]/R));
+        a[0] = sinh(4.0*(radius_cm_HR[0]/R))*sin(sinh(4.0*(radius_cm_HR[0]/R))) + 0.01*sin(1.0/(0.00001+(radius_cm_HR[0]/R)));
+        a[1] = sinh(4.0*(radius_cm_HR[1]/R))*sin(sinh(4.0*(radius_cm_HR[1]/R))) + 0.01*sin(1.0/(0.00001+(radius_cm_HR[1]/R)));
         
         b[0] = (radius_cm_HR[0]/R)*sinh(radius_cm_HR[0]/R);
         b[1] = (radius_cm_HR[1]/R)*sinh(radius_cm_HR[1]/R);
         
-        c[0] = 200.0 - 300.0*radius_cm_HR[0]/R;
-        c[1] = 200.0 - 300.0*radius_cm_HR[1]/R;
+        c[0] = 200.0 - 300.0*rmid_cm_HR[0]/R;
+        c[1] = 200.0 - 300.0*rmid_cm_HR[1]/R;
         
-        d[0] = 10.0 - 9.0*radius_cm_HR[0]/R;
-        d[1] = 10.0 - 9.0*radius_cm_HR[1]/R;
+        d[0] = 10.0 - 9.0*rmid_cm_HR[0]/R;
+        d[1] = 10.0 - 9.0*rmid_cm_HR[1]/R;
 
         
         
@@ -1590,7 +1590,6 @@ semimajor_axis_jupiter ! = 7.7857d13 ! jupiter semimajor axis (cm)
         
         Nr[0][0][0] = Er[0][0][0]*a[0] + Er[0][0][1]*b[0] + Fr[0][0][0]*c[0] + Fr[0][0][1]*d[0] + Hr[0][0][0]*c[1] + Hr[0][0][1]*d[1];  // 0.0;
         Nr[0][1][0] = Er[0][1][0]*a[0] + Er[0][1][1]*b[0] + Fr[0][1][0]*c[0] + Fr[0][1][1]*d[0] + Hr[0][1][0]*c[1] + Hr[0][1][1]*d[1];  // - 2.0 * f * radius_cm_HR[0] / ( m*m*omega*omega*R );
-        
         
         Ni[0][0][0] = Ei[0][0][0]*a[0] + Ei[0][0][1]*b[0] + Fi[0][0][0]*c[0] + Fi[0][0][1]*d[0] + Hi[0][0][0]*c[1] + Hi[0][0][1]*d[1];  // 0.0;
         Ni[0][1][0] = Ei[0][1][0]*a[0] + Ei[0][1][1]*b[0] + Fi[0][1][0]*c[0] + Fi[0][1][1]*d[0] + Hi[0][1][0]*c[1] + Hi[0][1][1]*d[1];  // 0.0;
@@ -1786,7 +1785,7 @@ semimajor_axis_jupiter ! = 7.7857d13 ! jupiter semimajor axis (cm)
             
             
             
-            // Option 2
+            // Option 2  -- NB: I'm currently suspicious of these
             /*
              etar[0][0][0] = 0.5 * dp_dr_BC * radius_cm_HR[0] / pressure_HR[1];
              etar[0][0][1] = 0.0;
@@ -3480,8 +3479,8 @@ semimajor_axis_jupiter ! = 7.7857d13 ! jupiter semimajor axis (cm)
          22- checking alpha and gamma - c
          23- checking alpha and gamma - d
          24- rmid_cm
-         25- xi  (that is, a * r)
-         26- F' (b * flux)
+         25- xi  (that is, a * R)
+         26- F' (b * flux_BC)
          27- p' (c * pressure)
          28- T' (d * temperature)
          */
