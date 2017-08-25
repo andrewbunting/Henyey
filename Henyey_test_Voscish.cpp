@@ -322,14 +322,14 @@ semimajor_axis_jupiter ! = 7.7857d13 ! jupiter semimajor axis (cm)
     
     flux_BC = flux[J-1];
 
-    prop = 50.0;
+    prop = 0.000;
 
     G = 6.67428e-8;
 
     mp = 1.0; // Planetary mass in terms of Jupiter masses
     mp = 1.8986e30 * mp; // converted into g
 
-    D = 0.0512; // Orbital radius of planet in AU
+    D = 0.0512; // Orbital radius of planet in AU, 1.58740105197 = 4^(1/3), which acts to double the period of the orbit
     D = 1.495978921e13 * D; // Converted into cm
 
     f = -(G * mp) / (4.0 * D * D * D);
@@ -1475,7 +1475,7 @@ semimajor_axis_jupiter ! = 7.7857d13 ! jupiter semimajor axis (cm)
         
         Ai[0][0][0] = 0.0;
         Ai[0][0][1] = 0.0;
-        Ai[0][1][0] = 0.0; // ( brunt_A_HR[1]/( R ) ) * ( chiRho_HR[1] / chiT_HR[1] ) * 0.5 * radius_cm_HR[0]; // ( brunt_A_HR[1]/( R*R ) ) * ( chiRho_HR[1] / chiT_HR[1] ) * 0.5 * radius_cm_HR[0] * radius_cm_HR[0];
+        Ai[0][1][0] = ( brunt_A_HR[1]/( R ) ) * ( chiRho_HR[1] / chiT_HR[1] ) * 0.5 * radius_cm_HR[0]; // ( brunt_A_HR[1]/( R*R ) ) * ( chiRho_HR[1] / chiT_HR[1] ) * 0.5 * radius_cm_HR[0] * radius_cm_HR[0];
         Ai[0][1][1] = 0.0;
         
         Cr[0][0][0] = radius_cm_HR[1]*radius_cm_HR[1]*rho_face_HR[1] / ( rho_HR[1]*R*( radius_cm_HR[1] - radius_cm_HR[0] ) ); // radius_cm_HR[1]*radius_cm_HR[1]*radius_cm_HR[1]*rho_face_HR[1] / ( rho_HR[1]*R*R*( radius_cm_HR[1] - radius_cm_HR[0] ) );
@@ -1485,7 +1485,7 @@ semimajor_axis_jupiter ! = 7.7857d13 ! jupiter semimajor axis (cm)
         
         Ci[0][0][0] = 0.0;
         Ci[0][0][1] = 0.0;
-        Ci[0][1][0] = 0.0; // ( brunt_A_HR[1]/( R ) ) * ( chiRho_HR[1] / chiT_HR[1] ) * 0.5 * radius_cm_HR[1]; // ( brunt_A_HR[1]/( R*R ) ) * ( chiRho_HR[1] / chiT_HR[1] ) * 0.5 * radius_cm_HR[1] * radius_cm_HR[1];
+        Ci[0][1][0] = ( brunt_A_HR[1]/( R ) ) * ( chiRho_HR[1] / chiT_HR[1] ) * 0.5 * radius_cm_HR[1]; // ( brunt_A_HR[1]/( R*R ) ) * ( chiRho_HR[1] / chiT_HR[1] ) * 0.5 * radius_cm_HR[1] * radius_cm_HR[1];
         Ci[0][1][1] = 0.0;
         
         Dr[0][0][0] = ( rmid_cm_HR[1]*rmid_cm_HR[1] / ( chiRho_HR[1]*R*R ) )  -  ( (l*(l+1.0)*pressure_HR[1])/(m*m*omega*omega*R*R*rho_HR[1]) );
@@ -1495,8 +1495,8 @@ semimajor_axis_jupiter ! = 7.7857d13 ! jupiter semimajor axis (cm)
         
         Di[0][0][0] = 0.0;
         Di[0][0][1] = 0.0;
-        Di[0][1][0] = 0.0; // - grada_HR[1] * rmid_cm_HR[1] * rmid_cm_HR[1] / ( R*R );
-        Di[0][1][1] = 0.0; // rmid_cm_HR[1] * rmid_cm_HR[1] / ( R * R );
+        Di[0][1][0] = - grada_HR[1] * rmid_cm_HR[1] * rmid_cm_HR[1] / ( R*R );
+        Di[0][1][1] = rmid_cm_HR[1] * rmid_cm_HR[1] / ( R * R );
         
         Er[0][0][0] = 0.0;
         Er[0][0][1] = - flux_BC * ( rmid_cm_HR[1] - rmid_cm_HR[0] ) * ( (delta[0]/K_HR[0]) + (delta[1]/K_HR[1]) ) / ( temperature_HR[1] - temperature_HR[0] ); // - flux_HR[0] * ( rmid_cm_HR[1] - rmid_cm_HR[0] ) * ( (delta[0]/K_HR[0]) + (delta[1]/K_HR[1]) ) / ( temperature_HR[1] - temperature_HR[0] );
@@ -1580,19 +1580,40 @@ semimajor_axis_jupiter ! = 7.7857d13 ! jupiter semimajor axis (cm)
         */
         
         
+        /*
+        Mr[0][0][0] = ( ( ( l*(l+1.0)*rmid_cm_HR[1]*rmid_cm_HR[1]*f )/( m*m*omega*omega*R*R ) ) )*( 1.0 + prop*sin(radius_cm_HR[0]*rmid_cm_HR[1]*rho_HR[0]*pressure_HR[1])); // Ar[0][0][0]*a[0] + Ar[0][0][1]*b[0] + Cr[0][0][0]*a[1] + Cr[0][0][1]*b[1] + Dr[0][0][0]*c[1] + Dr[0][0][1]*d[1];  // ( ( l*(l+1.0)*rmid_cm_HR[1]*rmid_cm_HR[1]*f )/( m*m*omega*omega*R*R ) );
+        Mr[0][1][0] = 0.0; // Ar[0][1][0]*a[0] + Ar[0][1][1]*b[0] + Cr[0][1][0]*a[1] + Cr[0][1][1]*b[1] + Dr[0][1][0]*c[1] + Dr[0][1][1]*d[1];  // 0.0;
         
-        Mr[0][0][0] = Ar[0][0][0]*a[0] + Ar[0][0][1]*b[0] + Cr[0][0][0]*a[1] + Cr[0][0][1]*b[1] + Dr[0][0][0]*c[1] + Dr[0][0][1]*d[1];  // ( ( l*(l+1.0)*rmid_cm_HR[1]*rmid_cm_HR[1]*f )/( m*m*omega*omega*R*R ) );
-        Mr[0][1][0] = Ar[0][1][0]*a[0] + Ar[0][1][1]*b[0] + Cr[0][1][0]*a[1] + Cr[0][1][1]*b[1] + Dr[0][1][0]*c[1] + Dr[0][1][1]*d[1];  // 0.0;
-        
-        Mi[0][0][0] = Ai[0][0][0]*a[0] + Ai[0][0][1]*b[0] + Ci[0][0][0]*a[1] + Ci[0][0][1]*b[1] + Di[0][0][0]*c[1] + Di[0][0][1]*d[1];  // 0.0;
-        Mi[0][1][0] = Ai[0][1][0]*a[0] + Ai[0][1][1]*b[0] + Ci[0][1][0]*a[1] + Ci[0][1][1]*b[1] + Di[0][1][0]*c[1] + Di[0][1][1]*d[1];  // 0.0;
+        Mi[0][0][0] = 0.0; // Ai[0][0][0]*a[0] + Ai[0][0][1]*b[0] + Ci[0][0][0]*a[1] + Ci[0][0][1]*b[1] + Di[0][0][0]*c[1] + Di[0][0][1]*d[1];  // 0.0;
+        Mi[0][1][0] = 0.0; // Ai[0][1][0]*a[0] + Ai[0][1][1]*b[0] + Ci[0][1][0]*a[1] + Ci[0][1][1]*b[1] + Di[0][1][0]*c[1] + Di[0][1][1]*d[1];  // 0.0;
         
         
-        Nr[0][0][0] = Er[0][0][0]*a[0] + Er[0][0][1]*b[0] + Fr[0][0][0]*c[0] + Fr[0][0][1]*d[0] + Hr[0][0][0]*c[1] + Hr[0][0][1]*d[1];  // 0.0;
-        Nr[0][1][0] = Er[0][1][0]*a[0] + Er[0][1][1]*b[0] + Fr[0][1][0]*c[0] + Fr[0][1][1]*d[0] + Hr[0][1][0]*c[1] + Hr[0][1][1]*d[1];  // - 2.0 * f * radius_cm_HR[0] / ( m*m*omega*omega*R );
+        Nr[0][0][0] = 0.0; // Er[0][0][0]*a[0] + Er[0][0][1]*b[0] + Fr[0][0][0]*c[0] + Fr[0][0][1]*d[0] + Hr[0][0][0]*c[1] + Hr[0][0][1]*d[1];  // 0.0;
+        Nr[0][1][0] = ( - 2.0 * f * radius_cm_HR[0] / ( m*m*omega*omega*R ) ) * ( 1.0 + prop*sin(temperature_HR[1]*rho_HR[0]*radius_cm_HR[0]*temperature_HR[0]*rho_HR[1])); // Er[0][1][0]*a[0] + Er[0][1][1]*b[0] + Fr[0][1][0]*c[0] + Fr[0][1][1]*d[0] + Hr[0][1][0]*c[1] + Hr[0][1][1]*d[1];  // - 2.0 * f * radius_cm_HR[0] / ( m*m*omega*omega*R );
         
-        Ni[0][0][0] = Ei[0][0][0]*a[0] + Ei[0][0][1]*b[0] + Fi[0][0][0]*c[0] + Fi[0][0][1]*d[0] + Hi[0][0][0]*c[1] + Hi[0][0][1]*d[1];  // 0.0;
-        Ni[0][1][0] = Ei[0][1][0]*a[0] + Ei[0][1][1]*b[0] + Fi[0][1][0]*c[0] + Fi[0][1][1]*d[0] + Hi[0][1][0]*c[1] + Hi[0][1][1]*d[1];  // 0.0;
+        Ni[0][0][0] = 0.0; // Ei[0][0][0]*a[0] + Ei[0][0][1]*b[0] + Fi[0][0][0]*c[0] + Fi[0][0][1]*d[0] + Hi[0][0][0]*c[1] + Hi[0][0][1]*d[1];  // 0.0;
+        Ni[0][1][0] = 0.0; // Ei[0][1][0]*a[0] + Ei[0][1][1]*b[0] + Fi[0][1][0]*c[0] + Fi[0][1][1]*d[0] + Hi[0][1][0]*c[1] + Hi[0][1][1]*d[1];  // 0.0;
+        */
+        
+        
+        
+        
+        
+        Mr[0][0][0] = ( ( ( l*(l+1.0)*rmid_cm_HR[1]*rmid_cm_HR[1]*f )/( m*m*omega*omega*R*R ) ) )*( 1.0 + prop*sin(radius_cm_HR[0]*rmid_cm_HR[1]*rho_HR[0]*pressure_HR[1])); // Ar[0][0][0]*a[0] + Ar[0][0][1]*b[0] + Cr[0][0][0]*a[1] + Cr[0][0][1]*b[1] + Dr[0][0][0]*c[1] + Dr[0][0][1]*d[1];  // ( ( l*(l+1.0)*rmid_cm_HR[1]*rmid_cm_HR[1]*f )/( m*m*omega*omega*R*R ) );
+        Mr[0][1][0] = 0.0; // Ar[0][1][0]*a[0] + Ar[0][1][1]*b[0] + Cr[0][1][0]*a[1] + Cr[0][1][1]*b[1] + Dr[0][1][0]*c[1] + Dr[0][1][1]*d[1];  // 0.0;
+        
+        Mi[0][0][0] = 0.0; // Ai[0][0][0]*a[0] + Ai[0][0][1]*b[0] + Ci[0][0][0]*a[1] + Ci[0][0][1]*b[1] + Di[0][0][0]*c[1] + Di[0][0][1]*d[1];  // 0.0;
+        Mi[0][1][0] = 0.0; // Ai[0][1][0]*a[0] + Ai[0][1][1]*b[0] + Ci[0][1][0]*a[1] + Ci[0][1][1]*b[1] + Di[0][1][0]*c[1] + Di[0][1][1]*d[1];  // 0.0;
+        
+        
+        Nr[0][0][0] = 0.0; // Er[0][0][0]*a[0] + Er[0][0][1]*b[0] + Fr[0][0][0]*c[0] + Fr[0][0][1]*d[0] + Hr[0][0][0]*c[1] + Hr[0][0][1]*d[1];  // 0.0;
+        Nr[0][1][0] = ( - 2.0 * f * radius_cm_HR[0] / ( m*m*omega*omega*R ) ) * ( 1.0 + prop*sin(temperature_HR[1]*rho_HR[0]*radius_cm_HR[0]*temperature_HR[0]*rho_HR[1])); // Er[0][1][0]*a[0] + Er[0][1][1]*b[0] + Fr[0][1][0]*c[0] + Fr[0][1][1]*d[0] + Hr[0][1][0]*c[1] + Hr[0][1][1]*d[1];  // - 2.0 * f * radius_cm_HR[0] / ( m*m*omega*omega*R );
+        
+        Ni[0][0][0] = 0.0; // Ei[0][0][0]*a[0] + Ei[0][0][1]*b[0] + Fi[0][0][0]*c[0] + Fi[0][0][1]*d[0] + Hi[0][0][0]*c[1] + Hi[0][0][1]*d[1];  // 0.0;
+        Ni[0][1][0] = 0.0; // Ei[0][1][0]*a[0] + Ei[0][1][1]*b[0] + Fi[0][1][0]*c[0] + Fi[0][1][1]*d[0] + Hi[0][1][0]*c[1] + Hi[0][1][1]*d[1];  // 0.0;
+        
+        
+        
         
         
         
@@ -1903,11 +1924,11 @@ semimajor_axis_jupiter ! = 7.7857d13 ! jupiter semimajor axis (cm)
             xi[0][1][0] = 0.0;
             */
             
-            xr[0][0][0] = etar[0][0][0]*a[0] + etar[0][0][1]*b[0] + mur[0][0][0]*a[1] + mur[0][0][1]*b[1] + nur[0][0][0]*c[1] + nur[0][0][1]*d[1];  // 0.0;
-            xr[0][1][0] = etar[0][1][0]*a[0] + etar[0][1][1]*b[0] + mur[0][1][0]*a[1] + mur[0][1][1]*b[1] + nur[0][1][0]*c[1] + nur[0][1][1]*d[1];  // 0.0;
+            xr[0][0][0] = 0.0; // etar[0][0][0]*a[0] + etar[0][0][1]*b[0] + mur[0][0][0]*a[1] + mur[0][0][1]*b[1] + nur[0][0][0]*c[1] + nur[0][0][1]*d[1];  // 0.0;
+            xr[0][1][0] = 0.0; // etar[0][1][0]*a[0] + etar[0][1][1]*b[0] + mur[0][1][0]*a[1] + mur[0][1][1]*b[1] + nur[0][1][0]*c[1] + nur[0][1][1]*d[1];  // 0.0;
             
-            xi[0][0][0] = etai[0][0][0]*a[0] + etai[0][0][1]*b[0] + mui[0][0][0]*a[1] + mui[0][0][1]*b[1] + nui[0][0][0]*c[1] + nui[0][0][1]*d[1];  // 0.0;
-            xi[0][1][0] = etai[0][1][0]*a[0] + etai[0][1][1]*b[0] + mui[0][1][0]*a[1] + mui[0][1][1]*b[1] + nui[0][1][0]*c[1] + nui[0][1][1]*d[1];  // 0.0;
+            xi[0][0][0] = 0.0; // etai[0][0][0]*a[0] + etai[0][0][1]*b[0] + mui[0][0][0]*a[1] + mui[0][0][1]*b[1] + nui[0][0][0]*c[1] + nui[0][0][1]*d[1];  // 0.0;
+            xi[0][1][0] = 0.0; // etai[0][1][0]*a[0] + etai[0][1][1]*b[0] + mui[0][1][0]*a[1] + mui[0][1][1]*b[1] + nui[0][1][0]*c[1] + nui[0][1][1]*d[1];  // 0.0;
             
             
         
@@ -3483,11 +3504,12 @@ semimajor_axis_jupiter ! = 7.7857d13 ! jupiter semimajor axis (cm)
          26- F' (b * flux_BC)
          27- p' (c * pressure)
          28- T' (d * temperature)
+         29- m * omega * xi_r in units given in Terquem, 1998 (figure 1): ( mp / (mp + Mstar) ) m/s
          */
         
         
         
-        outfile << radius_cm_HR_output[k]/R << "\t\t\t" << ur[k][0][0] << "\t\t" << ur[k][1][0] << "\t\t" << vr[k][0][0] << "\t\t" << vr[k][1][0] << "\t\t" << alphar[k][0][0] << "\t" << alphar[k][0][1] << "\t" << alphar[k][1][0] << "\t" << alphar[k][1][1] << "\t" << alphai[k][0][0] << "\t" << alphai[k][0][1] << "\t" << alphai[k][1][0] << "\t" << alphai[k][1][1] << "\t" << gammar[k][0][0] << "\t" << gammar[k][1][0] << "\t" << gammai[k][0][0] << "\t" << gammai[k][1][0] <<  "\t" << ur[k][0][0]*radius_cm_HR_output[k]*(1.0/100.0)*m*omega*((mp + Mstar)/(mp)) << "\t" << test[k] << "\t" << test[k] << "\t" << test[k] << "\t" << test[k] << "\t" << test[k] << "\t" << rmid_cm_HR_output[k]/R << "\t\t\t" << R*ur[k][0][0] << "\t\t" << flux_BC*ur[k][1][0] << "\t\t" << pressure_HR_output[k]*vr[k][0][0] << "\t\t" << temperature_HR_output[k]*vr[k][1][0] << "\n";
+        outfile << radius_cm_HR_output[k]/R << "\t\t\t" << ur[k][0][0] << "\t\t" << ur[k][1][0] << "\t\t" << vr[k][0][0] << "\t\t" << vr[k][1][0] << "\t\t" << alphar[k][0][0] << "\t" << alphar[k][0][1] << "\t" << alphar[k][1][0] << "\t" << alphar[k][1][1] << "\t" << alphai[k][0][0] << "\t" << alphai[k][0][1] << "\t" << alphai[k][1][0] << "\t" << alphai[k][1][1] << "\t" << gammar[k][0][0] << "\t" << gammar[k][1][0] << "\t" << gammai[k][0][0] << "\t" << gammai[k][1][0] <<  "\t" << ur[k][0][0]*radius_cm_HR_output[k]*(1.0/100.0)*m*omega*((mp + Mstar)/(mp)) << "\t" << test[k] << "\t" << test[k] << "\t" << test[k] << "\t" << test[k] << "\t" << test[k] << "\t" << rmid_cm_HR_output[k]/R << "\t\t\t" << R*ur[k][0][0] << "\t\t" << flux_BC*ur[k][1][0] << "\t\t" << pressure_HR_output[k]*vr[k][0][0] << "\t\t" << temperature_HR_output[k]*vr[k][1][0] << "\t\t\t" << R*ur[k][0][0]*m*omega*(mp + Mstar)/(100.0*mp) << "\n";
 
 
     }
