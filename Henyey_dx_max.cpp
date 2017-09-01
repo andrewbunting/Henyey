@@ -91,7 +91,7 @@ int main()
     
 
     
-    J = no_of_lines; // +1 is due to the centre-most cell being added in manually to get as close to x=0 as we can
+    J = no_of_lines;
     
     
     
@@ -442,16 +442,21 @@ semimajor_axis_jupiter ! = 7.7857d13 ! jupiter semimajor axis (cm)
     
     count = 0;
     
-    dx_max = 0.00007;
+    dx_max = 0.0001;
     
     
     
     
     // This sums over the extra cells needed to achieve at least the minimum resolution, given by the maximum cell size: dx_max
+    // It only goes up to k < Jold - 2 because we don't want to split the final cell, that is the cell from radius_cm[Jold-2] to radius_cm[Jold-1]
     
-    for (k=0; k < Jold-1; k = k + 1) {
+    for (k=1; k < Jold-1; k = k + 1) {
         
-        count = count + ((radius_cm[k+1] - radius_cm[k])/R)/dx_max;
+        count = count + ((radius_cm[k] - radius_cm[k-1])/(R*dx_max));
+        
+        N = ((radius_cm[k] - radius_cm[k-1])/(R*dx_max));
+        
+        //cout << "At k = " << k << ", N = " << N << "\n";
       
         
     }
@@ -717,8 +722,7 @@ semimajor_axis_jupiter ! = 7.7857d13 ! jupiter semimajor axis (cm)
 
 
 
-    // This initialises k
-    k = 0;
+
     
     // This initialises all of the array_HR variables (as the k=0 case is unaltered)
     radius_cm_HR_output[0] = radius_cm[0];
@@ -752,15 +756,20 @@ semimajor_axis_jupiter ! = 7.7857d13 ! jupiter semimajor axis (cm)
     
     for (k=0; k < J-1; k=k+1) {
         
-        
+        kold = 0;
         
         if (k == 0) {
             kold = 0;
         } else {
             
-            // This finds what kold is for this loop, by going to the point where radius_cm[kold] has first exceeded r equalled radius_cm_HR_output[k]
-            for (kold = 0; radius_cm[kold] > radius_cm_HR_output[k-1]; kold = kold + 1) {
-                // This is empty as we only want to do the counting and testing bits
+            sum = 1;
+
+            
+            // This finds what kold is for this loop, by going to the point where radius_cm[kold] has first exceeded radius_cm_HR_output[k-1]
+            for (kold = 0; sum <= k; kold = kold + 1) {
+
+                sum = sum + 1 + ( (radius_cm[kold] - radius_cm[kold-1])/(R*dx_max) );
+                
             }
             
         }
@@ -782,7 +791,7 @@ semimajor_axis_jupiter ! = 7.7857d13 ! jupiter semimajor axis (cm)
         
         
         
-            // These give the variables at the surface of the cell as: q[k] = delta[0]*q0[kold] + delta[1]*q0[kold+1]
+            // These give the variables at the surface of the cell as: q[k] = delta[0]*q0[kold-1] + delta[1]*q0[kold]
             if (N == 0) {
                 delta[0] = 0.0;
                 delta[1] = 1.0;
@@ -792,12 +801,12 @@ semimajor_axis_jupiter ! = 7.7857d13 ! jupiter semimajor axis (cm)
                 // We now need to calculate where we are in the cell, using the last interpolation point and the known value of N
                 
                 // We use the fact that the fractional distance through the cell of the last known point is: ( ( radius_cm_HR_output[k-1] - radius_cm[kold - 1] )/( radius_cm[kold] radius_cm[kold-1] ) )
-                // and the fractional step size within the cell is 1.0/N_doub
+                // and the fractional step size within the cell is 1.0/(N_doub+1.0)
                 // so we just increase the distance through the cell by that step
                 
                 
-                delta[0] = 1.0 - (radius_cm_HR_output[k-1] - radius_cm[kold-1])/(radius_cm[kold] - radius_cm[kold-1]) - (1.0/N_doub);
-                delta[1] = (radius_cm_HR_output[k-1] - radius_cm[kold-1])/(radius_cm[kold] - radius_cm[kold-1]) + (1.0/N_doub);
+                delta[0] = 1.0 - (radius_cm_HR_output[k-1] - radius_cm[kold-1])/(radius_cm[kold] - radius_cm[kold-1]) - (1.0/(N_doub+1.0));
+                delta[1] = (radius_cm_HR_output[k-1] - radius_cm[kold-1])/(radius_cm[kold] - radius_cm[kold-1]) + (1.0/(N_doub+1.0));
             }
             
             // This prevents issues with calling the -1st element of an array when kold == 0
@@ -889,17 +898,216 @@ semimajor_axis_jupiter ! = 7.7857d13 ! jupiter semimajor axis (cm)
                 chiT_HR[0] = delta[0]*chiT[kold-1] + delta[1]*chiT[kold] + delta[2]*chiT[kold+1];
                 grada_HR[0] = delta[0]*grada[kold-1] + delta[1]*grada[kold] + delta[2]*grada[kold+1];
                 brunt_A_HR[0] = delta[0]*brunt_A[kold-1] + delta[1]*brunt_A[kold] + delta[2]*brunt_A[kold+1];
-
                 
-                
+  
             
+        }
+        
+        
+        
+        
+        //cout << "radius_cm_HR_output[k]/R = " << radius_cm_HR_output[k]/R << "     rmid_cm_HR_output[k]/R = " << rmid_cm_HR_output[k]/R << "     kold = " << kold << "    k = " << k << "\n";
+        
+        
+        
+        
+        
+        
+        //
+        //
+        //
+        // Here the variables are defined for k+1, for which we will use i=k+1
+        //
+        //
+        //
+        
+        i=k+1;
+        
+        
+        
+        if (i == 0) {
+            kold = 0;
+        } else {
+            if ( i == J-1) {
+                cout << "Flag i == J-1\n";
+                kold = Jold - 1;
+            } else {
+                
+                sum = 1;
+                
+                // This finds what kold is for this loop
+                // sum = the total number of cells required to describe everything up to kold
+                for (kold = 0; sum <= i; kold = kold + 1) {
+                    
+                    sum = sum + 1 + ( (radius_cm[kold] - radius_cm[kold-1])/(R*dx_max) );
+                    
+                }
+                
+            }
+            
+        }
+        
+        
+        
+        // This sets the number of extra cells being added to each original cell, with both the innermost and outermost cells being left alone
+        if (kold == 0 || kold == Jold - 1 ) {
+            N = 0;
+        } else {
+            N = ( radius_cm[kold] - radius_cm[kold-1] ) / ( R * dx_max );
+        }
+        
+        
+        
+        N_doub = (double) (N);
+        
+        
+        
+        
+        
+        
+        // These give the variables at the surface of the cell as: q[i] = delta[0]*q0[kold] + delta[1]*q0[kold+1]
+        if (N == 0) {
+            delta[0] = 0.0;
+            delta[1] = 1.0;
+            
+        } else {
+            
+            // We now need to calculate where we are in the cell, using the last interpolation point and the known value of N
+            
+            // We use the fact that the fractional distance through the cell of the last known point is: ( ( radius_cm_HR_output[k-1] - radius_cm[kold - 1] )/( radius_cm[kold] radius_cm[kold-1] ) )
+            // and the fractional step size within the cell is 1.0/(N_doub+1.0)
+            // so we just increase the distance through the cell by that step
+            
+            
+            delta[0] = 1.0 - (radius_cm_HR_output[i-1] - radius_cm[kold-1])/(radius_cm[kold] - radius_cm[kold-1]) - (1.0/(N_doub+1.0));
+            delta[1] = (radius_cm_HR_output[i-1] - radius_cm[kold-1])/(radius_cm[kold] - radius_cm[kold-1]) + (1.0/(N_doub+1.0));
+        }
+        
+        // This prevents issues with calling the -1st element of an array when kold == 0
+        if (kold == 0 || kold == J-1) {
+            
+            radius_cm_HR_output[i] = delta[1]*radius_cm[kold];
+            
+            radius_cm_HR[1] = delta[1]*radius_cm[kold];
+            flux_HR[1] = delta[1]*flux[kold];
+            dkap_dlnrho_face_HR[1] = delta[1]*dkap_dlnrho_face[kold];
+            dkap_dlnT_face_HR[1] = delta[1]*dkap_dlnT_face[kold];
+            opacity_HR[1] = delta[1]*opacity[kold];
+            rho_face_HR[1] = delta[1]*rho_face[kold];
+            
+            
+        } else {
+            
+            radius_cm_HR_output[i] = delta[0]*radius_cm[kold-1] + delta[1]*radius_cm[kold];
+            
+            radius_cm_HR[1] = delta[0]*radius_cm[kold-1] + delta[1]*radius_cm[kold];
+            flux_HR[1] = delta[0]*flux[kold-1] + delta[1]*flux[kold];
+            dkap_dlnrho_face_HR[1] = delta[0]*dkap_dlnrho_face[kold-1] + delta[1]*dkap_dlnrho_face[kold];
+            dkap_dlnT_face_HR[1] = delta[0]*dkap_dlnT_face[kold-1] + delta[1]*dkap_dlnT_face[kold];
+            opacity_HR[1] = delta[0]*opacity[kold-1] + delta[1]*opacity[kold];
+            rho_face_HR[1] = delta[0]*rho_face[kold-1] + delta[1]*rho_face[kold];
+            
+        }
+        
+        
+        
+        // This gets rmid_cm_HR_output, which will be used to determine exactly how to interpolate for the variables at the cell centres
+        if (i==0) {
+            rmid_cm_HR_output[i] = rmid_cm[0];
+        } else {
+            rmid_cm_HR_output[i] = 0.5*(radius_cm_HR_output[i] + radius_cm_HR_output[i-1]);
+        }
+        
+        
+        
+        
+        
+        // These give the variables at the centre of the cell as: p[i] = delta[0]*p0[kold-1] + delta[1]*p0[kold] + delta[2]*p0[kold+1]
+        if (N == 0 || kold == J-1) {
+            
+            // Here the cell-central variables are defined for the case where no further cell-division is needed (including the innermost and outermost cells as exceptions to the rule (set as N = 0))
+            
+            //cout << "Flag N == 0 case\n";
+            
+            //cout << "kold = " << kold << "   rmid_cm[kold]/R = " << rmid_cm[kold]/R << "\n";
+            
+            rmid_cm_HR[1] = rmid_cm[kold];
+            lnRho_HR[1] = lnRho[kold];
+            rho_HR[1] = rho[kold];
+            cp_HR[1] = cp[kold];
+            temperature_HR[1] = temperature[kold];
+            lnT_HR[1] = lnT[kold];
+            pressure_HR[1] = pressure[kold];
+            grav_HR[1] = grav[kold];
+            K_HR[1] = K[kold];
+            chiRho_HR[1] = chiRho[kold];
+            chiT_HR[1] = chiT[kold];
+            grada_HR[1] = grada[kold];
+            brunt_A_HR[1] = brunt_A[kold];
+            
+            
+            
+        } else {
+            
+            //cout << "Flag N =/= 0 case\n";
+            
+            //cout << "Flag with information: Jold=" << Jold << "   J=" << J << "   k=" << k << "   i=" << i << "   radius_cm_HR_output[k]/R=" << radius_cm_HR_output[k]/R << "   kold=" << kold << "\n";
+            
+            if (rmid_cm_HR_output[i] <= rmid_cm[kold]) {
+                
+                //cout << "Flag if case, rmid_cm[kold]/R = " << rmid_cm[kold]/R << "\n";
+                
+                delta[0] = 1.0 - ( ( rmid_cm_HR_output[i] - rmid_cm[kold-1] )/( rmid_cm[kold] - rmid_cm[kold-1] ) );
+                delta[1] = ( ( rmid_cm_HR_output[i] - rmid_cm[kold-1] )/( rmid_cm[kold] - rmid_cm[kold-1] ) );
+                delta[2] = 0.0;
+                
+            } else {
+                
+                //cout << "Flag else case, rmid_cm[kold]/R = " << rmid_cm[kold]/R << "\n";
+                
+                delta[0] = 0.0;
+                delta[1] = 1.0 - ( ( rmid_cm_HR_output[i] - rmid_cm[kold] )/( rmid_cm[kold+1] - rmid_cm[kold] ) );
+                delta[2] = ( ( rmid_cm_HR_output[i] - rmid_cm[kold] )/( rmid_cm[kold+1] - rmid_cm[kold] ) );
+                
+            }
+            
+            // Here the cell-central variables are actually defined
+            
+            //cout << "Flag pre-definition\n";
+            
+            //cout << "kold = " << kold << "   rmid_cm[kold]/R = " << rmid_cm[kold]/R << "\n";
+            
+            rmid_cm_HR[1] = delta[0]*rmid_cm[kold-1] + delta[1]*rmid_cm[kold] + delta[2]*rmid_cm[kold+1];
+            lnRho_HR[1] = delta[0]*lnRho[kold-1] + delta[1]*lnRho[kold] + delta[2]*lnRho[kold+1];
+            rho_HR[1] = delta[0]*rho[kold-1] + delta[1]*rho[kold] + delta[2]*rho[kold+1];
+            cp_HR[1] = delta[0]*cp[kold-1] + delta[1]*cp[kold] + delta[2]*cp[kold+1];
+            temperature_HR[1] = delta[0]*temperature[kold-1] + delta[1]*temperature[kold] + delta[2]*temperature[kold+1];
+            lnT_HR[1] = delta[0]*lnT[kold-1] + delta[1]*lnT[kold] + delta[2]*lnT[kold+1];
+            pressure_HR[1] = delta[0]*pressure[kold-1] + delta[1]*pressure[kold] + delta[2]*pressure[kold+1];
+            grav_HR[1] = delta[0]*grav[kold-1] + delta[1]*grav[kold] + delta[2]*grav[kold+1];
+            K_HR[1] = delta[0]*K[kold-1] + delta[1]*K[kold] + delta[2]*K[kold+1];
+            chiRho_HR[1] = delta[0]*chiRho[kold-1] + delta[1]*chiRho[kold] + delta[2]*chiRho[kold+1];
+            chiT_HR[1] = delta[0]*chiT[kold-1] + delta[1]*chiT[kold] + delta[2]*chiT[kold+1];
+            grada_HR[1] = delta[0]*grada[kold-1] + delta[1]*grada[kold] + delta[2]*grada[kold+1];
+            brunt_A_HR[1] = delta[0]*brunt_A[kold-1] + delta[1]*brunt_A[kold] + delta[2]*brunt_A[kold+1];
+            
+            //cout << "Flag post-definition\n";
             
             
             
         }
-
-
-        cout << "Outside the loop: k = " << k << "\n";
+        
+        
+        
+        
+        cout << "Flag with information: Jold=" << Jold << "   J=" << J << "   k=" << k << "   i=" << i << "   radius_cm_HR_output[k]/R=" << radius_cm_HR_output[k]/R << "   radius_cm_HR_output[i]/R=" << radius_cm_HR_output[i]/R << "   kold=" << kold << "    N = " << N << "\n";
+        
+        
+        
+        
+        
+        
+        //cout << "Past the interpolation bit for k = " << k << "\n";
 
 
         
@@ -948,7 +1156,7 @@ semimajor_axis_jupiter ! = 7.7857d13 ! jupiter semimajor axis (cm)
 
 
         // This checks the interpolation of any given variable array
-        test[k] = (radius_cm_HR[1] - radius_cm_HR[0]) / R;
+        test[k] = (radius_cm_HR[1] - radius_cm_HR[0])/R;
         test[k+1] = test[k];
 
         
@@ -2167,7 +2375,7 @@ semimajor_axis_jupiter ! = 7.7857d13 ! jupiter semimajor axis (cm)
 
         CVectorMult(dumMCr,dumMCi,dumVDr,dumVDi,gammar,gammai,0,0,k+1);
 
-//        cout << " " << k << "\t" << "Done a matrix magic iteration \n";
+        //cout << " " << k << "\t" << "Done a matrix magic iteration \n";
 
 
 
@@ -3355,7 +3563,7 @@ semimajor_axis_jupiter ! = 7.7857d13 ! jupiter semimajor axis (cm)
 
     // This bit opens the file to write the data into
     ofstream outfile;
-    outfile.open("Output/Henyey_test_rescaled_Voscish.dat", ios::out);
+    outfile.open("Output/Henyey_dx_max.dat", ios::out);
 
     // This sets the precision at which values are printed at to the named file output
     outfile.precision(10);
@@ -3446,6 +3654,7 @@ semimajor_axis_jupiter ! = 7.7857d13 ! jupiter semimajor axis (cm)
     sum = 3.2 / 1.01;
     
     cout << "\n\n 3.2 / 1.01 = " << sum << "\n";
+    
 
 
 
