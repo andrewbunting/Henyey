@@ -362,7 +362,7 @@ semimajor_axis_jupiter ! = 7.7857d13 ! jupiter semimajor axis (cm)
 */
 
 
-    double R, m, l, f, G, mp, D, omega, Mstar, d_one, d_two, dp_dr_BC, dlnT_dr_BC,prop,dlnRho_dr_BC,flux_BC;
+    double R, m, l, f, G, mp, D, omega, Mstar, d_one, d_two, dp_dr_BC, dlnT_dr_BC,prop,dlnRho_dr_BC,flux_BC,Period;
 
     // This is set by the tidal forcing
     m = 2.0;
@@ -378,14 +378,20 @@ semimajor_axis_jupiter ! = 7.7857d13 ! jupiter semimajor axis (cm)
 
     mp = 1.0; // Planetary mass in terms of Jupiter masses
     mp = 1.8986e30 * mp; // converted into g
+    
+    Mstar = 1.0; // Stellar mass in solar masses
+    Mstar = Mstar * 1.9892e33; // Converted into g
+    
 
+    
+    
     D = 0.0512; // Orbital radius of planet in AU, 1.58740105197 = 4^(1/3), which acts to double the period of the orbit
+        
     D = 1.495978921e13 * D; // Converted into cm
 
     f = -(G * mp) / (4.0 * D * D * D);
 
-    Mstar = 1.0; // Stellar mass in solar masses
-    Mstar = Mstar * 1.9892e33; // Converted into g
+
 
     omega = sqrt(G * ((Mstar + mp)/(D*D*D)));
 
@@ -432,7 +438,8 @@ semimajor_axis_jupiter ! = 7.7857d13 ! jupiter semimajor axis (cm)
 
 
 
-    int N, count, Jold, k_start, k_end;
+    // count[kold] = tyhe number of cells used to get to the outer edge of cell kold (including that edge).  Therefore J = count[Jold-1], and the extra number of cells = J - Jold
+    int N[J], count[J], Jold, k_start, k_end;
     
     int U, E, L, Nmax, n;
     
@@ -440,11 +447,14 @@ semimajor_axis_jupiter ! = 7.7857d13 ! jupiter semimajor axis (cm)
     
     Jold = J;
     
-    count = 0;
-    
-    dx_max = 0.0001;
+    count[0] = 1;
     
     
+    
+    
+    // This sets N[0] and N[Jold-1] =0, as the first and last cells will be left alone
+    N[0] = 0;
+    N[Jold-1] = 0;
     
     
     // This sums over the extra cells needed to achieve at least the minimum resolution, given by the maximum cell size: dx_max
@@ -452,22 +462,25 @@ semimajor_axis_jupiter ! = 7.7857d13 ! jupiter semimajor axis (cm)
     
     for (k=1; k < Jold-1; k = k + 1) {
         
-        count = count + ((radius_cm[k] - radius_cm[k-1])/(R*dx_max));
+        // by defining dx_max inside this loop, we can make it a function of radius_cm, for instance
+        dx_max = 0.000015 + 0.0004*(radius_cm[k]/R)*(radius_cm[k]/R);
         
-        N = ((radius_cm[k] - radius_cm[k-1])/(R*dx_max));
+        N[k] = ((radius_cm[k] - radius_cm[k-1])/(R*dx_max));
+        
+        count[k] = count[k-1] + 1 + N[k];
         
         //cout << "At k = " << k << ", N = " << N << "\n";
       
         
     }
     
+    count[Jold-1] = count[Jold-2] + 1;
     
     
-    
-    cout << "\n\ncount = " << count << "\n\n";
+    cout << "\n\ncount[Jold-1] = " << count[Jold-1] << "\n\n";
 
     // This gives the new value of J, by taking into account all of the extra cells needed
-    J = Jold + count;
+    J = count[Jold-1];
     
     
     
@@ -679,7 +692,7 @@ semimajor_axis_jupiter ! = 7.7857d13 ! jupiter semimajor axis (cm)
 
     int xcount, labelminx, labelmink, kold, kmin;
 
-    double n_doub,N_doub;
+    double count_doub,N_doub,k_doub;
 
     // These are defined to keep only two variables at any one time - k and k+1, which will be re-written for each new zone
     double lnT_HR[2], lnRho_HR[2], grav_HR[2], radius_cm_HR[2], rmid_cm_HR[2];
@@ -762,29 +775,33 @@ semimajor_axis_jupiter ! = 7.7857d13 ! jupiter semimajor axis (cm)
             kold = 0;
         } else {
             
-            sum = 1;
+            sum = 0;
 
             
             // This finds what kold is for this loop, by going to the point where radius_cm[kold] has first exceeded radius_cm_HR_output[k-1]
-            for (kold = 0; sum <= k; kold = kold + 1) {
+            for (kold = 0; k > sum; kold = kold + 1) {
 
-                sum = sum + 1 + ( (radius_cm[kold] - radius_cm[kold-1])/(R*dx_max) );
+                // It's count[kold+1] because of the fact that kold is incremented at the end of the loop, and the new value of kold is actually the one we want to test against sum
+                sum = count[kold+1] - 1;
                 
             }
             
         }
         
 
-        
+        /*
         // This sets the number of extra cells being added to each original cell, with both the innermost and outermost cells being left alone
         if (kold == 0 || kold == Jold - 1 ) {
             N = 0;
         } else {
             N = ( radius_cm[kold] - radius_cm[kold-1] ) / ( R * dx_max );
         }
+        */
         
-        
-        N_doub = (double) (N);
+        N_doub = (double) (N[kold]);
+        // Note that count_doub is NOT for kold, but for kold-1
+        count_doub = (double) (count[kold-1]);
+        k_doub = (double) (k);
      
         
         
@@ -792,7 +809,7 @@ semimajor_axis_jupiter ! = 7.7857d13 ! jupiter semimajor axis (cm)
         
         
             // These give the variables at the surface of the cell as: q[k] = delta[0]*q0[kold-1] + delta[1]*q0[kold]
-            if (N == 0) {
+            if (N[kold] == 0) {
                 delta[0] = 0.0;
                 delta[1] = 1.0;
                 
@@ -805,8 +822,8 @@ semimajor_axis_jupiter ! = 7.7857d13 ! jupiter semimajor axis (cm)
                 // so we just increase the distance through the cell by that step
                 
                 
-                delta[0] = 1.0 - (radius_cm_HR_output[k-1] - radius_cm[kold-1])/(radius_cm[kold] - radius_cm[kold-1]) - (1.0/(N_doub+1.0));
-                delta[1] = (radius_cm_HR_output[k-1] - radius_cm[kold-1])/(radius_cm[kold] - radius_cm[kold-1]) + (1.0/(N_doub+1.0));
+                delta[0] = 1.0 - (k_doub - count_doub + 1.0)/(N_doub + 1.0);
+                delta[1] = (k_doub - count_doub + 1.0)/(N_doub + 1.0);
             }
             
             // This prevents issues with calling the -1st element of an array when kold == 0
@@ -848,7 +865,7 @@ semimajor_axis_jupiter ! = 7.7857d13 ! jupiter semimajor axis (cm)
             
             
             // These give the variables at the centre of the cell as: p[k] = delta[0]*p0[kold-1] + delta[1]*p0[kold] + delta[2]*p0[kold+1]
-            if (N == 0) {
+            if (N[kold] == 0) {
                 
                 // Here the cell-central variables are defined for the case where no further cell-division is needed (including the innermost and outermost cells as exceptions to the rule (set as N = 0))
                 
@@ -933,13 +950,14 @@ semimajor_axis_jupiter ! = 7.7857d13 ! jupiter semimajor axis (cm)
                 kold = Jold - 1;
             } else {
                 
-                sum = 1;
+                sum = 0;
                 
                 // This finds what kold is for this loop
                 // sum = the total number of cells required to describe everything up to kold
-                for (kold = 0; sum <= i; kold = kold + 1) {
+                for (kold = 0; i > sum; kold = kold + 1) {
                     
-                    sum = sum + 1 + ( (radius_cm[kold] - radius_cm[kold-1])/(R*dx_max) );
+                    // It's count[kold+1] because of the fact that kold is incremented at the end of the loop, and the new value of kold is actually the one we want to test against sum
+                    sum = count[kold+1] - 1;
                     
                 }
                 
@@ -948,17 +966,20 @@ semimajor_axis_jupiter ! = 7.7857d13 ! jupiter semimajor axis (cm)
         }
         
         
-        
+        /*
         // This sets the number of extra cells being added to each original cell, with both the innermost and outermost cells being left alone
         if (kold == 0 || kold == Jold - 1 ) {
             N = 0;
         } else {
             N = ( radius_cm[kold] - radius_cm[kold-1] ) / ( R * dx_max );
         }
+        */
         
         
-        
-        N_doub = (double) (N);
+        N_doub = (double) (N[kold]);
+        // Note that count_doub is NOT for kold, but for kold-1
+        count_doub = (double) (count[kold-1]);
+        k_doub = (double) (i);
         
         
         
@@ -966,7 +987,7 @@ semimajor_axis_jupiter ! = 7.7857d13 ! jupiter semimajor axis (cm)
         
         
         // These give the variables at the surface of the cell as: q[i] = delta[0]*q0[kold] + delta[1]*q0[kold+1]
-        if (N == 0) {
+        if (N[kold] == 0) {
             delta[0] = 0.0;
             delta[1] = 1.0;
             
@@ -979,8 +1000,8 @@ semimajor_axis_jupiter ! = 7.7857d13 ! jupiter semimajor axis (cm)
             // so we just increase the distance through the cell by that step
             
             
-            delta[0] = 1.0 - (radius_cm_HR_output[i-1] - radius_cm[kold-1])/(radius_cm[kold] - radius_cm[kold-1]) - (1.0/(N_doub+1.0));
-            delta[1] = (radius_cm_HR_output[i-1] - radius_cm[kold-1])/(radius_cm[kold] - radius_cm[kold-1]) + (1.0/(N_doub+1.0));
+            delta[0] = 1.0 - (k_doub - count_doub + 1.0)/(N_doub + 1.0);
+            delta[1] = (k_doub - count_doub + 1.0)/(N_doub + 1.0);
         }
         
         // This prevents issues with calling the -1st element of an array when kold == 0
@@ -1023,7 +1044,7 @@ semimajor_axis_jupiter ! = 7.7857d13 ! jupiter semimajor axis (cm)
         
         
         // These give the variables at the centre of the cell as: p[i] = delta[0]*p0[kold-1] + delta[1]*p0[kold] + delta[2]*p0[kold+1]
-        if (N == 0 || kold == J-1) {
+        if (N[kold] == 0 || kold == J-1) {
             
             // Here the cell-central variables are defined for the case where no further cell-division is needed (including the innermost and outermost cells as exceptions to the rule (set as N = 0))
             
@@ -1100,7 +1121,7 @@ semimajor_axis_jupiter ! = 7.7857d13 ! jupiter semimajor axis (cm)
         
         
         
-        cout << "Flag with information: Jold=" << Jold << "   J=" << J << "   k=" << k << "   i=" << i << "   radius_cm_HR_output[k]/R=" << radius_cm_HR_output[k]/R << "   radius_cm_HR_output[i]/R=" << radius_cm_HR_output[i]/R << "   kold=" << kold << "    N = " << N << "\n";
+        // cout << "Flag with information: Jold=" << Jold << "   J=" << J << "   k=" << k << "   i=" << i << "   radius_cm_HR_output[k]/R=" << radius_cm_HR_output[k]/R << "   radius_cm_HR_output[i]/R=" << radius_cm_HR_output[i]/R << "   kold=" << kold << "    N[kold] = " << N[kold] << "\n";
         
         
         
@@ -3602,10 +3623,10 @@ semimajor_axis_jupiter ! = 7.7857d13 ! jupiter semimajor axis (cm)
          17- gammai[1][0]
          18- /xi_{r} m omega in units of mp/(mp + Mstar)
          19- test
-         20- checking alpha and gamma - a
-         21- checking alpha and gamma - b
-         22- checking alpha and gamma - c
-         23- checking alpha and gamma - d
+         20- radius_cm_HR
+         21- flux_HR
+         22- pressure_HR
+         23- temperature_HR
          24- rmid_cm/R
          25- xi  (that is, a * R)
          26- F' (b * flux_BC)
@@ -3616,7 +3637,7 @@ semimajor_axis_jupiter ! = 7.7857d13 ! jupiter semimajor axis (cm)
         
         
         
-        outfile << radius_cm_HR_output[k]/R << "\t\t\t" << ur[k][0][0] << "\t\t" << ur[k][1][0] << "\t\t" << vr[k][0][0] << "\t\t" << vr[k][1][0] << "\t\t" << alphar[k][0][0] << "\t" << alphar[k][0][1] << "\t" << alphar[k][1][0] << "\t" << alphar[k][1][1] << "\t" << alphai[k][0][0] << "\t" << alphai[k][0][1] << "\t" << alphai[k][1][0] << "\t" << alphai[k][1][1] << "\t" << gammar[k][0][0] << "\t" << gammar[k][1][0] << "\t" << gammai[k][0][0] << "\t" << gammai[k][1][0] <<  "\t" << ur[k][0][0]*radius_cm_HR_output[k]*(1.0/100.0)*m*omega*((mp + Mstar)/(mp)) << "\t" << test[k] << "\t" << test[k] << "\t" << test[k] << "\t" << test[k] << "\t" << test[k] << "\t" << rmid_cm_HR_output[k]/R << "\t\t\t" << R*ur[k][0][0] << "\t\t" << flux_BC*ur[k][1][0] << "\t\t" << pressure_HR_output[k]*vr[k][0][0] << "\t\t" << temperature_HR_output[k]*vr[k][1][0] << "\t\t\t" << R*ur[k][0][0]*m*omega*(mp + Mstar)/(100.0*mp) << "\n";
+        outfile << radius_cm_HR_output[k]/R << "\t\t\t" << ur[k][0][0] << "\t\t" << ur[k][1][0] << "\t\t" << vr[k][0][0] << "\t\t" << vr[k][1][0] << "\t\t" << alphar[k][0][0] << "\t" << alphar[k][0][1] << "\t" << alphar[k][1][0] << "\t" << alphar[k][1][1] << "\t" << alphai[k][0][0] << "\t" << alphai[k][0][1] << "\t" << alphai[k][1][0] << "\t" << alphai[k][1][1] << "\t" << gammar[k][0][0] << "\t" << gammar[k][1][0] << "\t" << gammai[k][0][0] << "\t" << gammai[k][1][0] <<  "\t" << ur[k][0][0]*radius_cm_HR_output[k]*(1.0/100.0)*m*omega*((mp + Mstar)/(mp)) << "\t" << test[k] << "\t" << radius_cm_HR_output[k] << "\t" << flux_HR_output[k] << "\t" << pressure_HR_output[k] << "\t" << temperature_HR_output[k] << "\t" << rmid_cm_HR_output[k]/R << "\t\t\t" << R*ur[k][0][0] << "\t\t" << flux_BC*ur[k][1][0] << "\t\t" << pressure_HR_output[k]*vr[k][0][0] << "\t\t" << temperature_HR_output[k]*vr[k][1][0] << "\t\t\t" << R*ur[k][0][0]*m*omega*(mp + Mstar)/(100.0*mp) << "\n";
 
 
     }
@@ -3645,9 +3666,9 @@ semimajor_axis_jupiter ! = 7.7857d13 ! jupiter semimajor axis (cm)
 
 
 
-
+    sum = count[Jold-1] - Jold;
     
-    cout << "\n\n   total number of new cells needed = " << count << "\n\n";
+    cout << "\n\n   total number of new cells needed = " << sum << "\n\n";
     
     cout << "\n\n   total number of cells = " << J << "\n\n";
     
