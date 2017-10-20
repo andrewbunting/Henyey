@@ -463,6 +463,7 @@ semimajor_axis_jupiter ! = 7.7857d13 ! jupiter semimajor axis (cm)
     for (k=1; k < Jold-1; k = k + 1) {
         
         // by defining dx_max inside this loop, we can make it a function of radius_cm, for instance
+
         dx_max = 0.000015 + 0.0004*(radius_cm[k]/R)*(radius_cm[k]/R);
         
         N[k] = ((radius_cm[k] - radius_cm[k-1])/(R*dx_max));
@@ -1589,16 +1590,23 @@ semimajor_axis_jupiter ! = 7.7857d13 ! jupiter semimajor axis (cm)
         
         /*
         // This sets the equations to be adiabatic for x > 0.7 (that is, once the convective envelope starts)
-        if ( 0.7 < radius_cm_HR[0]/R  && radius_cm_HR[0]/R < 1.1) {
+        if ( 0.75 < radius_cm_HR[0]/R  && radius_cm_HR[0]/R < 1.1) {
             
             prop = 0.0;
             
-            if ( 0.9999 < radius_cm_HR[0]/R  && radius_cm_HR[0]/R < 1.0 ) {
+            if ( 0.75 < radius_cm_HR[0]/R  && radius_cm_HR[0]/R < 0.8 ) {
                 
-                prop = 1.0 - ( (radius_cm_HR[0]/R - 0.9999) / 0.0001);
+                prop = 1.0 - ( ( (radius_cm_HR[0]/R) - 0.7) / 0.05);
                 
             }
             
+         
+            if ( 0.85 < radius_cm_HR[0]/R  && radius_cm_HR[0]/R < 0.95 ) {
+                
+                prop = ( ( (radius_cm_HR[0]/R) - 0.85) / 0.1);
+                
+            }
+         
             
             
             Ai[0][0][0] = prop*Ai[0][0][0];
@@ -3426,6 +3434,7 @@ semimajor_axis_jupiter ! = 7.7857d13 ! jupiter semimajor axis (cm)
     // This step actually gets us v_{J-1}
     CVectorMult(dumMAr,dumMAi,dumVAr,dumVAi,vr,vi,0,0,J-1);
     
+    
     cout << "Method IV:\n" << "Got vr_{J-1} \t \n";
     
     /*    cout << "\nThis is vr_{J-1} \n";
@@ -3633,11 +3642,17 @@ semimajor_axis_jupiter ! = 7.7857d13 ! jupiter semimajor axis (cm)
          27- p' (c * pressure)
          28- T' (d * temperature)
          29- m * omega * xi_r in units given in Terquem, 1998 (figure 1): ( mp / (mp + Mstar) ) m/s
+         30- a (imaginary part)
+         31- b (imaginary part)
+         32- c (imaginary part)
+         33- d (imaginary part)
+         34- mod(a) - currently all positive, as it's just a straight up mod, which makes the graph look a bit funky
+         35- phase(a)
          */
         
         
         
-        outfile << radius_cm_HR_output[k]/R << "\t\t\t" << ur[k][0][0] << "\t\t" << ur[k][1][0] << "\t\t" << vr[k][0][0] << "\t\t" << vr[k][1][0] << "\t\t" << alphar[k][0][0] << "\t" << alphar[k][0][1] << "\t" << alphar[k][1][0] << "\t" << alphar[k][1][1] << "\t" << alphai[k][0][0] << "\t" << alphai[k][0][1] << "\t" << alphai[k][1][0] << "\t" << alphai[k][1][1] << "\t" << gammar[k][0][0] << "\t" << gammar[k][1][0] << "\t" << gammai[k][0][0] << "\t" << gammai[k][1][0] <<  "\t" << ur[k][0][0]*radius_cm_HR_output[k]*(1.0/100.0)*m*omega*((mp + Mstar)/(mp)) << "\t" << test[k] << "\t" << radius_cm_HR_output[k] << "\t" << flux_HR_output[k] << "\t" << pressure_HR_output[k] << "\t" << temperature_HR_output[k] << "\t" << rmid_cm_HR_output[k]/R << "\t\t\t" << R*ur[k][0][0] << "\t\t" << flux_BC*ur[k][1][0] << "\t\t" << pressure_HR_output[k]*vr[k][0][0] << "\t\t" << temperature_HR_output[k]*vr[k][1][0] << "\t\t\t" << R*ur[k][0][0]*m*omega*(mp + Mstar)/(100.0*mp) << "\n";
+        outfile << radius_cm_HR_output[k]/R << "\t\t\t" << ur[k][0][0] << "\t\t" << ur[k][1][0] << "\t\t" << vr[k][0][0] << "\t\t" << vr[k][1][0] << "\t\t" << alphar[k][0][0] << "\t" << alphar[k][0][1] << "\t" << alphar[k][1][0] << "\t" << alphar[k][1][1] << "\t" << alphai[k][0][0] << "\t" << alphai[k][0][1] << "\t" << alphai[k][1][0] << "\t" << alphai[k][1][1] << "\t" << gammar[k][0][0] << "\t" << gammar[k][1][0] << "\t" << gammai[k][0][0] << "\t" << gammai[k][1][0] <<  "\t" << ur[k][0][0]*radius_cm_HR_output[k]*(1.0/100.0)*m*omega*((mp + Mstar)/(mp)) << "\t" << test[k] << "\t" << radius_cm_HR_output[k] << "\t" << flux_HR_output[k] << "\t" << pressure_HR_output[k] << "\t" << temperature_HR_output[k] << "\t" << rmid_cm_HR_output[k]/R << "\t\t\t" << R*ur[k][0][0] << "\t\t" << flux_BC*ur[k][1][0] << "\t\t" << pressure_HR_output[k]*vr[k][0][0] << "\t\t" << temperature_HR_output[k]*vr[k][1][0] << "\t\t\t" << R*ur[k][0][0]*m*omega*(mp + Mstar)/(100.0*mp) << "\t\t\t" << ui[k][0][0] << "\t\t" << ui[k][1][0] << "\t\t" << vi[k][0][0] << "\t\t" << vi[k][1][0] << "\t\t" << sqrt((ur[k][0][0]*ur[k][0][0]) + (ui[k][0][0]*ui[k][0][0])) << "\t\t" << atan(-ui[k][0][0] / ur[k][0][0]) << "\n";
 
 
     }
