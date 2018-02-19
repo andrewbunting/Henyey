@@ -362,7 +362,7 @@ semimajor_axis_jupiter ! = 7.7857d13 ! jupiter semimajor axis (cm)
 */
 
 
-    double R, m, l, f, G, mp, D, omega, Mstar, d_one, d_two, dp_dr_BC, dlnT_dr_BC,prop,dlnRho_dr_BC,flux_BC,Period;
+    double R, m, l, f, G, mp, D, omega, Mstar, d_one, d_two, dp_dr_BC, dlnT_dr_BC,prop,dlnRho_dr_BC,flux_BC,Period, drho_dr_BC;
 
     // This is set by the tidal forcing
     m = 2.0;
@@ -406,6 +406,8 @@ semimajor_axis_jupiter ! = 7.7857d13 ! jupiter semimajor axis (cm)
     dlnT_dr_BC = (d_one + d_two)*lnT[J-1]/(d_one*d_two) - lnT[J-2]*d_two / ( d_one * (d_two - d_one) ) + lnT[J-3] * d_one / (d_two * (d_two - d_one) );
     
     dlnRho_dr_BC = (d_one + d_two)*lnRho[J-1]/(d_one*d_two) - lnRho[J-2]*d_two / ( d_one * (d_two - d_one) ) + lnRho[J-3] * d_one / (d_two * (d_two - d_one) );
+    
+    drho_dr_BC = (d_one + d_two)*rho[J-1]/(d_one*d_two) - rho[J-2]*d_two / ( d_one * (d_two - d_one) ) + rho[J-3] * d_one / (d_two * (d_two - d_one) );
 
     cout << "dp_dr_BC = " << dp_dr_BC << "\n";
 
@@ -413,6 +415,7 @@ semimajor_axis_jupiter ! = 7.7857d13 ! jupiter semimajor axis (cm)
     
     cout << "dlnRho_dr_BC = " << dlnRho_dr_BC << "\n";
 
+    cout << "drho_dr_BC / rho = " << drho_dr_BC / rho[J-1] << "\n";
 
 
 /*
@@ -2031,30 +2034,30 @@ semimajor_axis_jupiter ! = 7.7857d13 ! jupiter semimajor axis (cm)
             
             
             
-            etar[0][0][0] = 0.5 * dp_dr_BC * R / pressure_HR[1];
+            etar[0][0][0] = 0.5 * R * dlnRho_dr_BC; // 0.5 * dp_dr_BC * R / pressure_HR[1];
             etar[0][0][1] = 0.0;
-            etar[0][1][0] = 0.5 * R * ( ( (log(flux_HR[1]) - log(flux_HR[0]))/(radius_cm_HR[1] - radius_cm_HR[0]) )  -  4.0*dlnT_dr_BC );
-            etar[0][1][1] = 0.5 * flux_BC / flux_HR[0]; // 0.5;
+            etar[0][1][0] = 0.5 * dp_dr_BC * R / pressure_HR[1]; // 0.5 * R * ( ( (log(flux_HR[1]) - log(flux_HR[0]))/(radius_cm_HR[1] - radius_cm_HR[0]) )  -  4.0*dlnT_dr_BC );
+            etar[0][1][1] = 0.0; // 0.5 * flux_BC / flux_HR[0]; // 0.5;
             
             etai[0][0][0] = 0.0;
             etai[0][0][1] = 0.0;
             etai[0][1][0] = 0.0;
             etai[0][1][1] = 0.0;
             
-            mur[0][0][0] = 0.5 * dp_dr_BC * R / pressure_HR[1];
+            mur[0][0][0] = 0.5 * R * dlnRho_dr_BC; // 0.5 * dp_dr_BC * R / pressure_HR[1];
             mur[0][0][1] = 0.0;
-            mur[0][1][0] = 0.5 * R * ( ( (log(flux_HR[1]) - log(flux_HR[0]))/(radius_cm_HR[1] - radius_cm_HR[0]) )  -  4.0*dlnT_dr_BC );
-            mur[0][1][1] = 0.5 * flux_BC / flux_HR[1]; // 0.5;
+            mur[0][1][0] = 0.5 * dp_dr_BC * R / pressure_HR[1]; // 0.5 * R * ( ( (log(flux_HR[1]) - log(flux_HR[0]))/(radius_cm_HR[1] - radius_cm_HR[0]) )  -  4.0*dlnT_dr_BC );
+            mur[0][1][1] = 0.0; // 0.5 * flux_BC / flux_HR[1]; // 0.5;
             
             mui[0][0][0] = 0.0;
             mui[0][0][1] = 0.0;
             mui[0][1][0] = 0.0;
             mui[0][1][1] = 0.0;
             
-            nur[0][0][0] = 1.0;
-            nur[0][0][1] = 0.0;
-            nur[0][1][0] = 0.0;
-            nur[0][1][1] = -4.0;
+            nur[0][0][0] = 1.0/chiRho_HR[1]; // 1.0;
+            nur[0][0][1] = chiT_HR[1] / chiRho_HR[1]; // 0.0;
+            nur[0][1][0] = 1.0; // 0.0;
+            nur[0][1][1] = 0.0; // -4.0;
             
             nui[0][0][0] = 0.0;
             nui[0][0][1] = 0.0;
@@ -3673,18 +3676,19 @@ semimajor_axis_jupiter ! = 7.7857d13 ! jupiter semimajor axis (cm)
          38- xi_phi_r (Terquem units)
          39- xi_phi_i (Terquem units)
          40- xi_h_r (defined in Terquem, 98 and in Terquem units)
-         41- xi_h_r (defined in Terquem, 98 and in Terquem units)
+         41- xi_h_i (defined in Terquem, 98 and in Terquem units)
          42- rho_HR_output
          43- - f * r * r * rho    -->   (p'_{eq})
          44- f * r * r * rho / (dp/dr)   -->   (xi_{r, eq})
          45- p'_im
          46- xi_h_r (in Terquem units)
          47- xi_h_pprime_part (in Terquem units)
+         48- dr / R
          */
         
         
         
-        outfile << radius_cm_HR_output[k]/R << "\t\t\t" << ur[k][0][0] << "\t\t" << ur[k][1][0] << "\t\t" << vr[k][0][0] << "\t\t" << vr[k][1][0] << "\t\t" << alphar[k][0][0] << "\t" << alphar[k][0][1] << "\t" << alphar[k][1][0] << "\t" << alphar[k][1][1] << "\t" << alphai[k][0][0] << "\t" << alphai[k][0][1] << "\t" << alphai[k][1][0] << "\t" << alphai[k][1][1] << "\t" << gammar[k][0][0] << "\t" << gammar[k][1][0] << "\t" << gammai[k][0][0] << "\t" << gammai[k][1][0] <<  "\t" << ur[k][0][0]*radius_cm_HR_output[k]*(1.0/100.0)*m*omega*((mp + Mstar)/(mp)) << "\t" << test[k] << "\t" << radius_cm_HR_output[k] << "\t" << flux_HR_output[k] << "\t" << pressure_HR_output[k] << "\t" << temperature_HR_output[k] << "\t" << rmid_cm_HR_output[k]/R << "\t\t\t" << R*ur[k][0][0] << "\t\t" << flux_BC*ur[k][1][0] << "\t\t" << pressure_HR_output[k]*vr[k][0][0] << "\t\t" << temperature_HR_output[k]*vr[k][1][0] << "\t\t\t" << R*ur[k][0][0]*m*omega*(mp + Mstar)/(100.0*mp) << "\t\t\t" << ui[k][0][0] << "\t\t" << ui[k][1][0] << "\t\t" << vi[k][0][0] << "\t\t" << vi[k][1][0] << "\t\t" << sqrt((ur[k][0][0]*ur[k][0][0]) + (ui[k][0][0]*ui[k][0][0])) << "\t\t" << atan(-ui[k][0][0] / ur[k][0][0]) << "\t\t" << m*omega*((mp + Mstar)/(100.0*mp))*((3.0)/(radius_cm_HR_output[k]*m*m*omega*omega))*( (pressure_HR_output[k]*vr[k][0][0]/rho_HR_output[k]) + f*radius_cm_HR_output[k]*radius_cm_HR_output[k] ) << "\t\t" << m*omega*((mp + Mstar)/(100.0*mp))*((3.0)/(radius_cm_HR_output[k]*m*m*omega*omega))*( (pressure_HR_output[k]*vi[k][0][0]/rho_HR_output[k]) ) << "\t\t" << m*omega*((mp + Mstar)/(100.0*mp))*((2.0)/(radius_cm_HR_output[k]*m*m*omega*omega))*( (pressure_HR_output[k]*vi[k][0][0]/rho_HR_output[k])) << "\t\t" << m*omega*((mp + Mstar)/(100.0*mp))*((2.0)/(radius_cm_HR_output[k]*m*m*omega*omega))*(-1.0)*( (pressure_HR_output[k]*vr[k][0][0]/rho_HR_output[k]) + f*radius_cm_HR_output[k]*radius_cm_HR_output[k] ) <<  "\t\t" << m*omega*((mp + Mstar)/(100.0*mp))*((1.0)/(radius_cm_HR_output[k]*m*m*omega*omega))*( (pressure_HR_output[k]*vr[k][0][0]/rho_HR_output[k]) + f*radius_cm_HR_output[k]*radius_cm_HR_output[k] ) << "\t\t" << m*omega*((mp + Mstar)/(100.0*mp))*((1.0)/(radius_cm_HR_output[k]*m*m*omega*omega))*( (pressure_HR_output[k]*vi[k][0][0]/rho_HR_output[k]) ) << "\t\t" << rho_HR_output[k] << "\t\t" << - f * rmid_cm_HR_output[k]*rmid_cm_HR_output[k]*rho_HR_output[k] << "\t\t" << f*radius_cm_HR_output[k]*radius_cm_HR_output[k]*rho_HR_output[k]*( (rmid_cm_HR_output[k+1] - rmid_cm_HR_output[k])/(pressure_HR_output[k+1] - pressure_HR_output[k]) ) << "\t\t" << pressure_HR_output[k]*vi[k][0][0] << "\t\t" << xi_h_r << "\t\t" << xi_h_pprime_part << "\n";
+        outfile << radius_cm_HR_output[k]/R << "\t\t\t" << ur[k][0][0] << "\t\t" << ur[k][1][0] << "\t\t" << vr[k][0][0] << "\t\t" << vr[k][1][0] << "\t\t" << alphar[k][0][0] << "\t" << alphar[k][0][1] << "\t" << alphar[k][1][0] << "\t" << alphar[k][1][1] << "\t" << alphai[k][0][0] << "\t" << alphai[k][0][1] << "\t" << alphai[k][1][0] << "\t" << alphai[k][1][1] << "\t" << gammar[k][0][0] << "\t" << gammar[k][1][0] << "\t" << gammai[k][0][0] << "\t" << gammai[k][1][0] <<  "\t" << ur[k][0][0]*radius_cm_HR_output[k]*(1.0/100.0)*m*omega*((mp + Mstar)/(mp)) << "\t" << test[k] << "\t" << radius_cm_HR_output[k] << "\t" << flux_HR_output[k] << "\t" << pressure_HR_output[k] << "\t" << temperature_HR_output[k] << "\t" << rmid_cm_HR_output[k]/R << "\t\t\t" << R*ur[k][0][0] << "\t\t" << flux_BC*ur[k][1][0] << "\t\t" << pressure_HR_output[k]*vr[k][0][0] << "\t\t" << temperature_HR_output[k]*vr[k][1][0] << "\t\t\t" << R*ur[k][0][0]*m*omega*(mp + Mstar)/(100.0*mp) << "\t\t\t" << ui[k][0][0] << "\t\t" << ui[k][1][0] << "\t\t" << vi[k][0][0] << "\t\t" << vi[k][1][0] << "\t\t" << sqrt((ur[k][0][0]*ur[k][0][0]) + (ui[k][0][0]*ui[k][0][0])) << "\t\t" << atan(-ui[k][0][0] / ur[k][0][0]) << "\t\t" << m*omega*((mp + Mstar)/(100.0*mp))*((3.0)/(radius_cm_HR_output[k]*m*m*omega*omega))*( (pressure_HR_output[k]*vr[k][0][0]/rho_HR_output[k]) + f*radius_cm_HR_output[k]*radius_cm_HR_output[k] ) << "\t\t" << m*omega*((mp + Mstar)/(100.0*mp))*((3.0)/(radius_cm_HR_output[k]*m*m*omega*omega))*( (pressure_HR_output[k]*vi[k][0][0]/rho_HR_output[k]) ) << "\t\t" << m*omega*((mp + Mstar)/(100.0*mp))*((2.0)/(radius_cm_HR_output[k]*m*m*omega*omega))*( (pressure_HR_output[k]*vi[k][0][0]/rho_HR_output[k])) << "\t\t" << m*omega*((mp + Mstar)/(100.0*mp))*((2.0)/(radius_cm_HR_output[k]*m*m*omega*omega))*(-1.0)*( (pressure_HR_output[k]*vr[k][0][0]/rho_HR_output[k]) + f*radius_cm_HR_output[k]*radius_cm_HR_output[k] ) <<  "\t\t" << m*omega*((mp + Mstar)/(100.0*mp))*((1.0)/(radius_cm_HR_output[k]*m*m*omega*omega))*( (pressure_HR_output[k]*vr[k][0][0]/rho_HR_output[k]) + f*radius_cm_HR_output[k]*radius_cm_HR_output[k] ) << "\t\t" << m*omega*((mp + Mstar)/(100.0*mp))*((1.0)/(radius_cm_HR_output[k]*m*m*omega*omega))*( (pressure_HR_output[k]*vi[k][0][0]/rho_HR_output[k]) ) << "\t\t" << rho_HR_output[k] << "\t\t" << - f * rmid_cm_HR_output[k]*rmid_cm_HR_output[k]*rho_HR_output[k] << "\t\t" << f*radius_cm_HR_output[k]*radius_cm_HR_output[k]*rho_HR_output[k]*( (rmid_cm_HR_output[k+1] - rmid_cm_HR_output[k])/(pressure_HR_output[k+1] - pressure_HR_output[k]) ) << "\t\t" << pressure_HR_output[k]*vi[k][0][0] << "\t\t" << xi_h_r << "\t\t" << xi_h_pprime_part << "\t\t" << (radius_cm_HR_output[k]-radius_cm_HR_output[k-1]) / R << "\n";
 
 
     }
