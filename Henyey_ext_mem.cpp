@@ -1149,6 +1149,9 @@ semimajor_axis_jupiter ! = 7.7857d13 ! jupiter semimajor axis (cm)
                 opacity_HR[1] = delta[0]*opacity[kold-1] + delta[1]*opacity[kold];
                 rho_face_HR[1] = delta[0]*rho_face[kold-1] + delta[1]*rho_face[kold];
 
+        
+        
+
 	//
 	//
 	//
@@ -1314,7 +1317,7 @@ semimajor_axis_jupiter ! = 7.7857d13 ! jupiter semimajor axis (cm)
         
         
         rho_face_HR_output[k] = rho_face_HR[0];
-        rho_face_HR_output[k] = rho_face_HR[1];
+        rho_face_HR_output[k+1] = rho_face_HR[1];
         
 
         
@@ -3829,7 +3832,7 @@ semimajor_axis_jupiter ! = 7.7857d13 ! jupiter semimajor axis (cm)
 
     double xi_h_r, xi_h_pprime_part, xi_r_eq, H_rho, H_p, mod_xi_radial, xi_h_real, xi_h_imaginary, mod_xi_h, delta_P_r, delta_P_i, mod_delta_P, delta_P_r_old, delta_P_i_old, delta_P_r_next, delta_P_i_next;
     double ddelta_P_dr_r, ddelta_P_dr_i, V_div_xi_r_r, V_div_xi_r_i, num_r, num_i, denom_r, denom_i, dgrr_dr, otherVdiv_r, otherVdiv_i, pprime_comp_r, pprime_comp_i;
-    double Gvar_r, Gvar_i, Hvar_r, Hvar_i, gradient;
+    double Gvar_r, Gvar_i, Hvar_r, Hvar_i, gradient, pprime_comp_second_r, pprime_comp_second_i, rhoprime_r, rhoprime_i;
 
     
     
@@ -3966,17 +3969,17 @@ semimajor_axis_jupiter ! = 7.7857d13 ! jupiter semimajor axis (cm)
         
         // Here we get the numerator and denomiator in real and imaginary parts for the caluclation of V_div_xi_r HAVE I FORGOTTEN ABOUT THE m FOR THE omega vs m*omega BITS??
         
-        num_r = (grav_HR_output[k]/(rmid_cm_HR_output[k]*m*m*omega*omega)) * (   -ddelta_P_dr_r   +   rho_HR_output[k]*f*rmid_cm_HR_output[k]*rmid_cm_HR_output[k]*( -(2.0/rmid_cm_HR_output[k]) + (rmid_cm_HR_output[k]*rmid_cm_HR_output[k]/grav_HR_output[k])*dgrr_dr )   );
+        num_r = (grav_HR_output[k]/(rmid_cm_HR_output[k]*m*m*omega*omega)) * (   -ddelta_P_dr_r   +   (rho_HR_output[k]*f*rmid_cm_HR_output[k]*rmid_cm_HR_output[k]*( -(2.0/rmid_cm_HR_output[k]) + (rmid_cm_HR_output[k]*rmid_cm_HR_output[k]/grav_HR_output[k])*dgrr_dr ) )  );
         
         num_i = (grav_HR_output[k]/(rmid_cm_HR_output[k]*m*m*omega*omega)) * (   -ddelta_P_dr_i   );
         
-        denom_r = - (  ddelta_P_dr_r + 2.0*rho_HR_output[0]*f*rmid_cm_HR_output[k]*rmid_cm_HR_output[k]*( (1.0/rmid_cm_HR[0]) + ((3.0*grav_HR[0])/(rmid_cm_HR[0]*rmid_cm_HR[0]*m*m*omega*omega)) )  );
+        denom_r = - (  ddelta_P_dr_r + 2.0*rho_HR_output[k]*f*rmid_cm_HR_output[k]*rmid_cm_HR_output[k]*( (1.0/rmid_cm_HR_output[k]) + ((3.0*grav_HR_output[k])/(rmid_cm_HR_output[k]*rmid_cm_HR_output[k]*m*m*omega*omega)) )  );
         
         denom_i = - ddelta_P_dr_i;
         
-        V_div_xi_r_r = (  num_r*denom_r  +  num_i*denom_i  )/(  denom_r*denom_r  +  denom_i*denom_i  );
+        V_div_xi_r_r = (  (num_r*denom_r)  +  (num_i*denom_i)  )/(  (denom_r*denom_r)  +  (denom_i*denom_i)  );
         
-        V_div_xi_r_i = (  num_r*denom_r  +  num_i*denom_i  )/(  denom_r*denom_r  +  denom_i*denom_i  );
+        V_div_xi_r_i = (  num_i*denom_r  -  num_r*denom_i  )/(  denom_r*denom_r  +  denom_i*denom_i  );
         
         
         
@@ -4014,9 +4017,9 @@ semimajor_axis_jupiter ! = 7.7857d13 ! jupiter semimajor axis (cm)
         
         // This is for the comparison between p' and the first-order equation
         
-        pprime_comp_r = ( omega*omega*xi_h_real - f*radius_cm_HR_output[k]*radius_cm_HR_output[k] ) *rho_HR_output[k];
+        pprime_comp_r = ( m*m*omega*omega*xi_h_real - f*radius_cm_HR_output[k]*radius_cm_HR_output[k] ) *rho_HR_output[k];
         
-        pprime_comp_i = ( omega*omega*xi_h_imaginary ) *rho_HR_output[k];
+        pprime_comp_i = ( m*m*omega*omega*xi_h_imaginary ) *rho_HR_output[k];
         
         
         
@@ -4027,19 +4030,36 @@ semimajor_axis_jupiter ! = 7.7857d13 ! jupiter semimajor axis (cm)
             // Because we can't get it without a cell outside, we have issues at the surface
             Gvar_r = Gvar_r;
             Gvar_i = Gvar_i;
+            Hvar_r = Hvar_r;
+            Hvar_i = Hvar_i;
             
         } else {
             
-            gradient = (  ( (radius_cm_HR_output[k+1]*radius_cm_HR_output[k+1]*rho_face_HR_output[k+1]*ur[k+1][0][0])  -  (radius_cm_HR_output[k]*radius_cm_HR_output[k]*rho_face_HR_output[k]*ur[k][0][0]) ) / (  radius_cm_HR_output[k+1] - radius_cm_HR_output[k]  )  );
+            gradient = ( (rho_face_HR_output[k+1] - rho_face_HR_output[k])/(radius_cm_HR_output[k+1] - radius_cm_HR_output[k]) ); // (  ( (radius_cm_HR_output[k+1]*radius_cm_HR_output[k+1]*rho_face_HR_output[k+1]*ur[k+1][0][0])  -  (radius_cm_HR_output[k]*radius_cm_HR_output[k]*rho_face_HR_output[k]*ur[k][0][0]) ) / (  radius_cm_HR_output[k+1] - radius_cm_HR_output[k]  )  );
 
-            cout << radius_cm_HR_output[k]*radius_cm_HR_output[k]*rho_face_HR_output[k]*ur[k][0][0] << "\n";
+            //cout << radius_cm_HR_output[k]*radius_cm_HR_output[k]*rho_face_HR_output[k]*ur[k][0][0] << "\n";
             
-            Gvar_r = ((omega*omega)/(l*(l+1.0))) * (R/rmid_cm_HR_output[k]) * gradient;
+            Gvar_r = ((m*m*omega*omega)/(l*(l+1.0))) * (R/rmid_cm_HR_output[k]) * gradient;
             
-            Gvar_i = ((omega*omega)/(l*(l+1.0))) * (R/rmid_cm_HR_output[k]) * gradient;
+            Gvar_i = ((m*m*omega*omega)/(l*(l+1.0))) * (R/rmid_cm_HR_output[k]) * (  ( (radius_cm_HR_output[k+1]*radius_cm_HR_output[k+1]*rho_face_HR_output[k+1]*ui[k+1][0][0])  -  (radius_cm_HR_output[k]*radius_cm_HR_output[k]*rho_face_HR_output[k]*ui[k][0][0]) ) / (  radius_cm_HR_output[k+1] - radius_cm_HR_output[k]  )  );
+            
+            Hvar_r = (  (m*m*omega*omega*radius_cm_HR_output[k]*radius_cm_HR_output[k]*radius_cm_HR_output[k]*radius_cm_HR_output[k]*f) / (grav_HR_output[k]*l*(l+1.0)) )  * ( (rho_face_HR_output[k+1] - rho_face_HR_output[k])/(radius_cm_HR_output[k+1] - radius_cm_HR_output[k]) ) ;
+            
+            Hvar_i = 0.0;
             
             
         }
+        
+        // Now the second order expressions for p' are evaluated
+        
+        pprime_comp_second_r = (  - f*radius_cm_HR_output[k]*radius_cm_HR_output[k] ) *rho_HR_output[k]  +  Gvar_r  +  Hvar_r;
+        
+        pprime_comp_second_i =   Gvar_i  +  Hvar_i;
+        
+        
+        
+        
+        
         
         
         
@@ -4124,6 +4144,20 @@ semimajor_axis_jupiter ! = 7.7857d13 ! jupiter semimajor axis (cm)
          65- pprime_comp_i
          66- Gvar_r
          67- Gvar_i
+         68- gradient
+         69- rho_face_HR_output
+         70- Hvar_r
+         71- pprime_comp_second_r (second order expression for p' to be compared against the modelled value)
+         72- pprime_comp_second_i (second order expression for p')
+         73- num_r
+         74- num_i
+         75- denom_r
+         76- denom_i
+         77- ddelta_P_dr_r
+         78- dgrr_dr * r*r/g
+         79- grav/(r*m*m*omega*omega)
+         80- from eq 53, real part of (xi_h / (V/xi_r))
+         81- from eq 53, imaginary part of (xi_h / (V/xi_r))
          */
         
         
@@ -4146,7 +4180,13 @@ semimajor_axis_jupiter ! = 7.7857d13 ! jupiter semimajor axis (cm)
         outfile << (radius_cm_HR_output[k]/H_rho)*mod_xi_radial << "\t\t" << xi_h_real << "\t\t" << xi_h_imaginary << "\t\t" << mod_xi_h << "\t\t" << H_p << "\t\t" << H_rho << "\t\t" << delta_P_r << "\t\t" << delta_P_i << "\t\t" << mod_delta_P << "\t\t" << V_div_xi_r_r << "\t\t";
         
         // 61 to 70
-        outfile << V_div_xi_r_i << "\t\t" << otherVdiv_r << "\t\t" << otherVdiv_i << "\t\t" << pprime_comp_r << "\t\t" << pprime_comp_i << "\t\t" << Gvar_r << "\t\t" << Gvar_i << "\n";
+        outfile << V_div_xi_r_i << "\t\t" << otherVdiv_r << "\t\t" << otherVdiv_i << "\t\t" << pprime_comp_r << "\t\t" << pprime_comp_i << "\t\t" << Gvar_r << "\t\t" << Gvar_i << "\t\t" << gradient << "\t\t" << rho_face_HR_output[k] << "\t\t" << Hvar_r << "\t\t";
+        
+        // 71 to 80
+        outfile << pprime_comp_second_r << "\t\t" << pprime_comp_second_i << "\t\t" << num_r << "\t\t" << num_i << "\t\t" << denom_r << "\t\t" << denom_i << "\t\t" << ddelta_P_dr_r << "\t\t" << dgrr_dr*radius_cm_HR_output[k]*radius_cm_HR_output[k]/grav_HR_output[k] << "\t\t" << grav_HR_output[k]/(m*m*omega*omega*radius_cm_HR_output[k]) << "\t\t" << ( (xi_h_real*V_div_xi_r_r) + (xi_h_imaginary*V_div_xi_r_i) )/( (V_div_xi_r_r*V_div_xi_r_r) + (V_div_xi_r_i*V_div_xi_r_i) ) << "\t\t";
+        
+        // 81 to 90
+        outfile << ( (xi_h_imaginary*V_div_xi_r_r) - (xi_h_real*V_div_xi_r_i) )/( (V_div_xi_r_r*V_div_xi_r_r) + (V_div_xi_r_i*V_div_xi_r_i) ) << "\n";
 
         
         
