@@ -891,6 +891,7 @@ semimajor_axis_jupiter ! = 7.7857d13 ! jupiter semimajor axis (cm)
     grada_HR[0] = grada[0];
     brunt_A_HR[0] = brunt_A[0];
     rho_face_HR[0] = rho_face[0];
+
     
     
     
@@ -3832,7 +3833,8 @@ semimajor_axis_jupiter ! = 7.7857d13 ! jupiter semimajor axis (cm)
 
     double xi_h_r, xi_h_pprime_part, xi_r_eq, H_rho, H_p, mod_xi_radial, xi_h_real, xi_h_imaginary, mod_xi_h, delta_P_r, delta_P_i, mod_delta_P, delta_P_r_old, delta_P_i_old, delta_P_r_next, delta_P_i_next;
     double ddelta_P_dr_r, ddelta_P_dr_i, V_div_xi_r_r, V_div_xi_r_i, num_r, num_i, denom_r, denom_i, dgrr_dr, otherVdiv_r, otherVdiv_i, pprime_comp_r, pprime_comp_i;
-    double Gvar_r, Gvar_i, Hvar_r, Hvar_i, gradient, pprime_comp_second_r, pprime_comp_second_i, rhoprime_r, rhoprime_i;
+    double Gvar_r, Gvar_i, Hvar_r, Hvar_i, gradient, pprime_comp_second_r, pprime_comp_second_i, rhoprime_r, rhoprime_i, dp0dr, dplus, dminus, dp0dr_old, dp0dr_avg, dp0dr_sum;
+    double delta_P_r_new, delta_P_i_new;
 
     
     
@@ -3871,6 +3873,13 @@ semimajor_axis_jupiter ! = 7.7857d13 ! jupiter semimajor axis (cm)
                 
                 // For when k-1 is not an option
                 
+                // gradient of pressure
+                dp0dr = (pressure_HR_output[k+1] - pressure_HR_output[k])/(rmid_cm_HR_output[k+1] - rmid_cm_HR_output[k]);
+                
+                dp0dr_old = dp0dr;
+                
+                dp0dr_avg = dp0dr;
+                
                 // H_p is the pressure scale height
                 H_p = - 0.5 * ( pressure_HR_output[k+1] + pressure_HR_output[k] ) * ( rmid_cm_HR_output[k+1] - rmid_cm_HR_output[k] ) / ( pressure_HR_output[k+1] - pressure_HR_output[k] );
                 
@@ -3884,8 +3893,57 @@ semimajor_axis_jupiter ! = 7.7857d13 ! jupiter semimajor axis (cm)
                 delta_P_i = (pressure_HR_output[k]*vi[k][0][0]) + (R*ui[k][0][0])*( (pressure_HR_output[k+1] - pressure_HR_output[k])/(rmid_cm_HR_output[k+1] - rmid_cm_HR_output[k]) );
                 
                 
+                
             } else {
+                
+                
+                
+                
             // For all case which can have k+1 and k-1 and still be all okay
+                
+                
+                
+                
+                if (k > 21 && k < J-22) {
+                    
+                    dp0dr_sum = 0.0;
+                    
+                    
+                    for (i=k-20; i<=k+20; i=i+1) {
+                        
+                        // dplus and dminus are used in caluclating the pressure gradient
+                        dplus = rmid_cm_HR_output[i+1] - rmid_cm_HR_output[i];
+                        dminus = rmid_cm_HR_output[i] - rmid_cm_HR_output[i-1];
+                        
+                        // pressure gradient
+                        dp0dr = pressure_HR_output[i+1]*( dminus / (dplus*(dplus+dminus)) )  +  pressure_HR_output[i]*( (1.0/dminus) - (1.0/dplus) )  -  pressure_HR_output[i-1] * ( dplus / (dminus*(dplus+dminus)) );
+                        
+                        dp0dr_sum = dp0dr_sum + dp0dr;
+                        
+                    }
+                    
+                    dp0dr_avg = dp0dr_sum / 41.0;
+                    
+                } else {
+                    
+                    // dplus and dminus are used in caluclating the pressure gradient
+                    dplus = rmid_cm_HR_output[k+1] - rmid_cm_HR_output[k];
+                    dminus = rmid_cm_HR_output[k] - rmid_cm_HR_output[k-1];
+                    
+                    // pressure gradient
+                    dp0dr = pressure_HR_output[k+1]*( dminus / (dplus*(dplus+dminus)) )  +  pressure_HR_output[k]*( (1.0/dminus) - (1.0/dplus) )  -  pressure_HR_output[k-1] * ( dplus / (dminus*(dplus+dminus)) );
+                    
+                    dp0dr_avg = dp0dr;
+                }
+                
+                // dplus and dminus are used in caluclating the pressure gradient
+                dplus = rmid_cm_HR_output[k+1] - rmid_cm_HR_output[k];
+                dminus = rmid_cm_HR_output[k] - rmid_cm_HR_output[k-1];
+                
+                // pressure gradient
+                dp0dr = pressure_HR_output[k+1]*( dminus / (dplus*(dplus+dminus)) )  +  pressure_HR_output[k]*( (1.0/dminus) - (1.0/dplus) )  -  pressure_HR_output[k-1] * ( dplus / (dminus*(dplus+dminus)) );
+                
+                dp0dr_old = (pressure_HR_output[k+1] - pressure_HR_output[k-1])/(rmid_cm_HR_output[k+1] - rmid_cm_HR_output[k-1]);
                 
                 // H_p is the pressure scale height
                 H_p = - 0.5 * ( pressure_HR_output[k+1] + pressure_HR_output[k-1] ) * ( rmid_cm_HR_output[k+1] - rmid_cm_HR_output[k-1] ) / ( pressure_HR_output[k+1] - pressure_HR_output[k-1] );
@@ -3896,8 +3954,12 @@ semimajor_axis_jupiter ! = 7.7857d13 ! jupiter semimajor axis (cm)
                 // Lagrangian perturbation to pressure (real part)
                 delta_P_r = (pressure_HR_output[k]*vr[k][0][0]) + (R*0.5*(ur[k][0][0] + ur[k-1][0][0]))*( (pressure_HR_output[k+1] - pressure_HR_output[k-1])/(rmid_cm_HR_output[k+1] - rmid_cm_HR_output[k-1]) );
                 
+                delta_P_r_new = (pressure_HR_output[k]*vr[k][0][0]) + (R*0.5*(ur[k][0][0] + ur[k-1][0][0]))*dp0dr_avg;
+                
                 // Lagrangian perturbation to pressure (imaginary part)
                 delta_P_i = (pressure_HR_output[k]*vi[k][0][0]) + (R*0.5*(ui[k][0][0] + ui[k-1][0][0]))*( (pressure_HR_output[k+1] - pressure_HR_output[k-1])/(rmid_cm_HR_output[k+1] - rmid_cm_HR_output[k-1]) );
+                
+                delta_P_i_new = (pressure_HR_output[k]*vi[k][0][0]) + (R*0.5*(ui[k][0][0] + ui[k-1][0][0]))*dp0dr_avg;
                 
                 
             }
@@ -4158,6 +4220,11 @@ semimajor_axis_jupiter ! = 7.7857d13 ! jupiter semimajor axis (cm)
          79- grav/(r*m*m*omega*omega)
          80- from eq 53, real part of (xi_h / (V/xi_r))
          81- from eq 53, imaginary part of (xi_h / (V/xi_r))
+         82- dp0dr (pressure gradient)
+         83- dp0dr_old (simpler version of pressure gradient, for comparison)
+         84- dp0dr_avg
+         85- delta_P_r_new
+         86- delta_P_i_new
          */
         
         
@@ -4186,7 +4253,7 @@ semimajor_axis_jupiter ! = 7.7857d13 ! jupiter semimajor axis (cm)
         outfile << pprime_comp_second_r << "\t\t" << pprime_comp_second_i << "\t\t" << num_r << "\t\t" << num_i << "\t\t" << denom_r << "\t\t" << denom_i << "\t\t" << ddelta_P_dr_r << "\t\t" << dgrr_dr*radius_cm_HR_output[k]*radius_cm_HR_output[k]/grav_HR_output[k] << "\t\t" << grav_HR_output[k]/(m*m*omega*omega*radius_cm_HR_output[k]) << "\t\t" << ( (xi_h_real*V_div_xi_r_r) + (xi_h_imaginary*V_div_xi_r_i) )/( (V_div_xi_r_r*V_div_xi_r_r) + (V_div_xi_r_i*V_div_xi_r_i) ) << "\t\t";
         
         // 81 to 90
-        outfile << ( (xi_h_imaginary*V_div_xi_r_r) - (xi_h_real*V_div_xi_r_i) )/( (V_div_xi_r_r*V_div_xi_r_r) + (V_div_xi_r_i*V_div_xi_r_i) ) << "\n";
+        outfile << ( (xi_h_imaginary*V_div_xi_r_r) - (xi_h_real*V_div_xi_r_i) )/( (V_div_xi_r_r*V_div_xi_r_r) + (V_div_xi_r_i*V_div_xi_r_i) ) << "\t\t" << dp0dr << "\t\t" << dp0dr_old << "\t\t" << dp0dr_avg << "\t\t" << delta_P_r_new << "\t\t" << delta_P_i_new << "\n";
 
         
         
