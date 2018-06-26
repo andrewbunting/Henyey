@@ -3834,7 +3834,7 @@ semimajor_axis_jupiter ! = 7.7857d13 ! jupiter semimajor axis (cm)
     double xi_h_r, xi_h_pprime_part, xi_r_eq, H_rho, H_p, mod_xi_radial, xi_h_real, xi_h_imaginary, mod_xi_h, delta_P_r, delta_P_i, mod_delta_P, delta_P_r_old, delta_P_i_old, delta_P_r_next, delta_P_i_next;
     double ddelta_P_dr_r, ddelta_P_dr_i, V_div_xi_r_r, V_div_xi_r_i, num_r, num_i, denom_r, denom_i, dgrr_dr, otherVdiv_r, otherVdiv_i, pprime_comp_r, pprime_comp_i;
     double Gvar_r, Gvar_i, Hvar_r, Hvar_i, gradient, pprime_comp_second_r, pprime_comp_second_i, rhoprime_r, rhoprime_i, dp0dr, dplus, dminus, dp0dr_old, dp0dr_avg, dp0dr_sum;
-    double delta_P_r_new, delta_P_i_new;
+    double delta_P_r_new, delta_P_i_new, xi_h_over_xi_r_real, xi_h_over_xi_r_im;
 
     
     
@@ -3976,9 +3976,9 @@ semimajor_axis_jupiter ! = 7.7857d13 ! jupiter semimajor axis (cm)
             // We avoid surface problems here (requires k=J, which isn't a thing)
             
            
-            delta_P_r = delta_P_r;
+            delta_P_r_next = delta_P_r;
             
-            delta_P_i = delta_P_i;
+            delta_P_i_next = delta_P_i;
             
             
         } else {
@@ -3999,7 +3999,7 @@ semimajor_axis_jupiter ! = 7.7857d13 ! jupiter semimajor axis (cm)
         
         // This calculates the gradient of delta_P and g/r^2 (issues will arise for k=J-1 and probably for k=J-1 as well, though, so bear that in mind when you plot it)
         
-        if (k==J-1) {
+        if (k==J-1 | k==J-2) {
             
             // If k==J-1, we leave them alone, as we can't get a gradient
             
@@ -4043,8 +4043,7 @@ semimajor_axis_jupiter ! = 7.7857d13 ! jupiter semimajor axis (cm)
         
         V_div_xi_r_i = (  num_i*denom_r  -  num_r*denom_i  )/(  denom_r*denom_r  +  denom_i*denom_i  );
         
-        
-        
+       
 
         
         
@@ -4074,6 +4073,20 @@ semimajor_axis_jupiter ! = 7.7857d13 ! jupiter semimajor axis (cm)
         xi_h_imaginary = (1.0/(rmid_cm_HR_output[k] * m * m * omega * omega)) * ( (pressure_HR_output[k] * vi[k][0][0] / rho_HR_output[k]) );
         
         mod_xi_h = sqrt(xi_h_real*xi_h_real + xi_h_imaginary*xi_h_imaginary);
+        
+        
+        
+        
+        
+        
+        xi_h_over_xi_r_real = (1.0/R)*(xi_h_real*ur[k][0][0] + xi_h_imaginary*ui[k][0][0])/(ur[k][0][0]*ur[k][0][0] + ui[k][0][0]*ui[k][0][0]);
+        
+        xi_h_over_xi_r_im = (1.0/R)*(xi_h_imaginary*ur[k][0][0] - xi_h_real*ui[k][0][0])/(ur[k][0][0]*ur[k][0][0] + ui[k][0][0]*ui[k][0][0]);
+        
+        
+        
+        
+        
         
         
         
@@ -4226,6 +4239,8 @@ semimajor_axis_jupiter ! = 7.7857d13 ! jupiter semimajor axis (cm)
          85- delta_P_r_new
          86- delta_P_i_new
          87- xi_r_eq = - f * r * r / g
+         88- (xi_h/xi_r)_real
+         89- (xi_h/xi_r)_imaginary
          */
         
         
@@ -4254,7 +4269,7 @@ semimajor_axis_jupiter ! = 7.7857d13 ! jupiter semimajor axis (cm)
         outfile << pprime_comp_second_r << "\t\t" << pprime_comp_second_i << "\t\t" << num_r << "\t\t" << num_i << "\t\t" << denom_r << "\t\t" << denom_i << "\t\t" << ddelta_P_dr_r << "\t\t" << dgrr_dr*radius_cm_HR_output[k]*radius_cm_HR_output[k]/grav_HR_output[k] << "\t\t" << grav_HR_output[k]/(m*m*omega*omega*radius_cm_HR_output[k]) << "\t\t" << ( (xi_h_real*V_div_xi_r_r) + (xi_h_imaginary*V_div_xi_r_i) )/( (V_div_xi_r_r*V_div_xi_r_r) + (V_div_xi_r_i*V_div_xi_r_i) ) << "\t\t";
         
         // 81 to 90
-        outfile << ( (xi_h_imaginary*V_div_xi_r_r) - (xi_h_real*V_div_xi_r_i) )/( (V_div_xi_r_r*V_div_xi_r_r) + (V_div_xi_r_i*V_div_xi_r_i) ) << "\t\t" << dp0dr << "\t\t" << dp0dr_old << "\t\t" << dp0dr_avg << "\t\t" << delta_P_r_new << "\t\t" << delta_P_i_new << "\t\t" << -f*radius_cm_HR_output[k]*radius_cm_HR_output[k]/grav_HR_output[k] << "\n";
+        outfile << ( (xi_h_imaginary*V_div_xi_r_r) - (xi_h_real*V_div_xi_r_i) )/( (V_div_xi_r_r*V_div_xi_r_r) + (V_div_xi_r_i*V_div_xi_r_i) ) << "\t\t" << dp0dr << "\t\t" << dp0dr_old << "\t\t" << dp0dr_avg << "\t\t" << delta_P_r_new << "\t\t" << delta_P_i_new << "\t\t" << -f*radius_cm_HR_output[k]*radius_cm_HR_output[k]/grav_HR_output[k] << "\t\t" << xi_h_over_xi_r_real << "\t\t" << xi_h_over_xi_r_im << "\n";
 
         
         
