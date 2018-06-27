@@ -397,7 +397,7 @@ semimajor_axis_jupiter ! = 7.7857d13 ! jupiter semimajor axis (cm)
     mp = 1.0; // Planetary mass in terms of Jupiter masses
     mp = 1.8986e30 * mp; // converted into g
     
-    Mstar = 1.6; // Stellar mass in solar masses
+    Mstar = 1.0; // Stellar mass in solar masses
     Mstar = Mstar * 1.9892e33; // Converted into g
     
 
@@ -3834,7 +3834,7 @@ semimajor_axis_jupiter ! = 7.7857d13 ! jupiter semimajor axis (cm)
     double xi_h_r, xi_h_pprime_part, xi_r_eq, H_rho, H_p, mod_xi_radial, xi_h_real, xi_h_imaginary, mod_xi_h, delta_P_r, delta_P_i, mod_delta_P, delta_P_r_old, delta_P_i_old, delta_P_r_next, delta_P_i_next;
     double ddelta_P_dr_r, ddelta_P_dr_i, V_div_xi_r_r, V_div_xi_r_i, num_r, num_i, denom_r, denom_i, dgrr_dr, otherVdiv_r, otherVdiv_i, pprime_comp_r, pprime_comp_i;
     double Gvar_r, Gvar_i, Hvar_r, Hvar_i, gradient, pprime_comp_second_r, pprime_comp_second_i, rhoprime_r, rhoprime_i, dp0dr, dplus, dminus, dp0dr_old, dp0dr_avg, dp0dr_sum;
-    double delta_P_r_new, delta_P_i_new, xi_h_over_xi_r_real, xi_h_over_xi_r_im;
+    double delta_P_r_new, delta_P_i_new, xi_h_over_xi_r_real, xi_h_over_xi_r_im, log_mod_xi_r, log_mod_xi_h;
 
     
     
@@ -4087,6 +4087,12 @@ semimajor_axis_jupiter ! = 7.7857d13 ! jupiter semimajor axis (cm)
         
         
         
+        log_mod_xi_r = log10(R*sqrt((ur[k][0][0]*ur[k][0][0]) + (ui[k][0][0]*ui[k][0][0])));
+        
+        log_mod_xi_h = log10(sqrt((xi_h_real*xi_h_real) + (xi_h_imaginary*xi_h_imaginary)));
+        
+        
+        
         
         
         
@@ -4241,6 +4247,10 @@ semimajor_axis_jupiter ! = 7.7857d13 ! jupiter semimajor axis (cm)
          87- xi_r_eq = - f * r * r / g
          88- (xi_h/xi_r)_real
          89- (xi_h/xi_r)_imaginary
+         90- log10(mod(xi_r))
+         91- log10(mod(xi_h))
+         92- mod(xi_h/xi_r)
+         93- mod(V/xi_r)
          */
         
         
@@ -4269,7 +4279,10 @@ semimajor_axis_jupiter ! = 7.7857d13 ! jupiter semimajor axis (cm)
         outfile << pprime_comp_second_r << "\t\t" << pprime_comp_second_i << "\t\t" << num_r << "\t\t" << num_i << "\t\t" << denom_r << "\t\t" << denom_i << "\t\t" << ddelta_P_dr_r << "\t\t" << dgrr_dr*radius_cm_HR_output[k]*radius_cm_HR_output[k]/grav_HR_output[k] << "\t\t" << grav_HR_output[k]/(m*m*omega*omega*radius_cm_HR_output[k]) << "\t\t" << ( (xi_h_real*V_div_xi_r_r) + (xi_h_imaginary*V_div_xi_r_i) )/( (V_div_xi_r_r*V_div_xi_r_r) + (V_div_xi_r_i*V_div_xi_r_i) ) << "\t\t";
         
         // 81 to 90
-        outfile << ( (xi_h_imaginary*V_div_xi_r_r) - (xi_h_real*V_div_xi_r_i) )/( (V_div_xi_r_r*V_div_xi_r_r) + (V_div_xi_r_i*V_div_xi_r_i) ) << "\t\t" << dp0dr << "\t\t" << dp0dr_old << "\t\t" << dp0dr_avg << "\t\t" << delta_P_r_new << "\t\t" << delta_P_i_new << "\t\t" << -f*radius_cm_HR_output[k]*radius_cm_HR_output[k]/grav_HR_output[k] << "\t\t" << xi_h_over_xi_r_real << "\t\t" << xi_h_over_xi_r_im << "\n";
+        outfile << ( (xi_h_imaginary*V_div_xi_r_r) - (xi_h_real*V_div_xi_r_i) )/( (V_div_xi_r_r*V_div_xi_r_r) + (V_div_xi_r_i*V_div_xi_r_i) ) << "\t\t" << dp0dr << "\t\t" << dp0dr_old << "\t\t" << dp0dr_avg << "\t\t" << delta_P_r_new << "\t\t" << delta_P_i_new << "\t\t" << -f*radius_cm_HR_output[k]*radius_cm_HR_output[k]/grav_HR_output[k] << "\t\t" << xi_h_over_xi_r_real << "\t\t" << xi_h_over_xi_r_im << "\t\t" << log_mod_xi_r << "\t\t";
+        
+        // 91 to 100
+        outfile << log_mod_xi_h << "\t\t" << sqrt((xi_h_over_xi_r_real*xi_h_over_xi_r_real) + (xi_h_over_xi_r_im*xi_h_over_xi_r_im)) << "\t\t" << sqrt((V_div_xi_r_r*V_div_xi_r_r) + (V_div_xi_r_i*V_div_xi_r_i)) << "\n";
 
         
         
