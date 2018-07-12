@@ -74,7 +74,7 @@ int main()
     // This section is to do with reading input from a file
 
     ifstream infile;
-    infile.open("Input/profiles_Henyey_Ubuntu_1_0.txt");
+    infile.open("Input/profiles_Henyey_Ubuntu_conv_1_0.txt");
 
     k=0;
 
@@ -85,7 +85,7 @@ int main()
     no_of_lines = 0;
 
     ifstream linefile;
-    linefile.open("Input/profiles_Henyey_Ubuntu_1_0.txt");
+    linefile.open("Input/profiles_Henyey_Ubuntu_conv_1_0.txt");
 
     getline(linefile,line);
     while (linefile) {
@@ -116,7 +116,7 @@ int main()
     double temperature[J], rho[J], pressure[J], grada[J], cp[J], chiRho[J], chiT[J];
     double opacity[J], dkap_dlnrho_face[J], dkap_dlnT_face[J], flux[J], brunt_A[J];
     double K[J], rho_face[J], scale_height_cm[J], pressure_scale_height_cm[J];
-    double cv[J], gamma1[J], gamma3[J];
+    double cv[J], gamma1[J], gamma3[J], conv_L_div_L[J];
 
 
 
@@ -225,11 +225,21 @@ int main()
 
             gamma3[z] = input;
 
+	    infile >> input;
+
+	    conv_L_div_L[z] = input;
+
             infile >> input; // This is to get the input for the zone for the next loop (and therefore to decide whether or not to do the next loop, too)
 
 
 
         K[z] = 4.0 * 7.565767e-15 * 2.99792458e10 * temperature[z]*temperature[z]*temperature[z] / (3.0 * opacity[z] * rho[z]);
+
+
+
+	// Here flux is modified in order to just account for the radiative flux, not ALL of the flux
+
+	flux[z] = flux[z] * (1.0 - conv_L_div_L[z]);
 
 
         z = z - 1;
@@ -836,7 +846,7 @@ semimajor_axis_jupiter ! = 7.7857d13 ! jupiter semimajor axis (cm)
     double delta[3];
 
     // This is an exception, as this needs to be output at the end for plotting purposes
-    double radius_cm_HR_output[J],rmid_cm_HR_output[J],flux_HR_output[J],pressure_HR_output[J],temperature_HR_output[J],test[J],rho_HR_output[J],eta_Terquem_output[J],grav_HR_output[J],rho_face_HR_output[J];
+    double radius_cm_HR_output[J],rmid_cm_HR_output[J],flux_HR_output[J],pressure_HR_output[J],temperature_HR_output[J],test[J],rho_HR_output[J],eta_Terquem_output[J],grav_HR_output[J],rho_face_HR_output[J],Fprime_for_T[J],Fprime_for_p[J],opacity_HR_output[J],K_HR_output[J];
     
     
     
@@ -1293,8 +1303,8 @@ semimajor_axis_jupiter ! = 7.7857d13 ! jupiter semimajor axis (cm)
 
 
         // This checks the interpolation of any given variable array
-        test[k] = brunt_A_HR[0]*grav_HR[0]/radius_cm_HR[0];
-        test[k+1] = brunt_A_HR[1]*grav_HR[1]/radius_cm_HR[1];
+        test[k] = ((temperature_HR[1]-temperature_HR[0])/(rmid_cm_HR[1]-rmid_cm_HR[0]))*( - 4.0*7.5657e-15*2.99792458e10*temperature_HR[0]*temperature_HR[0]*temperature_HR[0]/( 3.0*opacity_HR[0]*rho_HR[0] ) ); //brunt_A_HR[0]*grav_HR[0]/radius_cm_HR[0];
+        test[k+1] = ((temperature_HR[1]-temperature_HR[0])/(rmid_cm_HR[1]-rmid_cm_HR[0]))*( - 4.0*7.5657e-15*2.99792458e10*temperature_HR[0]*temperature_HR[0]*temperature_HR[0]/( 3.0*opacity_HR[0]*rho_HR[0] ) ); //brunt_A_HR[1]*grav_HR[1]/radius_cm_HR[1];
 
         
         
@@ -1319,11 +1329,37 @@ semimajor_axis_jupiter ! = 7.7857d13 ! jupiter semimajor axis (cm)
         
         rho_face_HR_output[k] = rho_face_HR[0];
         rho_face_HR_output[k+1] = rho_face_HR[1];
+
+
+	opacity_HR_output[k] = opacity_HR[0];
+	opacity_HR_output[k+1] = opacity_HR[1];
+
+
+
+	K_HR_output[k] = K_HR[0];
+	K_HR_output[k+1] = K_HR[1];
         
 
         
         grav_HR_output[k] = grav_HR[0];
         grav_HR_output[k+1] = grav_HR[1];
+
+	// Made such that F' = dT0/dr * ( Fprime_for_T * T'/T0   +   dT'/dT0   -   dxi/dr   +   Fprime_for_p * p'/p0 )
+	// The strange prefactor is therefore: -(4*a*c*T^3)/(3*opacity*rho)
+	Fprime_for_T[k] = ( flux_HR[0] ) * ( 3.0 - dkap_dlnT_face_HR[0]/opacity_HR[0] + (chiT_HR[0]/chiRho_HR[0])*( 1.0 + dkap_dlnrho_face_HR[0]/opacity_HR[0] ) );
+	Fprime_for_T[k+1] = ( flux_HR[1] ) * ( 3.0 - dkap_dlnT_face_HR[1]/opacity_HR[1] + (chiT_HR[1]/chiRho_HR[1])*( 1.0 + dkap_dlnrho_face_HR[1]/opacity_HR[1] ) );
+
+	Fprime_for_p[k] = ( flux_HR[0] ) * (-1.0/chiRho_HR[0])*( 1.0 + dkap_dlnrho_face_HR[0]/opacity_HR[0] );
+	Fprime_for_p[k+1] = ( flux_HR[1] ) * (-1.0/chiRho_HR[1])*( 1.0 + dkap_dlnrho_face_HR[1]/opacity_HR[1] );
+
+	// These versions have a self-calculated value for the radiative flux, which has major issues at the surface
+	//Fprime_for_T[k] = ( - 4.0*7.5657e-15*2.99792458e10*temperature_HR[0]*temperature_HR[0]*temperature_HR[0]/( 3.0*opacity_HR[0]*rho_HR[0] ) ) * ( 3.0 - dkap_dlnT_face_HR[0]/opacity_HR[0] + (chiT_HR[0]/chiRho_HR[0])*( 1.0 + dkap_dlnrho_face_HR[0]/opacity_HR[0] ) );
+	//Fprime_for_T[k+1] = ( - 4.0*7.5657e-15*2.99792458e10*temperature_HR[1]*temperature_HR[1]*temperature_HR[1]/( 3.0*opacity_HR[1]*rho_HR[1] ) ) * ( 3.0 - dkap_dlnT_face_HR[1]/opacity_HR[1] + (chiT_HR[1]/chiRho_HR[1])*( 1.0 + dkap_dlnrho_face_HR[1]/opacity_HR[1] ) );
+
+	//Fprime_for_p[k] = ( - 4.0*7.5657e-15*2.99792458e10*temperature_HR[0]*temperature_HR[0]*temperature_HR[0]/( 3.0*opacity_HR[0]*rho_HR[0] ) ) * (-1.0/chiRho_HR[0])*( 1.0 + dkap_dlnrho_face_HR[0]/opacity_HR[0] );
+	//Fprime_for_p[k+1] = ( - 4.0*7.5657e-15*2.99792458e10*temperature_HR[1]*temperature_HR[1]*temperature_HR[1]/( 3.0*opacity_HR[1]*rho_HR[1] ) ) * (-1.0/chiRho_HR[1])*( 1.0 + dkap_dlnrho_face_HR[1]/opacity_HR[1] );
+
+
         
         
         if (k==J-1) {
@@ -2983,7 +3019,7 @@ semimajor_axis_jupiter ! = 7.7857d13 ! jupiter semimajor axis (cm)
 
 
     // BCa defined here
-
+	//cout << "FLAG line 3000\n";
     CMatrixInv(alphar,alphai,dumMAr,dumMAi,J-2,0);
 
     CMatrixMult(Fr,Fi,dumMAr,dumMAi,BCar,BCai,0,0,0);
@@ -3834,11 +3870,31 @@ semimajor_axis_jupiter ! = 7.7857d13 ! jupiter semimajor axis (cm)
     double xi_h_r, xi_h_pprime_part, xi_r_eq, H_rho, H_p, mod_xi_radial, xi_h_real, xi_h_imaginary, mod_xi_h, delta_P_r, delta_P_i, mod_delta_P, delta_P_r_old, delta_P_i_old, delta_P_r_next, delta_P_i_next;
     double ddelta_P_dr_r, ddelta_P_dr_i, V_div_xi_r_r, V_div_xi_r_i, num_r, num_i, denom_r, denom_i, dgrr_dr, otherVdiv_r, otherVdiv_i, pprime_comp_r, pprime_comp_i;
     double Gvar_r, Gvar_i, Hvar_r, Hvar_i, gradient, pprime_comp_second_r, pprime_comp_second_i, rhoprime_r, rhoprime_i, dp0dr, dplus, dminus, dp0dr_old, dp0dr_avg, dp0dr_sum;
-    double delta_P_r_new, delta_P_i_new, xi_h_over_xi_r_real, xi_h_over_xi_r_im, log_mod_xi_r, log_mod_xi_h;
+    double delta_P_r_new, delta_P_i_new, xi_h_over_xi_r_real, xi_h_over_xi_r_im, log_mod_xi_r, log_mod_xi_h, d2p_dr2, dp_dr, d2p0_dr2, dp0dr_plus, dp0dr_minus;
+    double dDeltaP_dr_b_r, dDeltaP_dr_b_i, dpprime_dr_b_r, dpprime_dr_b_i, dxi_r_dr_b_r, dxi_r_dr_b_i, dp0_dr_b, d2p0_dr2_b, V_div_xi_r_b_r, V_div_xi_r_b_i;
+    double xi_r_analytic_r, xi_r_analytic_i, D_analytic, V_analytic_r, V_analytic_i, Fprime_analytic_r, Fprime_analytic_i, dTprime_dT_r, dTprime_dT_i, dT0_dr, dxi_r_dr_r, dxi_r_dr_i, deltaP_hydro_r, deltaP_hydro_i;
 
-    
-    
-    
+    //
+    //
+    //
+    //
+    //
+    //    
+    //
+    //
+    // This is the loop for output
+    //
+    //
+    //
+    //
+    //
+    //
+    //
+    //
+    //
+    //
+
+    kold = 0;
     
     for (k=0; k<J; k=k+1) {
         
@@ -3846,6 +3902,161 @@ semimajor_axis_jupiter ! = 7.7857d13 ! jupiter semimajor axis (cm)
         
         xi_h_pprime_part = m*omega*((mp + Mstar)/(100.0*mp)) * (1.0/(rmid_cm_HR_output[k] * m * m * omega * omega)) * ( (pressure_HR_output[k] * vr[k][0][0] / rho_HR_output[k]) );
         
+
+	// Here the value for kold is calculated
+       if ( rmid_cm_HR_output[k] < 0.5*(rmid_cm[0]+rmid_cm[1]) ) {
+          // We need to use the 0th, 1st and 2nd old cells, so set kold = 1
+          kold = 1;
+
+       } else {
+
+	       if (rmid_cm_HR_output[k] > 0.5*(rmid_cm[Jold-2]+rmid_cm[Jold-1]) ) {
+		    // We need to use the Jold-3, Jold-2 and Jold-1 cells, so set kold = Jold-2
+		    kold = Jold - 2;
+
+	       } else {
+
+		    if ( rmid_cm_HR_output[k] > 0.5*(rmid_cm[kold-1]+rmid_cm[kold]) && rmid_cm_HR_output[k] < 0.5*(rmid_cm[kold]+rmid_cm[kold+1]) ) {
+			// If our current value for kold works, we keep it
+			kold = kold;
+
+		    } else {
+
+			for (kold=0; rmid_cm_HR_output[k] > 0.5*(rmid_cm[kold]+rmid_cm[kold+1]); kold = kold + 1 ){
+			// Don't need anything in here, as it is all covered by the for loop itself
+			}
+
+		    }
+
+
+
+	       }
+
+
+       }
+
+	// Checking the value of kold that has been chosen
+
+	if ( rmid_cm_HR_output[k] > 0.5*(rmid_cm[kold-1]+rmid_cm[kold]) && rmid_cm_HR_output[k] < 0.5*(rmid_cm[kold]+rmid_cm[kold+1]) ) {
+		// Everything is okay here
+	} else {
+		cout << "Oh dear! Problem with the value of kold for k = " << k << ", at rmid_cm = " << rmid_cm_HR_output[k] << "\n";
+
+	}
+
+
+	if (k % 10000000000 == 0) {
+		cout << 0.5*(rmid_cm[kold-1]+rmid_cm[kold])/R << "\t\t" << rmid_cm_HR_output[k]/R << "\t\t" << 0.5*(rmid_cm[kold]+rmid_cm[kold+1])/R << "\n";
+
+		cout << "rmid_cm_HR_output[k] = " << rmid_cm_HR_output[k] << "\n";
+		cout << "rmid_cm_[kold-1] = " << rmid_cm[kold-1] << "\n";
+		cout << "rmid_cm[kold] = " << rmid_cm[kold] << "\n";
+		cout << "rmid_cm[kold+1] = " << rmid_cm[kold+1] << "\n";
+		cout << "pressure[kold-1] = " << pressure[kold-1] << "\n";
+		cout << "pressure[kold] = " << pressure[kold] << "\n";
+		cout << "pressure[kold+1] = " << pressure[kold+1] << "\n";
+	}
+
+	// Here the first and second derivatives of the background pressure are calculated, I reuse the delta[3] array from earlier
+
+	delta[0] = rmid_cm_HR_output[k] - rmid_cm[kold-1];
+	delta[1] = rmid_cm_HR_output[k] - rmid_cm[kold];
+	delta[2] = rmid_cm[kold+1] - rmid_cm_HR_output[k];
+
+	dp_dr = pressure[kold+1]*(delta[1] - delta[0])/( (delta[2]+delta[0])*(delta[1]-delta[2]) )   +   pressure[kold]*(delta[0]-delta[2])/( (delta[1]-delta[2])/(delta[1]+delta[0]) )   -   pressure[kold-1]*(delta[1]+delta[2])/( (delta[2]+delta[0])*(delta[1]+delta[0]) );
+
+	d2p_dr2 = -2.0*pressure[kold+1]/( (delta[1]-delta[2])*(delta[0]+delta[2]) )   +   2.0*pressure[kold]/( (delta[1]-delta[2])*(delta[1]+delta[0]) )   +   2.0*pressure[kold-1]/( (delta[2]+delta[0])*(delta[1]+delta[0]) );
+
+
+	d2p0_dr2 = ((2.0)/( (delta[2]+delta[0])*delta[2]*delta[0] ))*(  pressure[kold+1]*delta[0]  -  pressure_HR_output[k]*(delta[2]+delta[0]) + pressure[kold-1]*delta[2]  );
+
+
+
+
+
+	// These are the variables which I am using for this version of getting dDeltaP_dr_b_r etc, because I want to see if I can get it to be a little bit smoother
+	// dDeltaP_dr_b_r, dDeltaP_dr_b_i, dpprime_dr_b_r, dpprime_dr_b_i, dxi_r_dr_r, dxi_r_dr_b_i, dp0_dr_b, d2p0_dr2_b
+
+	if (k == 0) {
+
+		dpprime_dr_b_r = (pressure_HR_output[1]*vr[1][0][0] - pressure_HR_output[0]*vr[0][0][0])/(rmid_cm_HR_output[1] - rmid_cm_HR_output[0]);
+
+		dpprime_dr_b_i = (pressure_HR_output[1]*vi[1][0][0] - pressure_HR_output[0]*vi[0][0][0])/(rmid_cm_HR_output[1] - rmid_cm_HR_output[0]);
+
+		dxi_r_dr_b_r = R*(ur[k+1][0][0] - ur[k][0][0])/(radius_cm_HR_output[k+1] - radius_cm_HR_output[k]);
+
+		dxi_r_dr_b_i = R*(ui[k+1][0][0] - ui[k][0][0])/(radius_cm_HR_output[k+1] - radius_cm_HR_output[k]);
+
+		dp0_dr_b = (pressure_HR_output[1] - pressure_HR_output[0])/(rmid_cm_HR_output[1] - rmid_cm_HR_output[0]);
+
+		// Just reuse this from earlier, at least for the moment. See if it's good enough and then maybe upgrade it later
+		d2p0_dr2_b = d2p0_dr2;
+
+		// We don't include xi_r in this one, as it's at the centre, xo xi_r should = 0
+		dDeltaP_dr_b_r = dpprime_dr_b_r  +  ( dxi_r_dr_b_r * dp0_dr_b ); // + ( R*ur[k][0][0]*d2p0_dr2_b );
+
+		dDeltaP_dr_b_r = dpprime_dr_b_i  +  ( dxi_r_dr_b_i * dp0_dr_b ); // + ( R*ui[k][0][0]*d2p0_dr2_b );
+
+	} else {
+
+		if (k == J-1) {
+
+			dpprime_dr_b_r = (pressure_HR_output[J-1]*vr[J-1][0][0] - pressure_HR_output[J-2]*vr[J-2][0][0])/(rmid_cm_HR_output[J-1] - rmid_cm_HR_output[J-2]);
+
+			dpprime_dr_b_i = (pressure_HR_output[J-1]*vi[J-1][0][0] - pressure_HR_output[J-2]*vi[J-2][0][0])/(rmid_cm_HR_output[J-1] - rmid_cm_HR_output[J-2]);
+
+			dxi_r_dr_b_r = R*(ur[k][0][0] - ur[k-1][0][0])/(radius_cm_HR_output[k] - radius_cm_HR_output[k-1]);
+
+			dxi_r_dr_b_i = R*(ui[k][0][0] - ui[k-1][0][0])/(radius_cm_HR_output[k] - radius_cm_HR_output[k-1]);
+
+			dp0_dr_b = (pressure_HR_output[k] - pressure_HR_output[k-1])/(rmid_cm_HR_output[k] - rmid_cm_HR_output[k-1]);
+
+			// Just reuse this from earlier, at least for the moment. See if it's good enough and then maybe upgrade it later
+			d2p0_dr2_b = d2p0_dr2;
+
+
+
+		} else {
+
+			delta[0] = rmid_cm_HR_output[k] - rmid_cm_HR_output[k-1];
+			delta[1] = rmid_cm_HR_output[k] - rmid_cm_HR_output[k];
+			delta[2] = rmid_cm_HR_output[k+1] - rmid_cm_HR_output[k];
+
+			dpprime_dr_b_r = pressure_HR_output[k+1]*vr[k+1][0][0]*delta[0]/(delta[2]*( delta[0] + delta[2] ))   +   pressure_HR_output[k]*vr[k][0][0]*(delta[2] - delta[0])/(delta[0]*delta[2])   -   pressure_HR_output[k-1]*vr[k-1][0][0]*delta[2]/(delta[0]*( delta[0]+delta[2] ));
+
+			dpprime_dr_b_i = pressure_HR_output[k+1]*vi[k+1][0][0]*delta[0]/(delta[2]*( delta[0] + delta[2] ))   +   pressure_HR_output[k]*vi[k][0][0]*(delta[2] - delta[0])/(delta[0]*delta[2])   -   pressure_HR_output[k-1]*vi[k-1][0][0]*delta[2]/(delta[0]*( delta[0]+delta[2] ));
+
+			dxi_r_dr_b_r = R*(ur[k][0][0] - ur[k-1][0][0])/(radius_cm_HR_output[k] - radius_cm_HR_output[k-1]);
+
+			dxi_r_dr_b_i = R*(ui[k][0][0] - ui[k-1][0][0])/(radius_cm_HR_output[k] - radius_cm_HR_output[k-1]);
+
+			dp0_dr_b = pressure_HR_output[k+1]*delta[0]/(delta[2]*( delta[0] + delta[2] ))   +   pressure_HR_output[k]*(delta[2] - delta[0])/(delta[0]*delta[2])   -   pressure_HR_output[k-1]*delta[2]/(delta[0]*( delta[0]+delta[2] ));
+
+			// Just reuse this from earlier, at least for the moment. See if it's good enough and then maybe upgrade it later
+			d2p0_dr2_b = d2p0_dr2;
+
+		}
+
+
+		// Here the cases for k != 0 are all covered
+		dDeltaP_dr_b_r = dpprime_dr_b_r  +  ( dxi_r_dr_b_r * dp0_dr_b )  +  ( 0.5*R*(ur[k][0][0] + ur[k-1][0][0])*d2p0_dr2_b );
+
+		dDeltaP_dr_b_i = dpprime_dr_b_i  +  ( dxi_r_dr_b_i * dp0_dr_b )  +  ( 0.5*R*(ui[k][0][0] + ui[k-1][0][0])*d2p0_dr2_b );
+
+
+
+
+	}
+
+
+
+	// The above stuff is used to give V_div_xi_r later on, once the derivatice of g*r^2 has been calculated
+
+
+
+
+
+
         
         // This saves the delta_P values from the previous step with the suffix _old
         delta_P_r_old = delta_P_r;
@@ -4027,9 +4238,9 @@ semimajor_axis_jupiter ! = 7.7857d13 ! jupiter semimajor axis (cm)
             
         }
         
+
         
-        
-        // Here we get the numerator and denomiator in real and imaginary parts for the caluclation of V_div_xi_r HAVE I FORGOTTEN ABOUT THE m FOR THE omega vs m*omega BITS??
+        // Here we get the numerator and denomiator in real and imaginary parts for the caluclation of V_div_xi_r
         
         num_r = (grav_HR_output[k]/(rmid_cm_HR_output[k]*m*m*omega*omega)) * (   -ddelta_P_dr_r   +   (rho_HR_output[k]*f*rmid_cm_HR_output[k]*rmid_cm_HR_output[k]*( -(2.0/rmid_cm_HR_output[k]) + (rmid_cm_HR_output[k]*rmid_cm_HR_output[k]/grav_HR_output[k])*dgrr_dr ) )  );
         
@@ -4042,11 +4253,88 @@ semimajor_axis_jupiter ! = 7.7857d13 ! jupiter semimajor axis (cm)
         V_div_xi_r_r = (  (num_r*denom_r)  +  (num_i*denom_i)  )/(  (denom_r*denom_r)  +  (denom_i*denom_i)  );
         
         V_div_xi_r_i = (  num_i*denom_r  -  num_r*denom_i  )/(  denom_r*denom_r  +  denom_i*denom_i  );
+
+
+
+
+	// Here we do it for the other attempt at getting the derivative of DeltaP (that is, attempt b)
+
+	num_r = (grav_HR_output[k]/(rmid_cm_HR_output[k]*m*m*omega*omega)) * (   -dDeltaP_dr_b_r   +   (rho_HR_output[k]*f*rmid_cm_HR_output[k]*rmid_cm_HR_output[k]*( -(2.0/rmid_cm_HR_output[k]) + (rmid_cm_HR_output[k]*rmid_cm_HR_output[k]/grav_HR_output[k])*dgrr_dr ) )  );
+        
+        num_i = (grav_HR_output[k]/(rmid_cm_HR_output[k]*m*m*omega*omega)) * (   -dDeltaP_dr_b_i   );
+        
+        denom_r = - (  dDeltaP_dr_b_r + 2.0*rho_HR_output[k]*f*rmid_cm_HR_output[k]*rmid_cm_HR_output[k]*( (1.0/rmid_cm_HR_output[k]) + ((3.0*grav_HR_output[k])/(rmid_cm_HR_output[k]*rmid_cm_HR_output[k]*m*m*omega*omega)) )  );
+        
+        denom_i = - dDeltaP_dr_b_i;
+        
+        V_div_xi_r_b_r = (  (num_r*denom_r)  +  (num_i*denom_i)  )/(  (denom_r*denom_r)  +  (denom_i*denom_i)  );
+        
+        V_div_xi_r_b_i = (  num_i*denom_r  -  num_r*denom_i  )/(  denom_r*denom_r  +  denom_i*denom_i  );
         
        
 
         
-        
+        // Here the analytic expression for xi_r is caluclated
+
+	D = (1.0  -  l*(l+1.0)*grav_HR_output[k]*grav_HR_output[k]/(rmid_cm_HR_output[k]*rmid_cm_HR_output[k]*m*m*m*m*omega*omega*omega*omega)   -   (rmid_cm_HR_output[k]*rmid_cm_HR_output[k]/(m*m*omega*omega))*dgrr_dr  );
+
+
+	xi_r_analytic_r = (-1.0/(m*m*omega*omega*rho_HR_output[k]*D)) * (  -dDeltaP_dr_b_r - ( l*(l+1.0)*grav_HR_output[k]*delta_P_r/(rmid_cm_HR_output[k]*rmid_cm_HR_output[k]*m*m*omega*omega) )  -  rho_HR_output[k]*( 2.0*f*rmid_cm_HR_output[k] + l*(l+1.0)*grav_HR_output[k]*f/(m*m*omega*omega) )  );
+
+	xi_r_analytic_i = (-1.0/(m*m*omega*omega*rho_HR_output[k]*D)) * (  -dDeltaP_dr_b_i - ( l*(l+1.0)*grav_HR_output[k]*delta_P_i/(rmid_cm_HR_output[k]*rmid_cm_HR_output[k]*m*m*omega*omega) )  );
+
+
+	// Here the analytic expression for V is calculated
+
+	V_analytic_r = (1.0/(D*m*m*omega*omega*radius_cm_HR_output[k]*rho_HR_output[k]))  *  (   (grav_HR_output[k]*dDeltaP_dr_b_r)/(m*m*omega*omega)   +   delta_P_r*( 1.0- (radius_cm_HR_output[k]*radius_cm_HR_output[k]*dgrr_dr)/(m*m*omega*omega) )   +   rho_HR_output[k]*( 2.0*f*radius_cm_HR_output[k]*grav_HR_output[k]/(m*m*omega*omega)  + f*radius_cm_HR_output[k]*radius_cm_HR_output[k]*( 1.0 - (radius_cm_HR_output[k]*radius_cm_HR_output[k]*dgrr_dr)/(m*m*omega*omega) ) )   );
+
+	V_analytic_i = (1.0/(D*m*m*omega*omega*radius_cm_HR_output[k]*rho_HR_output[k]))  *  (   (grav_HR_output[k]*dDeltaP_dr_b_i)/(m*m*omega*omega)   +   delta_P_i*( 1.0- (radius_cm_HR_output[k]*radius_cm_HR_output[k]*dgrr_dr)/(m*m*omega*omega) )   );
+
+
+	// Here the analytic expression for F' is calculated according to the earlier definitions such that F' = F0 * ( Fprime_forT * T'/T0  +  dT'/dT - dxi/dr  +  Fprime_for_p * p'/p0 )
+
+	if ( k == J-1) {
+		// dTprime_dT and dT0_dr are unchanged
+		dTprime_dT_r = dTprime_dT_r;
+		dTprime_dT_i = dTprime_dT_i;
+
+		dT0_dr = dT0_dr;
+
+		dxi_r_dr_r = dxi_r_dr_r;
+		dxi_r_dr_i = dxi_r_dr_i;
+
+		delta[0] = (rmid_cm_HR_output[k] - radius_cm_HR_output[k])/(rmid_cm_HR_output[k] - rmid_cm_HR_output[k-1]);
+		delta[1] = (radius_cm_HR_output[k] - rmid_cm_HR_output[k-1])/(rmid_cm_HR_output[k] - rmid_cm_HR_output[k-1]);
+
+		Fprime_analytic_r = ( Fprime_for_T[k]*(delta[0]*vr[k-1][1][0] + delta[1]*vr[k][1][0])  +  ( flux_HR_output[k] )*(dTprime_dT_r)  +  Fprime_for_p[k]*(delta[0]*vr[k-1][0][0] + delta[1]*vr[k][0][0]) );
+
+		Fprime_analytic_i = ( Fprime_for_T[k]*(delta[0]*vi[k-1][1][0] + delta[1]*vi[k][1][0])  +  ( flux_HR_output[k] )*(dTprime_dT_r)  +  Fprime_for_p[k]*(delta[0]*vi[k-1][0][0] + delta[1]*vi[k][0][0]) );
+ 
+	} else {
+
+		dTprime_dT_r = ( temperature_HR_output[k+1]*vr[k+1][1][0]  -  temperature_HR_output[k]*vr[k][1][0] )/( temperature_HR_output[k+1]  -  temperature_HR_output[k] );
+		dTprime_dT_i = ( temperature_HR_output[k+1]*vi[k+1][1][0]  -  temperature_HR_output[k]*vi[k][1][0] )/( temperature_HR_output[k+1]  -  temperature_HR_output[k] );
+
+		dT0_dr = (temperature_HR_output[k+1] - temperature_HR_output[k])/(rmid_cm_HR_output[k+1] - rmid_cm_HR_output[k]);
+
+		dxi_r_dr_r = R*( ur[k+1][0][0] - ur[k][0][0] )/( radius_cm_HR_output[k+1] - radius_cm_HR_output[k] );
+
+		dxi_r_dr_i = R*( ui[k+1][0][0] - ui[k][0][0] )/( radius_cm_HR_output[k+1] - radius_cm_HR_output[k] );
+
+		delta[0] = (rmid_cm_HR_output[k+1] - radius_cm_HR_output[k])/(rmid_cm_HR_output[k+1] - rmid_cm_HR_output[k]);
+		delta[1] = (radius_cm_HR_output[k] - rmid_cm_HR_output[k])/(rmid_cm_HR_output[k+1] - rmid_cm_HR_output[k]);
+
+		Fprime_analytic_r = ( Fprime_for_T[k]*(delta[0]*vr[k][1][0] + delta[1]*vr[k+1][1][0])  +  ( flux_HR_output[k] )*(dTprime_dT_r)  +  Fprime_for_p[k]*(delta[0]*vr[k][0][0] + delta[1]*vr[k+1][0][0]) );
+
+		Fprime_analytic_i = ( Fprime_for_T[k]*(delta[0]*vi[k][1][0] + delta[1]*vi[k+1][1][0])  +  ( flux_HR_output[k] )*(dTprime_dT_r)  +  Fprime_for_p[k]*(delta[0]*vi[k][0][0] + delta[1]*vi[k+1][0][0]) );
+
+	}
+
+	//cout << "Flag by Fprime, " << k << "\n";
+
+
+
+
         
         
         
@@ -4092,6 +4380,25 @@ semimajor_axis_jupiter ! = 7.7857d13 ! jupiter semimajor axis (cm)
         log_mod_xi_h = log10(sqrt((xi_h_real*xi_h_real) + (xi_h_imaginary*xi_h_imaginary)));
         
         
+
+
+	// Here I get deltaP by using hydrostatic equilibrium to say dp-/dr = - rho*grav
+	if (k==0) {
+
+		deltaP_hydro_r = pressure_HR_output[k]*vr[k][0][0] - R*0.5*(ur[k+1][0][0] + ur[k][0][0])*rho_HR_output[k]*grav_HR_output[k];
+
+		deltaP_hydro_i = pressure_HR_output[k]*vi[k][0][0] - R*0.5*(ui[k+1][0][0] + ui[k][0][0])*rho_HR_output[k]*grav_HR_output[k];
+
+
+
+
+	} else {
+
+		deltaP_hydro_r = pressure_HR_output[k]*vr[k][0][0] - R*0.5*(ur[k][0][0] + ur[k-1][0][0])*rho_HR_output[k]*grav_HR_output[k];
+
+		deltaP_hydro_i = pressure_HR_output[k]*vi[k][0][0] - R*0.5*(ui[k][0][0] + ui[k-1][0][0])*rho_HR_output[k]*grav_HR_output[k];
+
+	}
         
         
         
@@ -4187,7 +4494,7 @@ semimajor_axis_jupiter ! = 7.7857d13 ! jupiter semimajor axis (cm)
          27- p' (c * pressure)
          28- T' (d * temperature)
          29- m * omega * xi_r in units given in Terquem, 1998 (figure 1): ( mp / (mp + Mstar) ) m/s
-         30- a (imaginary part)
+         30- a (imaginary part)pl file u  
          31- b (imaginary part)
          32- c (imaginary part)
          33- d (imaginary part)
@@ -4242,7 +4549,7 @@ semimajor_axis_jupiter ! = 7.7857d13 ! jupiter semimajor axis (cm)
          82- dp0dr (pressure gradient)
          83- dp0dr_old (simpler version of pressure gradient, for comparison)
          84- dp0dr_avg
-         85- delta_P_r_new
+         85- delta_P_r_new  -- BEWARE as this breaks when the cells change size, and it breaks in quite a big way
          86- delta_P_i_new
          87- xi_r_eq = - f * r * r / g
          88- (xi_h/xi_r)_real
@@ -4251,8 +4558,44 @@ semimajor_axis_jupiter ! = 7.7857d13 ! jupiter semimajor axis (cm)
          91- log10(mod(xi_h))
          92- mod(xi_h/xi_r)
          93- mod(V/xi_r)
+	 94- dp_dr (second order interpolation for gradient of background pressure)
+	 95- d2p_dr2 (second order interpolation for secondderivative of background pressure)
+	 96- d2p0_dr2 (essentially first order interpolation kind of thing)
+	 97- dDeltaP_dr_b_r
+	 98- dDeltaP_dr_b_i
+	 99- dpprime_dr_b_r
+	100- dpprime_dr_b_i
+	101- dxi_r_dr_b_r
+	102- dxi_r_dr_b_i
+	103- dp0_dr_b
+	104- d2p0_dr2_b
+	105- V_div_xi_r_b_r
+	106- V_div_xi_r_b_i
+	107- xi_r_analytic_r
+	108- xi_r_analytic_i
+	109- V_analytic_r
+	110- V_analytic_iz\
+	111- Fprime_analytic_r
+	112- Fprime_analytic_i
+	113- dTprime_dT_r
+	114- dTprime_dT_i
+	115- Fprime_analytic_r T' part
+	116- Fprime_analytic_i T' part
+	117- Fprime_analytic_r p' part
+	118- Fprime_analytic_i p' part
+	119- Fprime_analytic_r gradT part
+	120- Fprime_analytic_i gradT part
+	121- flux_recovered  ->  radiative flux directly computed
+	122- -K*dT0_dr
+	123- rho*g
+	124- deltaP_hydro_r  -> this uses hydrostatic equilibrium to use dp0_dr = -rho*g
+	125- deltaP_hydro_i
+	
          */
-        
+
+//	Fprime_analytic_r = dT0_dr*( Fprime_for_T[k]*vr[k][1][0]  +  ( - 4.0*7.5657e-15*2.99792458e10*temperature_HR_output[k]*temperature_HR_output[k]*temperature_HR_output[k]/( 3.0*opacity_HR_output[k]*rho_HR_output[k] ) )*(dTprime_dT_r  -  dxi_r_dr_r)  +  Fprime_for_p[k]*vr[k][0][0] );
+
+//	Fprime_analytic_i = dT0_dr*( Fprime_for_T[k]*vi[k][1][0]  +  ( - 4.0*7.5657e-15*2.99792458e10*temperature_HR_output[k]*temperature_HR_output[k]*temperature_HR_output[k]/( 3.0*opacity_HR_output[k]*rho_HR_output[k] ) )*(dTprime_dT_i  -  dxi_r_dr_i)  +  Fprime_for_p[k]*vi[k][0][0] );
         
         // 1 to 10
         outfile << radius_cm_HR_output[k]/R << "\t\t\t" << ur[k][0][0] << "\t\t" << ur[k][1][0] << "\t\t" << vr[k][0][0] << "\t\t" << vr[k][1][0] << "\t\t" << alphar[k][0][0] << "\t" << alphar[k][0][1] << "\t" << alphar[k][1][0] << "\t" << alphar[k][1][1] << "\t" << alphai[k][0][0] << "\t";
@@ -4282,7 +4625,16 @@ semimajor_axis_jupiter ! = 7.7857d13 ! jupiter semimajor axis (cm)
         outfile << ( (xi_h_imaginary*V_div_xi_r_r) - (xi_h_real*V_div_xi_r_i) )/( (V_div_xi_r_r*V_div_xi_r_r) + (V_div_xi_r_i*V_div_xi_r_i) ) << "\t\t" << dp0dr << "\t\t" << dp0dr_old << "\t\t" << dp0dr_avg << "\t\t" << delta_P_r_new << "\t\t" << delta_P_i_new << "\t\t" << -f*radius_cm_HR_output[k]*radius_cm_HR_output[k]/grav_HR_output[k] << "\t\t" << xi_h_over_xi_r_real << "\t\t" << xi_h_over_xi_r_im << "\t\t" << log_mod_xi_r << "\t\t";
         
         // 91 to 100
-        outfile << log_mod_xi_h << "\t\t" << sqrt((xi_h_over_xi_r_real*xi_h_over_xi_r_real) + (xi_h_over_xi_r_im*xi_h_over_xi_r_im)) << "\t\t" << sqrt((V_div_xi_r_r*V_div_xi_r_r) + (V_div_xi_r_i*V_div_xi_r_i)) << "\n";
+        outfile << log_mod_xi_h << "\t\t" << sqrt((xi_h_over_xi_r_real*xi_h_over_xi_r_real) + (xi_h_over_xi_r_im*xi_h_over_xi_r_im)) << "\t\t" << sqrt((V_div_xi_r_r*V_div_xi_r_r) + (V_div_xi_r_i*V_div_xi_r_i)) << "\t\t" << dp_dr << "\t\t" << d2p_dr2 << "\t\t" << d2p0_dr2 << "\t\t" << dDeltaP_dr_b_r << "\t\t" << dDeltaP_dr_b_i << "\t\t" << dpprime_dr_b_r << "\t\t" << dpprime_dr_b_i << "\t\t";
+
+	// 101 to 110
+	outfile << dxi_r_dr_b_r << "\t\t" << dxi_r_dr_b_i << "\t\t" << dp0_dr_b << "\t\t" << d2p0_dr2_b << "\t\t" << V_div_xi_r_b_r << "\t\t" << V_div_xi_r_b_i << "\t\t" << xi_r_analytic_r << "\t\t" << xi_r_analytic_i << "\t\t" << V_analytic_r << "\t\t" << V_analytic_i << "\t\t";
+
+	// 111 to 120
+	outfile << Fprime_analytic_r << "\t\t" << Fprime_analytic_i << "\t\t" << dTprime_dT_r << "\t\t" << dTprime_dT_i << "\t\t" << ( Fprime_for_T[k]*vr[k][1][0]) << "\t\t" << ( Fprime_for_T[k]*vi[k][1][0]) << "\t\t" << Fprime_for_p[k]*vr[k][0][0] << "\t\t" << Fprime_for_p[k]*vi[k][0][0] << "\t\t" << (flux_HR_output[k])*(dTprime_dT_r  -  0.0*dxi_r_dr_r) << "\t\t" << (flux_HR_output[k])*(dTprime_dT_i  -  dxi_r_dr_i) << "\t\t";
+
+	// 121 to 130
+	outfile << dT0_dr*( - 4.0*7.5657e-15*2.99792458e10*temperature_HR_output[k]*temperature_HR_output[k]*temperature_HR_output[k]/( 3.0*opacity_HR_output[k]*rho_HR_output[k] ) ) << "\t\t" << -K_HR_output[k]*dT0_dr << "\t\t" << -rho_HR_output[k]*grav_HR_output[k] << "\t\t" << deltaP_hydro_r << "\t\t" << deltaP_hydro_i << "\n";
 
         
         
@@ -5042,7 +5394,7 @@ int FunctionF(double* xadd, double* f)
 
 	x = *xadd;
 
-	*f = 0.00005 + 0.0001*x*x;
+	*f = 0.01+0.03*x*x; //0.00005 + 0.00015*x*x;
 
    return (0);
 }
@@ -5056,7 +5408,7 @@ int FunctionG(double* xadd, double* g)
 
 	x = *xadd;
 	
-    *g = 0.0000035;
+    *g = 0.000000027; //0.0000035;
 
    return (0);
 }
@@ -5071,12 +5423,12 @@ int FunctionY(double* xadd, double* y)
 	x = *xadd;
 
 	// This defines where the transition from f to g takes place
-    x0 = 0.98;
+    x0 = 0.9995; //0.98;
 
 	// This defines the scale over which the change takes place
 	//BEWARE!! If beta becomes too small, then we get issues with the exponentials
 	// BUT!! That has now been sorted by manually avoiding the exponentials once far from the transition point
-	beta = 0.0005;
+	beta = 0.0000005; //0.0005;
 
 	near = std::abs((x-x0)/beta);
 
@@ -5086,7 +5438,7 @@ int FunctionY(double* xadd, double* y)
 
 	// We only want to include the exponentials if we are near the transition point,
 	// otherwise we just assert what the value is, as either f or g, as appropriate
-	if (near < 70 ) {
+	if (near < 30 ) {
 
 	*y = ( (f*exp(-(x-x0)/beta))/(1.0 + exp(-(x-x0)/beta)) ) + ( (g*exp((x-x0)/beta))/(1.0 + exp((x-x0)/beta)) );
 
@@ -5296,9 +5648,9 @@ int MakeGrid(int J_new, double ratio_max)
     gridfile.close();
     
     // This inverts the file, so that it goes from the centre outwards, instead of from the surface inwards
-    //system("awk '{a[i++]=$0} END {for (j=i-1; j>=0;) print a[j--] > \"Memory/grid_new_centre.txt\" }' Memory/grid_new_surface.txt");
+    system("awk '{a[i++]=$0} END {for (j=i-1; j>=0;) print a[j--] > \"Memory/grid_new_centre.txt\" }' Memory/grid_new_surface.txt");
     
-    system("tail -r \"Memory/grid_new_surface.txt\" > \"Memory/grid_new_centre.txt\"");
+    //system("tail -r \"Memory/grid_new_surface.txt\" > \"Memory/grid_new_centre.txt\"");
     
     /*
     string instruction1, instruction2, full_instruction, J_new_string;
@@ -5322,6 +5674,7 @@ int MakeGrid(int J_new, double ratio_max)
     return (0);
 
 }
+
 
 
 
