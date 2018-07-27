@@ -443,7 +443,7 @@ semimajor_axis_jupiter ! = 7.7857d13 ! jupiter semimajor axis (cm)
     
     // Here I artificially modify JUST omega, and nothing else -- this is an unphysical situation because it leaves the orbital distance and masses unchanged, but alters the frequency in isolation
     
-    omega = omega/1.0;
+    omega = omega*1.00;
     
     
     
@@ -1303,13 +1303,12 @@ semimajor_axis_jupiter ! = 7.7857d13 ! jupiter semimajor axis (cm)
 
 
         // This checks the interpolation of any given variable array
-        test[k] = ((temperature_HR[1]-temperature_HR[0])/(rmid_cm_HR[1]-rmid_cm_HR[0]))*( - 4.0*7.5657e-15*2.99792458e10*temperature_HR[0]*temperature_HR[0]*temperature_HR[0]/( 3.0*opacity_HR[0]*rho_HR[0] ) ); //brunt_A_HR[0]*grav_HR[0]/radius_cm_HR[0];
-        test[k+1] = ((temperature_HR[1]-temperature_HR[0])/(rmid_cm_HR[1]-rmid_cm_HR[0]))*( - 4.0*7.5657e-15*2.99792458e10*temperature_HR[0]*temperature_HR[0]*temperature_HR[0]/( 3.0*opacity_HR[0]*rho_HR[0] ) ); //brunt_A_HR[1]*grav_HR[1]/radius_cm_HR[1];
+        test[k] = (radius_cm_HR[1] - radius_cm_HR[0])/R; //((temperature_HR[1]-temperature_HR[0])/(rmid_cm_HR[1]-rmid_cm_HR[0]))*( - 4.0*7.5657e-15*2.99792458e10*temperature_HR[0]*temperature_HR[0]*temperature_HR[0]/( 3.0*opacity_HR[0]*rho_HR[0] ) ); //brunt_A_HR[0]*grav_HR[0]/radius_cm_HR[0];
+        test[k+1] = (radius_cm_HR[1] - radius_cm_HR[0])/R; //((temperature_HR[1]-temperature_HR[0])/(rmid_cm_HR[1]-rmid_cm_HR[0]))*( - 4.0*7.5657e-15*2.99792458e10*temperature_HR[0]*temperature_HR[0]*temperature_HR[0]/( 3.0*opacity_HR[0]*rho_HR[0] ) ); //brunt_A_HR[1]*grav_HR[1]/radius_cm_HR[1];
 
         
         
-        
-        
+
         
         
         
@@ -5394,7 +5393,7 @@ int FunctionF(double* xadd, double* f)
 
 	x = *xadd;
 
-	*f = 0.01+0.03*x*x; //0.00005 + 0.00015*x*x;
+	*f = 0.00005 + 0.00015*x*x; //0.01+0.03*x*x; //0.00005 + 0.00015*x*x;
 
    return (0);
 }
@@ -5408,7 +5407,7 @@ int FunctionG(double* xadd, double* g)
 
 	x = *xadd;
 	
-    *g = 0.000000027; //0.0000035;
+    *g = 0.0000035; // 0.000000027; //0.0000035;
 
    return (0);
 }
@@ -5423,12 +5422,12 @@ int FunctionY(double* xadd, double* y)
 	x = *xadd;
 
 	// This defines where the transition from f to g takes place
-    x0 = 0.9995; //0.98;
+    x0 = 0.98; //0.9995; //0.98;
 
 	// This defines the scale over which the change takes place
 	//BEWARE!! If beta becomes too small, then we get issues with the exponentials
 	// BUT!! That has now been sorted by manually avoiding the exponentials once far from the transition point
-	beta = 0.0000005; //0.0005;
+	beta = 0.0005; //0.0000005; //0.0005;
 
 	near = std::abs((x-x0)/beta);
 
