@@ -9,16 +9,16 @@
 using namespace std;
 
 /*
-This is a first try at using the Henyey method.  So I'll start out solving some equations which are a bit simpler than the stuff that I'll use in the oscillation equations case.  Mainly avoiding having to read any input data at this stage.
-
+ This is a first try at using the Henyey method.  So I'll start out solving some equations which are a bit simpler than the stuff that I'll use in the oscillation equations case.  Mainly avoiding having to read any input data at this stage.
+ 
  Testing the different recurrence relations, this is:
-
+ 
  ************
  ------------
  * CASE IIa *
  ------------
  ************
-
+ 
  */
 
 
@@ -59,48 +59,48 @@ int FunctionY(double* xadd, double* y);
 
 int main()
 {
-
+    
     int J,k,z;
     double C;
-
-
+    
+    
     // J must be defined and given a value before any arrays which need it are defined, or else you'll get a segmentation fault because the arrays won't know how big they are.
     // So J is given a temporary value here until some MESA data is actually read in and use to define the size of the vectors instead.
-
+    
     J=17500; // At the moment, it seems that this produces a seg fault when J >= 17500, which seems to be a result of filling up a memory limit, potentially the RAM?  But that would seem unlikely... It was helped by changing the dummy matrices to be [1][2][2] instead of [J][2][2], so it is a total memory issue rather than the memory used by any given array.
     z=J-1;
-
-
+    
+    
     // This section is to do with reading input from a file
-
+    
     ifstream infile;
     infile.open("Input/profiles_Henyey_Ubuntu_conv_1_0.txt");
-
+    
     k=0;
-
+    
     double input;
     int no_of_lines;
     string line;
-
+    
     no_of_lines = 0;
-
+    
     ifstream linefile;
     linefile.open("Input/profiles_Henyey_Ubuntu_conv_1_0.txt");
-
+    
     getline(linefile,line);
     while (linefile) {
         if (line != "") {
             no_of_lines = no_of_lines + 1;
         }
-
+        
         getline(linefile,line);
-
+        
     }
-
+    
     cout << "The number of non-empty lines in this file is: " << no_of_lines << "\n" ;
     
     
-
+    
     
     J = no_of_lines;
     
@@ -108,175 +108,174 @@ int main()
     
     
     z = J-1;
-
-
+    
+    
     // Here the input arrays are defined, and J cannot be changed again
-
+    
     double zone[J], lnT[J], lnRho[J], grav[J], radius_cm[J], rmid_cm[J];
     double temperature[J], rho[J], pressure[J], grada[J], cp[J], chiRho[J], chiT[J];
     double opacity[J], dkap_dlnrho_face[J], dkap_dlnT_face[J], flux[J], brunt_A[J];
     double K[J], rho_face[J], scale_height_cm[J], pressure_scale_height_cm[J];
     double cv[J], gamma1[J], gamma3[J], conv_L_div_L[J];
-
-
-
+    
+    
+    
     cout << "FLAG - about to take the input\n";
-
-
+    
+    
     // Get the first line's input
     infile >> input;
-
+    
     // Then process the first line's input, then try to get another line.
     // This works because infile==true if the last thing it tried to read successfully gave it something.
     // Therefore, the while loop will only end when the condition is tested after the read has failed.
     // Therefore we need to keep the reading of line m and the processing of line m separated by a test of the condition
     while (infile) {
-
-            zone[z] = input;
-
-            infile >> input;
-
-            lnT[z] = input*2.30258509299404568401799; // We need ln instead of log, so we use ln(x)= ln(10) log(x), where ln(10) = 2.30258509299404568401799
-
-            infile >> input;
-
-            lnRho[z] = input*2.30258509299404568401799;
-
-            infile >> input;
-
-            grav[z] = input;
-
-            infile >> input;
-
-            radius_cm[z] = input;
-
-            infile >> input;
-
-            rmid_cm[z] = input;
-
-            infile >> input;
-
-            temperature[z] = input;
-
-            infile >> input;
-
-            rho[z] = input;
-
-            infile >> input;
-
-            pressure[z] = input;
-
-            infile >> input;
-
-            grada[z] = input;
-
-            infile >> input;
-
-            cp[z] = input;
-
-            infile >> input;
-
-            chiRho[z] = input;
-
-            infile >> input;
-
-            chiT[z] = input;
-
-            infile >> input;
-
-            opacity[z] = input;
-
-            infile >> input;
-
-            dkap_dlnrho_face[z] = input;
-
-            infile >> input;
-
-            dkap_dlnT_face[z] = input;
-
-            infile >> input;
-
+        
+        zone[z] = input;
+        
+        infile >> input;
+        
+        lnT[z] = input*2.30258509299404568401799; // We need ln instead of log, so we use ln(x)= ln(10) log(x), where ln(10) = 2.30258509299404568401799
+        
+        infile >> input;
+        
+        lnRho[z] = input*2.30258509299404568401799;
+        
+        infile >> input;
+        
+        grav[z] = input;
+        
+        infile >> input;
+        
+        radius_cm[z] = input;
+        
+        infile >> input;
+        
+        rmid_cm[z] = input;
+        
+        infile >> input;
+        
+        temperature[z] = input;
+        
+        infile >> input;
+        
+        rho[z] = input;
+        
+        infile >> input;
+        
+        pressure[z] = input;
+        
+        infile >> input;
+        
+        grada[z] = input;
+        
+        infile >> input;
+        
+        cp[z] = input;
+        
+        infile >> input;
+        
+        chiRho[z] = input;
+        
+        infile >> input;
+        
+        chiT[z] = input;
+        
+        infile >> input;
+        
+        opacity[z] = input;
+        
+        infile >> input;
+        
+        dkap_dlnrho_face[z] = input;
+        
+        infile >> input;
+        
+        dkap_dlnT_face[z] = input;
+        
+        infile >> input;
+        
         // This is to see if messing with the background flux makes much of a difference
         flux[z] = input; // *(1.0+0.0009*sin(10000*(radius_cm[z]/radius_cm[J-1])*(radius_cm[z]/radius_cm[J-1])*(radius_cm[z]/radius_cm[J-1])*(radius_cm[z]/radius_cm[J-1])*(radius_cm[z]/radius_cm[J-1])*(radius_cm[z]/radius_cm[J-1])));
-
-            infile >> input;
-
-            brunt_A[z] = input;
-
-            infile >> input;
-
-// The following variables don't need to be interpolated, as they are just used for adding in extra cells for when non-adiabaticity becomes important
-
-            scale_height_cm[z] = input;
-
-            infile >> input;
-
-            pressure_scale_height_cm[z] = input;
-
-            infile >> input;
-
-            cv[z] = input;
-
-            infile >> input;
-
-            gamma1[z] = input;
-
-            infile >> input;
-
-            gamma3[z] = input;
-
-	    infile >> input;
-
-	    conv_L_div_L[z] = input;
-
-            infile >> input; // This is to get the input for the zone for the next loop (and therefore to decide whether or not to do the next loop, too)
-
-
-
+        
+        infile >> input;
+        
+        brunt_A[z] = input;
+        
+        infile >> input;
+        
+        // The following variables don't need to be interpolated, as they are just used for adding in extra cells for when non-adiabaticity becomes important
+        
+        scale_height_cm[z] = input;
+        
+        infile >> input;
+        
+        pressure_scale_height_cm[z] = input;
+        
+        infile >> input;
+        
+        cv[z] = input;
+        
+        infile >> input;
+        
+        gamma1[z] = input;
+        
+        infile >> input;
+        
+        gamma3[z] = input;
+        
+        infile >> input;
+        
+        conv_L_div_L[z] = input;
+        
+        infile >> input; // This is to get the input for the zone for the next loop (and therefore to decide whether or not to do the next loop, too)
+        
+        
+        
         K[z] = 4.0 * 7.565767e-15 * 2.99792458e10 * temperature[z]*temperature[z]*temperature[z] / (3.0 * opacity[z] * rho[z]);
-
-
-
-	// Here flux is modified in order to just account for the radiative flux, not ALL of the flux
-
-	flux[z] = flux[z] * (1.0 - conv_L_div_L[z]);
-
-
+        
+        
+        
+        // Here flux is modified in order to just account for the radiative flux, not ALL of the flux
+        
+        flux[z] = flux[z] * (1.0 - conv_L_div_L[z]);
+        
+        
         z = z - 1;
     }
     
     /*
-    // Here I add in the centre-most zone
-    
-    C = 100000; // This is a measure of how many times close to x=0 the outside edge of the centre-most zone will be (for reference, 100 wil be the standard size)
-    
-    radius_cm[0] = radius_cm[1]/C;
-    rmid_cm[0] = rmid_cm[1]/C;
-    zone[0] = zone[1] + 1;
-    
-    
-    FifthOrderExtrap(lnT, rmid_cm, C);
-    FifthOrderExtrap(lnRho, rmid_cm, C);
-    FifthOrderExtrap(grav, rmid_cm, C);
-    FifthOrderExtrap(temperature, rmid_cm, C);
-    FifthOrderExtrap(rho, rmid_cm, C);
-    FifthOrderExtrap(pressure, rmid_cm, C);
-    FifthOrderExtrap(grada, rmid_cm, C);
-    FifthOrderExtrap(cp, rmid_cm, C);
-    FifthOrderExtrap(chiRho, rmid_cm, C);
-    FifthOrderExtrap(chiT, rmid_cm, C);
-    FifthOrderExtrap(opacity, rmid_cm, C);
-    FifthOrderExtrap(brunt_A, rmid_cm, C);
-    FifthOrderExtrap(K, rmid_cm, C);
-    
-    FifthOrderExtrap(dkap_dlnrho_face, radius_cm, C);
-    FifthOrderExtrap(dkap_dlnT_face, radius_cm, C);
-    FifthOrderExtrap(flux, radius_cm, C);
-    FifthOrderExtrap(rho_face, radius_cm, C);
-    
+     // Here I add in the centre-most zone
+     
+     C = 100000; // This is a measure of how many times close to x=0 the outside edge of the centre-most zone will be (for reference, 100 wil be the standard size)
+     
+     radius_cm[0] = radius_cm[1]/C;
+     rmid_cm[0] = rmid_cm[1]/C;
+     zone[0] = zone[1] + 1;
+     
+     
+     FifthOrderExtrap(lnT, rmid_cm, C);
+     FifthOrderExtrap(lnRho, rmid_cm, C);
+     FifthOrderExtrap(grav, rmid_cm, C);
+     FifthOrderExtrap(temperature, rmid_cm, C);
+     FifthOrderExtrap(rho, rmid_cm, C);
+     FifthOrderExtrap(pressure, rmid_cm, C);
+     FifthOrderExtrap(grada, rmid_cm, C);
+     FifthOrderExtrap(cp, rmid_cm, C);
+     FifthOrderExtrap(chiRho, rmid_cm, C);
+     FifthOrderExtrap(chiT, rmid_cm, C);
+     FifthOrderExtrap(opacity, rmid_cm, C);
+     FifthOrderExtrap(brunt_A, rmid_cm, C);
+     FifthOrderExtrap(K, rmid_cm, C);
+     
+     FifthOrderExtrap(dkap_dlnrho_face, radius_cm, C);
+     FifthOrderExtrap(dkap_dlnT_face, radius_cm, C);
+     FifthOrderExtrap(flux, radius_cm, C);
+     FifthOrderExtrap(rho_face, radius_cm, C);
+     
      */
     
-
     
     
     
@@ -284,7 +283,8 @@ int main()
     
     
     
-
+    
+    
     infile.close();
     
     double r_a, r_b, r_c;
@@ -302,7 +302,7 @@ int main()
     }
     
     // rho_face
-    /* This extrapolates to get the density at the outermost face, using: 
+    /* This extrapolates to get the density at the outermost face, using:
      
      x = ( r_c*a - r_a*c + (r_a/r_b)*((r_c - r_a)/(r_c - r_b))*( r_b*c - r_c*b ) ) / ( r_c - r_a - (r_a/r_b)*((r_c - r_a)/(r_c - r_b))*( r_c - r_b ) )
      
@@ -326,91 +326,91 @@ int main()
     
     
     
-
-
-
-
-
-/*
-
- Here are some constants, as used in MESA, which can be found in mesa-r9575/const/public/const_def.f90
- Just thought they could be handy to have around.
-
-
-standard_cgrav ! = 6.67428d-8
- ! gravitational constant (g^-1 cm^3 s^-2)
-planck_h ! = 6.62606896D-27
- ! Planck's constant (erg s)
-hbar ! = planck_h / (2*pi)
-qe ! = 4.80320440D-10
- ! electron charge (esu == (g cm^3 s^-2)^(1/2))
-avo ! = 6.02214179d23
- ! Avogadro's constant (mole^-1)
-clight ! = 2.99792458d10
- ! speed of light in vacuum (cm s^1)
-kerg ! = 1.3806504D-16
- ! Boltzmann's constant (erg K^-1)
-
-boltz_sigma ! = 5.670400D-5
- ! boltzmann's sigma = crad*clight/4 (erg cm^-2 K^-4 s^-1)
-crad ! = boltz_sigma*4/clight = 7.565767d-15 (erg cm^-3 K^-4)
- ! radiation density constant, a (erg cm^-3 K^-4); Prad ! = crad * T^4 / 3
-
-
-
- ! astronomical constants
- ! solar age, L, and R values from Bahcall et al, ApJ 618 (2005) 1049-1056.
-msol ! = 1.9892d33  ! solar mass (g)
-rsol ! = 6.9598d10 ! solar radius (cm)
-lsol ! = 3.8418d33  ! solar luminosity (erg s^-1)
-agesol ! = 4.57d9  ! solar age (years)
-Msun ! = msol
-Rsun ! = rsol
-Lsun ! = lsol
-Msun33 ! = msol*1d-33
-Rsun11 ! = rsol*1d-11
-Lsun33 ! = lsol*1d-33
-Teffsol ! = 5777d0 ! temperature (k)
-loggsol ! = 4.4378893534131256d0 ! log surface gravity ! log(g/(cm s^-2))
-teffsun ! = teffsol
-loggsun ! = loggsol
-mbolsun ! = 4.746 ! Bolometric magnitude of the Sun
-ly ! = 9.460528d17 ! light year (cm)
-pc ! = 3.261633d0 * ly ! parsec (cm)
-secyer ! 3.1558149984d7 ! seconds per year
-dayyer ! 365.25 ! days per year
-m_earth ! = 5.9764d27 ! earth mass (g)
-r_earth ! = 6.37d8 ! earth radius (cm)
-au ! = 1.495978921d13 ! astronomical unit (cm)
-m_jupiter ! = 1.8986d30 ! jupiter mass (g)
-r_jupiter ! = 6.9911d9 ! jupiter mean radius (cm)
-semimajor_axis_jupiter ! = 7.7857d13 ! jupiter semimajor axis (cm)
-
-
-*/
-
-
+    
+    
+    
+    
+    
+    /*
+     
+     Here are some constants, as used in MESA, which can be found in mesa-r9575/const/public/const_def.f90
+     Just thought they could be handy to have around.
+     
+     
+     standard_cgrav ! = 6.67428d-8
+     ! gravitational constant (g^-1 cm^3 s^-2)
+     planck_h ! = 6.62606896D-27
+     ! Planck's constant (erg s)
+     hbar ! = planck_h / (2*pi)
+     qe ! = 4.80320440D-10
+     ! electron charge (esu == (g cm^3 s^-2)^(1/2))
+     avo ! = 6.02214179d23
+     ! Avogadro's constant (mole^-1)
+     clight ! = 2.99792458d10
+     ! speed of light in vacuum (cm s^1)
+     kerg ! = 1.3806504D-16
+     ! Boltzmann's constant (erg K^-1)
+     
+     boltz_sigma ! = 5.670400D-5
+     ! boltzmann's sigma = crad*clight/4 (erg cm^-2 K^-4 s^-1)
+     crad ! = boltz_sigma*4/clight = 7.565767d-15 (erg cm^-3 K^-4)
+     ! radiation density constant, a (erg cm^-3 K^-4); Prad ! = crad * T^4 / 3
+     
+     
+     
+     ! astronomical constants
+     ! solar age, L, and R values from Bahcall et al, ApJ 618 (2005) 1049-1056.
+     msol ! = 1.9892d33  ! solar mass (g)
+     rsol ! = 6.9598d10 ! solar radius (cm)
+     lsol ! = 3.8418d33  ! solar luminosity (erg s^-1)
+     agesol ! = 4.57d9  ! solar age (years)
+     Msun ! = msol
+     Rsun ! = rsol
+     Lsun ! = lsol
+     Msun33 ! = msol*1d-33
+     Rsun11 ! = rsol*1d-11
+     Lsun33 ! = lsol*1d-33
+     Teffsol ! = 5777d0 ! temperature (k)
+     loggsol ! = 4.4378893534131256d0 ! log surface gravity ! log(g/(cm s^-2))
+     teffsun ! = teffsol
+     loggsun ! = loggsol
+     mbolsun ! = 4.746 ! Bolometric magnitude of the Sun
+     ly ! = 9.460528d17 ! light year (cm)
+     pc ! = 3.261633d0 * ly ! parsec (cm)
+     secyer ! 3.1558149984d7 ! seconds per year
+     dayyer ! 365.25 ! days per year
+     m_earth ! = 5.9764d27 ! earth mass (g)
+     r_earth ! = 6.37d8 ! earth radius (cm)
+     au ! = 1.495978921d13 ! astronomical unit (cm)
+     m_jupiter ! = 1.8986d30 ! jupiter mass (g)
+     r_jupiter ! = 6.9911d9 ! jupiter mean radius (cm)
+     semimajor_axis_jupiter ! = 7.7857d13 ! jupiter semimajor axis (cm)
+     
+     
+     */
+    
+    
     double R, m, l, f, G, mp, D, omega, Mstar, d_one, d_two, dp_dr_BC, dlnT_dr_BC,prop,dlnRho_dr_BC,flux_BC,Period;
-
+    
     // This is set by the tidal forcing
     m = 2.0;
     l = 2.0;
-
+    
     R = radius_cm[J-1];
     
     flux_BC = flux[J-1];
-
-
-
+    
+    
+    
     G = 6.67428e-8;
-
+    
     mp = 1.0; // Planetary mass in terms of Jupiter masses
     mp = 1.8986e30 * mp; // converted into g
     
     Mstar = 1.0; // Stellar mass in solar masses
     Mstar = Mstar * 1.9892e33; // Converted into g
     
-
+    
     
     
     D = 0.0512; // Orbital radius of planet in AU, 1.58740105197 = 4^(1/3), which acts to double the period of the orbit
@@ -429,15 +429,15 @@ semimajor_axis_jupiter ! = 7.7857d13 ! jupiter semimajor axis (cm)
     //1.6M non-res= 1.13104e12
     //1.6Mresonant= 5.5097e11
     //D = 9.47699e11;
-
+    
     f = -(G * mp) / (4.0 * D * D * D);
     
     cout << "f = " << f << "\n";
     
     
-
-
-
+    
+    
+    
     omega = sqrt(G * ((Mstar + mp)/(D*D*D)));
     
     
@@ -454,82 +454,82 @@ semimajor_axis_jupiter ! = 7.7857d13 ! jupiter semimajor axis (cm)
     cout << "\n\n" << "for JP, f = " << sqrt(4.0*omega*omega*R*R*R/(G*Mstar)) << "\n\n";
     
     cout << "equilibrium xi / R at surface = " << mp*R*R*R/(4.0*Mstar*D*D*D) << "\n";
-
+    
     d_one = rmid_cm[J-1] - rmid_cm[J-2];
-
+    
     d_two = rmid_cm[J-1] - rmid_cm[J-3];
-
+    
     dp_dr_BC = (d_one + d_two)*pressure[J-1]/(d_one*d_two) - pressure[J-2]*d_two / ( d_one * (d_two - d_one) ) + pressure[J-3] * d_one / (d_two * (d_two - d_one) );
-
+    
     dlnT_dr_BC = (d_one + d_two)*lnT[J-1]/(d_one*d_two) - lnT[J-2]*d_two / ( d_one * (d_two - d_one) ) + lnT[J-3] * d_one / (d_two * (d_two - d_one) );
     
     dlnRho_dr_BC = (d_one + d_two)*lnRho[J-1]/(d_one*d_two) - lnRho[J-2]*d_two / ( d_one * (d_two - d_one) ) + lnRho[J-3] * d_one / (d_two * (d_two - d_one) );
-
+    
     cout << "dp_dr_BC = " << dp_dr_BC << "\n";
-
+    
     cout << "dlnT_dr_BC = " << dlnT_dr_BC << "\n";
     
     cout << "dlnRho_dr_BC = " << dlnRho_dr_BC << "\n";
-
-
-
-/*
-    This is to try to increase resolution in the centre-most zones.
-
-    L = number of zones per group
-    N = max number of sub-zones per zone (e.g. the highest resolution increase)
-    E = extra number of cells
-
-
-
-    E = L SUM_{k=1}^{k = Nmax - 1}(k) = ( L * Nmax * ( Nmax - 1 ) ) / 2
-
-    Then the rest are all left untouched.
-
-    Because of all of the extra zones, J needs to be re-defined, and this could cause troubles with the other variables when you try to upscale this.  ***********BEWARE!!!***************
-
-
-
-
-*/
-
-
+    
+    
+    
+    /*
+     This is to try to increase resolution in the centre-most zones.
+     
+     L = number of zones per group
+     N = max number of sub-zones per zone (e.g. the highest resolution increase)
+     E = extra number of cells
+     
+     
+     
+     E = L SUM_{k=1}^{k = Nmax - 1}(k) = ( L * Nmax * ( Nmax - 1 ) ) / 2
+     
+     Then the rest are all left untouched.
+     
+     Because of all of the extra zones, J needs to be re-defined, and this could cause troubles with the other variables when you try to upscale this.  ***********BEWARE!!!***************
+     
+     
+     
+     
+     */
+    
+    
     // J is redefined here, and the old value is stored as Jold
-
-
-
+    
+    
+    
     // count[kold] = tyhe number of cells used to get to the outer edge of cell kold (including that edge).  Therefore J = count[Jold-1], and the extra number of cells = J - Jold
     int N[J], count[J], Jold, k_start, k_end;
     
     int U, E, L, Nmax, n;
     // these variables pertain to the cell size choice
     double dx_max_general, dx_max_surface, dx_max, delta_surface;
-
+    
     int dx_max_surface_tracker;
     
     Jold = J;
     
     count[0] = 1;
-
+    
     dx_max_surface_tracker = 0;
-
-
+    
+    
     // This changes how much non-adiabaticity comes into play: 1.0 = non-adiabatic, larger makes it less so (approaches the adiabatic limit)
     prop = 1.0;
-
-
-
-
+    
+    
+    
+    
     // This bit opens the file to write the dx_max_surface data into
     ofstream dx_max_surface_file;
     dx_max_surface_file.open("Output/dx_max_surface_Ubuntu.dat", ios::out);
-
+    
     // This sets the precision at which values are printed at to the named file output
     //matrixfile.precision(10);
-   
     
     
-   
+    
+    
     
     // This sets N[0] and N[Jold-1] =0, as the first and last cells will be left alone
     N[0] = 0;
@@ -540,90 +540,88 @@ semimajor_axis_jupiter ! = 7.7857d13 ! jupiter semimajor axis (cm)
     // It only goes up to k < Jold - 2 because we don't want to split the final cell, that is the cell from radius_cm[Jold-2] to radius_cm[Jold-1]
     
     for (k=1; k < Jold-1; k = k + 1) {
-
-	// delta_surface is the cell width for the non-adiabaticity to be important
-
-	delta_surface = sqrt(( (gamma3[k]-1) * flux[k] * scale_height_cm[k] )/( pressure[k] * omega * prop));
+        
+        // delta_surface is the cell width for the non-adiabaticity to be important
+        
+        delta_surface = sqrt(( (gamma3[k]-1) * flux[k] * scale_height_cm[k] )/( pressure[k] * omega * prop));
         
         // by defining dx_max inside this loop, we can make it a function of radius_cm, for instance
-
-        dx_max_general = 0.000015 + 0.0003*(radius_cm[k]/R)*(radius_cm[k]/R);
-
-	dx_max_surface = (delta_surface/R) * 1.0;
-
         
-	if ( (dx_max_general < dx_max_surface) || ((radius_cm[k]/R)<0.9985)) {
-
-		dx_max = dx_max_general;
-
-	} else {
-
-		dx_max_surface_tracker = dx_max_surface_tracker + 1;
-
-		dx_max = dx_max_surface;
-
-	}
-
+        dx_max_general = 0.000015 + 0.0003*(radius_cm[k]/R)*(radius_cm[k]/R);
+        
+        dx_max_surface = (delta_surface/R) * 1.0;
+        
+        
+        if ( (dx_max_general < dx_max_surface) || ((radius_cm[k]/R)<0.9985)) {
+            
+            dx_max = dx_max_general;
+            
+        } else {
+            
+            dx_max_surface_tracker = dx_max_surface_tracker + 1;
+            
+            dx_max = dx_max_surface;
+            
+        }
+        
         N[k] = ((radius_cm[k] - radius_cm[k-1])/(R*dx_max));
         
         count[k] = count[k-1] + 1 + N[k];
         
         //cout << "At k = " << k << ", N = " << N << "\n";
-
-	dx_max_surface_file << radius_cm[k]/R << "\t" << dx_max_surface << "\n";
-      
+        
+        dx_max_surface_file << radius_cm[k]/R << "\t" << dx_max_surface << "\n";
+        
         
     }
     
-/*
-    count[Jold-1] = count[Jold-2] + 1;
-
-    cout << "\n\ncount[Jold-4] = " << count[Jold-4] << "\n\n";
-
-    cout << "\n\ncount[Jold-3] = " << count[Jold-3] << "\n\n";
-
-    cout << "\n\ncount[Jold-2] = " << count[Jold-2] << "\n\n";    
+    /*
+     count[Jold-1] = count[Jold-2] + 1;
+     
+     cout << "\n\ncount[Jold-4] = " << count[Jold-4] << "\n\n";
+     
+     cout << "\n\ncount[Jold-3] = " << count[Jold-3] << "\n\n";
+     
+     cout << "\n\ncount[Jold-2] = " << count[Jold-2] << "\n\n";
+     
+     cout << "\n\ncount[Jold-1] = " << count[Jold-1] << "\n\n";
+     
+     // This gives the new value of J, by taking into account all of the extra cells needed
+     J = count[Jold-1];
+     */
     
-    cout << "\n\ncount[Jold-1] = " << count[Jold-1] << "\n\n";
-
-    // This gives the new value of J, by taking into account all of the extra cells needed
-    J = count[Jold-1];
-*/
     
-
-// This section calculates the locations of the new set of grid points according to your choice of functions
-// Currently both functions must be functions of x, but this may be changed in the future
-	int J_new;
-	double ratio_max, function_f, function_g, y, x, r_grid_cm;
-
-	x = 0.7;
-
-	FunctionF(&x,&function_f);
-	FunctionG(&x,&function_g);
-	FunctionY(&x,&y);
-
-	cout << "x = " << x << "\n";
-	cout << "f = " << function_f << "\n";
-	cout << "g = " << function_g << "\n";
-	cout << "y = " << y << "\n";
-
-	ratio_max = 1.1;
-
-	MeasureGrid(&J_new, &ratio_max);
-
-	cout << "J_new = " << J_new << "\n";
-
-
-
-	MakeGrid(J_new, ratio_max);
-
-
-
-
-	// Here I override the previous redefinition of J, and define it according to whatever functions I have chosen to use
-	J = J_new;
-
+    // This section calculates the locations of the new set of grid points according to your choice of functions
+    // Currently both functions must be functions of x, but this may be changed in the future
+    int J_new;
+    double ratio_max, function_f, function_g, y, x, r_grid_cm;
     
+    x = 0.7;
+    
+    FunctionF(&x,&function_f);
+    FunctionG(&x,&function_g);
+    FunctionY(&x,&y);
+    
+    cout << "x = " << x << "\n";
+    cout << "f = " << function_f << "\n";
+    cout << "g = " << function_g << "\n";
+    cout << "y = " << y << "\n";
+    
+    ratio_max = 1.1;
+    
+    MeasureGrid(&J_new, &ratio_max);
+    
+    cout << "J_new = " << J_new << "\n";
+    
+    
+    
+    MakeGrid(J_new, ratio_max);
+    
+    
+    
+    
+    // Here I override the previous redefinition of J, and define it according to whatever functions I have chosen to use
+    J = J_new;
     
     
     
@@ -642,66 +640,68 @@ semimajor_axis_jupiter ! = 7.7857d13 ! jupiter semimajor axis (cm)
     
     
     
-
-
-
-
-
-
+    
+    
+    
+    
+    
+    
+    
+    
     // This sets the precision at which values are printed at (potentially for both the terminal and files, that is not yet clear)
     cout.precision(15);
-
-
-
+    
+    
+    
     cout << "FLAG - about to introduce largest arrays\n";
-
-
+    
+    
     /*
-
+     
      In order to reduce the burden on the memory, all other than alpha, gamma, u, v, RECu, RECv and RECc will only be defined for one value of i at a time, so everything used to calculate alphas and gammas must be in the loop which involves A, B etc being defined.  And you'll need to be careful with the outer BCs, although if they are defined for J-1 last, then it should be okay as they will remain defined as such outside of the for loop.
-
+     
      */
-
-
-
+    
+    
+    
     // These are the matrices in the oscillation equations
     double Ar[1][2][2],Ai[1][2][2],Cr[1][2][2],Ci[1][2][2],Dr[1][2][2],Di[1][2][2];
     double Er[1][2][2],Ei[1][2][2],Fr[1][2][2],Fi[1][2][2],Hr[1][2][2],Hi[1][2][2];
-
+    
     // These are the vectors in the oscillation equations
     double ur[J][2][1],ui[J][2][1],vr[J][2][1],vi[J][2][1],Mr[1][2][1],Mi[1][2][1],Nr[1][2][1],Ni[1][2][1];
-
+    
     // This is the matrix involved in the u-v relation
     double alphar[J][2][2],alphai[J][2][2];
-
+    
     // This is the vector involved in the u-v relation
     double gammar[J][2][1],gammai[J][2][1];
-
+    
     // In order to work back from u_{i+1} and v_{i+1} to v_{i}, 3 other arrays will need to retain their total memory, to give us: v_{i} = RECu u_{i+1} + RECv v_{i+1} + RECc
     double RECur[J][2][2], RECui[J][2][2], RECvr[J][2][2], RECvi[J][2][2], RECcr[J][2][1], RECci[J][2][1];
-
-
+    
+    
     cout << "FLAG - part way through the introductions\n";
-
+    
     // Here some dummy matrices and vectors must be introduced in order to manage complex calculations later on, including some named and defined ones, and some total dummies
-
-        // These are the defined ones
-        double Pr[1][2][2], Pi[1][2][2], Qr[1][2][2], Qi[1][2][2], Rr[1][2][2], Ri[1][2][2];
-
+    
+    // These are the defined ones
+    double Pr[1][2][2], Pi[1][2][2], Qr[1][2][2], Qi[1][2][2], Rr[1][2][2], Ri[1][2][2];
+    
     cout << "FLAG - done all the J x thing x thing arrays now\n"; // This flag is not reached - therefore I think it's the arrays just above which are currently pushing things over the edge - can I rearrange it so that these are just 1x2x2 matrices, by defining them within the loop?  (Need to check that nothing crosses over to another cell, but I think it should be all ok.)
-
-        // These are the total dummies, with the naming convention as: dum = dummy; M / V = matrix / vector.  Beware when using these, as they will come in with values already attached, so make sure that the first thing that you do is to define them according to your particular purpose at that time.
-        double dumMAr[1][2][2], dumMAi[1][2][2], dumMBr[1][2][2], dumMBi[1][2][2], dumMCr[1][2][2], dumMCi[1][2][2], dumMDr[1][2][2], dumMDi[1][2][2], dumMEr[1][2][2], dumMEi[1][2][2];
-        double dumVAr[1][2][1], dumVAi[1][2][1], dumVBr[1][2][1], dumVBi[1][2][1], dumVCr[1][2][1], dumVCi[1][2][1], dumVDr[1][2][1], dumVDi[1][2][1], dumVEr[1][2][1], dumVEi[1][2][1];
-
+    
+    // These are the total dummies, with the naming convention as: dum = dummy; M / V = matrix / vector.  Beware when using these, as they will come in with values already attached, so make sure that the first thing that you do is to define them according to your particular purpose at that time.
+    double dumMAr[1][2][2], dumMAi[1][2][2], dumMBr[1][2][2], dumMBi[1][2][2], dumMCr[1][2][2], dumMCi[1][2][2], dumMDr[1][2][2], dumMDi[1][2][2], dumMEr[1][2][2], dumMEi[1][2][2];
+    double dumVAr[1][2][1], dumVAi[1][2][1], dumVBr[1][2][1], dumVBi[1][2][1], dumVCr[1][2][1], dumVCi[1][2][1], dumVDr[1][2][1], dumVDi[1][2][1], dumVEr[1][2][1], dumVEi[1][2][1];
+    
     cout << "Most of the way through the introductions\n";
-
-
+    
+    
     // These are matrices involved with the outer boundary conditions, and as they only apply at the boundary they don't need to be the same size as the general arrays, but only need to include one 2x2 matrix each, or one 2D vector.  The matrices and vectors are kept separate for clarity.  The first row is the matrices in the boundary condition equation, the second is a series of defined matrices to simplify the expression for v_{J-1}, and the third row is the vector from the boundary condition equation.
     double etar[1][2][2], etai[1][2][2], mur[1][2][2], mui[1][2][2], nur[1][2][2], nui[1][2][2];
     double BCar[1][2][2], BCai[1][2][2], BCbr[1][2][2], BCbi[1][2][2], BCcr[1][2][2], BCci[1][2][2], BCdr[1][2][2], BCdi[1][2][2], BCer[1][2][2], BCei[1][2][2], BCfr[1][2][2], BCfi[1][2][2];
     double xr[1][2][1], xi[1][2][1];
-
+    
     cout << "FLAG - large arrays all introduced\n";
     
     // These are the rescaling parameters, and to keep things general, they are going to be complex.
@@ -709,89 +709,89 @@ semimajor_axis_jupiter ! = 7.7857d13 ! jupiter semimajor axis (cm)
     
     // This is just another dummy index
     int i;
-
-
-/*
-
+    
+    
+    /*
+     
      The basic equations are as follows:
-
+     
      A_{i,i+1} u_{i} + C_{i,i+1} u_{i+1} + D_{i,i+1} v_{i+1} = M_{i,i+1}
-
+     
      E_{i,i+1} u_{i} + F_{i,i+1} v_{i}   + H_{i,i+1} v_{i+1} = N_{i,i+1}
-
+     
      u_{i} + alpha_{i} v_{i} + gamma_{i} = 0
-
+     
      The equations are arranged as such because of where the quantities are defined within the cell.
      u = (\xi_{r} , F_{r}), both of which are defined at the outer edge of the cell, whereas v = (p ,T), both of which are defined in the middle of the cell.
      As such, the first vector equation is valid at the boundary between region i and region i+1, so can only contain /xi_{i} and F_{i}, but the gradients of p and T, which will be valid at this point (as they will be of the form (p_{i+1} - p_{i})/(rmid_{i+1} - rmid_{i}) ).
      The second vector equation is valid in the middle of cell i+1, so can involve p_{i+1}, T_{i+1} and the gradients of \xi and F.
-
+     
      Using the above equations to elimate u_{i} and v_{i}, and comparing coefficents with the equation u_{i+1} + alpha_{i+1} v_{i+1} + gamma_{i+1} = 0 gives the following relations (CASE II):
-
+     
      alpha_{i+1} = C^{-1} [ D - A ( alpha_{i} F^{-1} E - 1 )^{-1} alpha_{i} F_{-1} H ]
-
+     
      gamma_{i+1} = C^{-1} [ A ( alpha_{i} F^{-1} E - 1 )^{-1} ( gamma_{i} + alpha_{i} F^{-1} N ) - M ]
-
+     
      where a lack of subscript implies _{i, i+1}
-
-
-    Using the top two equations to eliminate u_{i} gives an expression for v_{i} in terms of u_{i+1} and v_{i+1} as (CASE a):
-
-    u_{i} = A^{-1} [ M - C u_{i+1} - D v_{i+1} ]3
-
-    Which can be recast as:
-
-    u_{i} = RECu u_{i+1} + RECv v_{i+1} + RECc
-
-    where
-
-    RECu = - A^{-1} C
-    RECv = - A^{-1} D
-    RECc = A^{-1} M
-
-
-
-
+     
+     
+     Using the top two equations to eliminate u_{i} gives an expression for v_{i} in terms of u_{i+1} and v_{i+1} as (CASE a):
+     
+     u_{i} = A^{-1} [ M - C u_{i+1} - D v_{i+1} ]3
+     
+     Which can be recast as:
+     
+     u_{i} = RECu u_{i+1} + RECv v_{i+1} + RECc
+     
+     where
+     
+     RECu = - A^{-1} C
+     RECv = - A^{-1} D
+     RECc = A^{-1} M
+     
+     
+     
+     
      To minimise needlessly repeated calculations, these equations will be re-written in terms of recurring blocks of matrices, such as:
-
+     
      P = E A^{-1}
-
+     
      Q = alpha_{i} F^{-1}
-
+     
      R = [ alpha_{i} F^{-1} E - 1 ]^{-1} = [ Q E - 1 ]^{-1}
-
-
+     
+     
      Using these expression in the equations for alpha_{i+1}, gamma_{i+1} and v_{i} gives us:
-
+     
      alpha_{i+1} = C^{-1} [ D - A R Q H ]
      gamma_{i+1} = C^{-1} [ A R ( gamma_{i} + Q N ) - M ]
      v_{i} = F^{-1} [ N + P ( C u_{i+1} - M ) + ( P D - H ) v_{i+1} ]
-
-
-
-    To help with evaluating gradients to do with p and T in the centre of zone J-1, the following are used:
-
-    dp_dr_BC = (dp/dr)[J-1] = (d_one + d_two)*pressure[J-1]/(d_one*d_two) - pressure[J-1]*d_two / ( d_one * (d_two - d_one) ) + pressure[J-3] * d_one / (d_two * (d_two - d_one) )
-
-    dlnT_dr_BC = (dlnT/dr)[J-1] = (d_one + d_two)*lnT[J-1]/(d_one*d_two) - lnT[J-1]*d_two / ( d_one * (d_two - d_one) ) + lnT[J-3] * d_one / (d_two * (d_two - d_one) )
-
-    where
-
-    d_one = rmid_cm[J-1] - rmid_cm[J-2]
-
-    d_two = rmid_cm[J-1] - rmid_cm[J-3]
-
-
-*/
-
+     
+     
+     
+     To help with evaluating gradients to do with p and T in the centre of zone J-1, the following are used:
+     
+     dp_dr_BC = (dp/dr)[J-1] = (d_one + d_two)*pressure[J-1]/(d_one*d_two) - pressure[J-1]*d_two / ( d_one * (d_two - d_one) ) + pressure[J-3] * d_one / (d_two * (d_two - d_one) )
+     
+     dlnT_dr_BC = (dlnT/dr)[J-1] = (d_one + d_two)*lnT[J-1]/(d_one*d_two) - lnT[J-1]*d_two / ( d_one * (d_two - d_one) ) + lnT[J-3] * d_one / (d_two * (d_two - d_one) )
+     
+     where
+     
+     d_one = rmid_cm[J-1] - rmid_cm[J-2]
+     
+     d_two = rmid_cm[J-1] - rmid_cm[J-3]
+     
+     
+     */
+    
     /*
-
-
+     
+     
      (1/r^2)*d(r^2*a)/dr+c+d   =
      a+(1/r^2)*d(r^2*b)/dr+c+d =
      b+c+d+d'   =
      a+c+c'+d   =
-
+     
      These are built around giving the solution:
      a = (r/R)*sin(r/R)
      b = sqrt(r/R)*sin(sqrt(200.0)*r/R)
@@ -802,49 +802,49 @@ semimajor_axis_jupiter ! = 7.7857d13 ! jupiter semimajor axis (cm)
      (1/r^2)*d(r^2*b)/dr = (5.0/(2.0*R*sqrt(r)))*sin(sqrt(200)*r/R) + (sqrt(200*r)/(R*R))*cos(sqrt(200)*r/R)
      dp/dr = (50.0/r)*( cos(sqrt(17.0)*r/R) - (R/(sqrt(17.0)*r))*sin(sqrt(17.0)*r/R) )
      dT/dr = sinh(r/R)/r - (sqrt(207)/R)*sin(sqrt(23)*r/R)
-
-
-
+     
+     
+     
      The BCs are:
      a+c   = sin(1) + cos(1)
      a+b+d = -cos(1)
-
+     
      */
-
+    
     // Before iterating through to get all the alpha matrices and gamma vectors, we must use the boundary conditions at the centre: alpha_{0} = 0; gamma_{0} = 0
-
+    
     alphar[0][0][0] = 0;
     alphar[0][0][1] = 0;
     alphar[0][1][0] = 0;
     alphar[0][1][1] = 0;
-
+    
     gammar[0][0][0] = 0;
     gammar[0][1][0] = 0;
-
+    
     alphai[0][0][0] = 0;
     alphai[0][0][1] = 0;
     alphai[0][1][0] = 0;
     alphai[0][1][1] = 0;
-
+    
     gammai[0][0][0] = 0;
     gammai[0][1][0] = 0;
-
+    
     cout << "alpha_{0} and gamma_{0} have been set to 0, which is equivalent to using the inner BCs \n";
-
+    
     int xcount, labelminx, labelmink, kold, kmin;
-
+    
     double count_doub,N_doub,k_doub;
-
+    
     // These are defined to keep only two variables at any one time - k and k+1, which will be re-written for each new zone
     double lnT_HR[2], lnRho_HR[2], grav_HR[2], radius_cm_HR[2], rmid_cm_HR[2];
     double temperature_HR[2], rho_HR[2], pressure_HR[2], grada_HR[2], cp_HR[2], chiRho_HR[2], chiT_HR[2];
     double opacity_HR[2], dkap_dlnrho_face_HR[2], dkap_dlnT_face_HR[2], flux_HR[2], brunt_A_HR[2];
     double K_HR[2], rho_face_HR[2];
-
+    
     // This is defined for the k and k+1 values of delta which help with linear interpolation: F_{at rmid[1]} = delta[0]*flux[0] + delta[1]*flux[1]
     // The third one is for interpolating cell-central variables, because you need to involve k+2 variables for that
     double delta[3];
-
+    
     // This is an exception, as this needs to be output at the end for plotting purposes
     double radius_cm_HR_output[J],rmid_cm_HR_output[J],flux_HR_output[J],pressure_HR_output[J],temperature_HR_output[J],test[J],rho_HR_output[J],eta_Terquem_output[J],grav_HR_output[J],rho_face_HR_output[J],Fprime_for_T[J],Fprime_for_p[J],opacity_HR_output[J],K_HR_output[J];
     
@@ -860,23 +860,23 @@ semimajor_axis_jupiter ! = 7.7857d13 ! jupiter semimajor axis (cm)
     int sum;
     
     sum = 0;
-
-
     
-
-
+    
+    
+    
+    
     // This bit opens the file to write the Matrix data into
     ofstream matrixfile;
     matrixfile.open("Output/Matrices_rescaled_Voscish.dat", ios::out);
-
+    
     // This sets the precision at which values are printed at to the named file output
     matrixfile.precision(10);
-
-                matrixfile << "radius_cm_HR_output[k]/R" << "\t\t\t" << "Ar[0][0][0]" << "\t\t" << "Ar[0][0][1]" << "\t\t" << "Ar[0][1][0]" << "\t\t" << "Ar[0][1][1]" << "\t\t" << "Cr[0][0][0]" << "\t\t" << "Cr[0][0][1]" << "\t\t" << "Cr[0][1][0]" << "\t\t" << "Cr[0][1][1]" << "\t\t" << "Dr[0][0][0]" << "\t\t" << "Dr[0][0][1]" << "\t\t" << "Dr[0][1][0]" << "\t\t" << "Dr[0][1][1]" << "\t\t" << "Er[0][0][0]" << "\t\t" << "Er[0][0][1]" << "\t\t" << "Er[0][1][0]" << "\t\t" << "Er[0][1][1]" << "\t\t" << "Fr[0][0][0]" << "\t\t" << "Fr[0][0][1]" << "\t\t" << "Fr[0][1][0]" << "\t\t" << "Fr[0][1][1]" << "\t\t" << "Hr[0][0][0]" << "\t\t" << "Hr[0][0][1]" << "\t\t" << "Hr[0][1][0]" << "\t\t" << "Hr[0][1][1]" << "\t\t" << "Mr[0][0][0]" << "\t\t" << "Mr[0][1][0]" << "\t\t" << "Nr[0][0][0]" << "\t\t" << "Nr[0][1][0]" << "\t\t\t" << "detA" << "\t\t" << "detC" << "\t\t" << "detD" << "\t\t" << "detE" << "\t\t" << "detF" << "\t\t" << "detH" << "\n";
-
-
-
-
+    
+    matrixfile << "radius_cm_HR_output[k]/R" << "\t\t\t" << "Ar[0][0][0]" << "\t\t" << "Ar[0][0][1]" << "\t\t" << "Ar[0][1][0]" << "\t\t" << "Ar[0][1][1]" << "\t\t" << "Cr[0][0][0]" << "\t\t" << "Cr[0][0][1]" << "\t\t" << "Cr[0][1][0]" << "\t\t" << "Cr[0][1][1]" << "\t\t" << "Dr[0][0][0]" << "\t\t" << "Dr[0][0][1]" << "\t\t" << "Dr[0][1][0]" << "\t\t" << "Dr[0][1][1]" << "\t\t" << "Er[0][0][0]" << "\t\t" << "Er[0][0][1]" << "\t\t" << "Er[0][1][0]" << "\t\t" << "Er[0][1][1]" << "\t\t" << "Fr[0][0][0]" << "\t\t" << "Fr[0][0][1]" << "\t\t" << "Fr[0][1][0]" << "\t\t" << "Fr[0][1][1]" << "\t\t" << "Hr[0][0][0]" << "\t\t" << "Hr[0][0][1]" << "\t\t" << "Hr[0][1][0]" << "\t\t" << "Hr[0][1][1]" << "\t\t" << "Mr[0][0][0]" << "\t\t" << "Mr[0][1][0]" << "\t\t" << "Nr[0][0][0]" << "\t\t" << "Nr[0][1][0]" << "\t\t\t" << "detA" << "\t\t" << "detC" << "\t\t" << "detD" << "\t\t" << "detE" << "\t\t" << "detF" << "\t\t" << "detH" << "\n";
+    
+    
+    
+    
     
     // This initialises all of the array_HR variables (as the k=0 case is unaltered)
     radius_cm_HR_output[0] = radius_cm[0];
@@ -901,7 +901,7 @@ semimajor_axis_jupiter ! = 7.7857d13 ! jupiter semimajor axis (cm)
     grada_HR[0] = grada[0];
     brunt_A_HR[0] = brunt_A[0];
     rho_face_HR[0] = rho_face[0];
-
+    
     
     
     
@@ -968,281 +968,281 @@ semimajor_axis_jupiter ! = 7.7857d13 ! jupiter semimajor axis (cm)
         r_grid_array[2] = input;
         
         
-
-
-// This defines the variables for k, which will then all need to repeated because we also need to know the variables for k+1 at the same time
-
-	// Here I define the location of the grid point as r_grid_cm
-	r_grid_cm = R*r_grid_array[1];
-
-	if ( r_grid_cm < radius_cm[0] ) {
-	// This sets us to use cells 0 and 1 of the old grid if we need to get anything smaller than radius_cm[0]
-	// Note that this requires extrapolation, sadly.
-	kold = 1;
-
-	} else {
-		
-		if ( r_grid_cm >= radius_cm[Jold-1] ) {
-			// This sets us to use the outer cell, and nothing beyond it (prevents segfaults)
-			// Whilst we shouldn't need to extrapolate at the surface for the cell-surface variables, this will be needed for the cell-mid variables
-			kold = Jold-1;
-
-		} else {
-
-			for (kold = 0; radius_cm[kold] < r_grid_cm; kold = kold + 1) {
-
-				// I don't need anything in here
-				// NB - kold is then the first point at which r_grid_cm has been exceeded
-				// therefore the interpolation is done between kold-1 and kold
-
-			}
-
-		}
-
-	}
-
-
-	// Now we define the values for delta[0] and delta[1], for the cell-face variables
-	// q[k] = delta[0]*q0[kold-1] + delta[1]*q0[kold]
-
-	delta[0] = (radius_cm[kold] - r_grid_cm)/(radius_cm[kold] - radius_cm[kold-1]);
-
-	delta[1] = (r_grid_cm - radius_cm[kold-1])/(radius_cm[kold] - radius_cm[kold-1]);
-
-
-	// Here we then define the cell-face variables, because we've already taken care of all of the possible dodgy cases
-
-                radius_cm_HR_output[k] = delta[0]*radius_cm[kold-1] + delta[1]*radius_cm[kold];
-
-                
-
-                radius_cm_HR[0] = delta[0]*radius_cm[kold-1] + delta[1]*radius_cm[kold];
-
-                flux_HR[0] = delta[0]*flux[kold-1] + delta[1]*flux[kold];
-
-                dkap_dlnrho_face_HR[0] = delta[0]*dkap_dlnrho_face[kold-1] + delta[1]*dkap_dlnrho_face[kold];
-
-                dkap_dlnT_face_HR[0] = delta[0]*dkap_dlnT_face[kold-1] + delta[1]*dkap_dlnT_face[kold];
-
-                opacity_HR[0] = delta[0]*opacity[kold-1] + delta[1]*opacity[kold];
-
-                rho_face_HR[0] = delta[0]*rho_face[kold-1] + delta[1]*rho_face[kold];
-
-	//
-	//
-	//
-	//
-	//
-	// Now we move on to the calculation for the cell-mid variables.
-	//
-	//
-	//
-	//
-	// We first need to find where the middle of the cell is, and we reuse r_grid_new to store it
-
-	
-
-		r_grid_cm = 0.5*R*( r_grid_array[1] + r_grid_array[0] );
-
-	
-
-	
-	// STILL NEED TO DEFINE rmid_cm_HR_output[k]
-	rmid_cm_HR_output[k] = r_grid_cm;
-
-	// Now we need to find kold for this cell-centre, according to the cell-centres of the old grid
-
-	if ( r_grid_cm < rmid_cm[0] ) {
-	// This sets us to use cells 0 and 1 of the old grid if we need to get anything smaller than radius_cm[0]
-	// Note that this requires extrapolation, sadly.
-	kold = 1;
-
-	} else {
-		
-		if ( r_grid_cm >= rmid_cm[Jold-1] ) {
-			// This sets us to use the outer cell, and nothing beyond it (prevents segfaults)
-			// Whilst we shouldn't need to extrapolate at the surface for the cell-surface variables, this will be needed for the cell-mid variables
-			kold = Jold-1;
-
-		} else {
-
-			for (kold = 0; rmid_cm[kold] < r_grid_cm; kold = kold + 1) {
-
-				// I don't need anything in here
-				// NB - kold is then the first point at which r_grid_cm has been exceeded
-				// therefore the interpolation is done between kold-1 and kold
-
-			}
-
-		}
-
-	}
-
-	// Now we define the values for delta[0] and delta[1], for the cell-centre variables
-	// q[k] = delta[0]*q0[kold-1] + delta[1]*q0[kold]
-
-	delta[0] = (rmid_cm[kold] - r_grid_cm)/(rmid_cm[kold] - rmid_cm[kold-1]);
-
-	delta[1] = (r_grid_cm - rmid_cm[kold-1])/(rmid_cm[kold] - rmid_cm[kold-1]);
-
-
-	// Here we define the cell-centre variables
-
-                rmid_cm_HR[0] = delta[0]*rmid_cm[kold-1] + delta[1]*rmid_cm[kold];
-                lnRho_HR[0] = delta[0]*lnRho[kold-1] + delta[1]*lnRho[kold];
-                rho_HR[0] = delta[0]*rho[kold-1] + delta[1]*rho[kold];
-                cp_HR[0] = delta[0]*cp[kold-1] + delta[1]*cp[kold];
-                temperature_HR[0] = delta[0]*temperature[kold-1] + delta[1]*temperature[kold];
-
-                lnT_HR[0] = delta[0]*lnT[kold-1] + delta[1]*lnT[kold];
-                pressure_HR[0] = delta[0]*pressure[kold-1] + delta[1]*pressure[kold];
-                grav_HR[0] = delta[0]*grav[kold-1] + delta[1]*grav[kold];
-                K_HR[0] = delta[0]*K[kold-1] + delta[1]*K[kold];
-                chiRho_HR[0] = delta[0]*chiRho[kold-1] + delta[1]*chiRho[kold];
-                chiT_HR[0] = delta[0]*chiT[kold-1] + delta[1]*chiT[kold];
-                grada_HR[0] = delta[0]*grada[kold-1] + delta[1]*grada[kold];
-                brunt_A_HR[0] = delta[0]*brunt_A[kold-1] + delta[1]*brunt_A[kold];
-
-
-
-
-// Here we define the variables for k+1
-// It's the same process, except we use i=k+1, and replace all the "k"s with "i"s, and the "0"s with "1"s in the variables
-
-	i = k+1;
-
-	// Here I define the location of the grid point as r_grid_cm
-	r_grid_cm = R*r_grid_array[2];
-
-	if ( r_grid_cm < radius_cm[0] ) {
-	// This sets us to use cells 0 and 1 of the old grid if we need to get anything smaller than radius_cm[0]
-	// Note that this requires extrapolation, sadly.
-	kold = 1;
-
-	} else {
-		
-		if ( r_grid_cm >= radius_cm[Jold-1] ) {
-			// This sets us to use the outer cell, and nothing beyond it (prevents segfaults)
-			// Whilst we shouldn't need to extrapolate at the surface for the cell-surface variables, this will be needed for the cell-mid variables
-			kold = Jold-1;
-
-		} else {
-
-			for (kold = 0; radius_cm[kold] < r_grid_cm; kold = kold + 1) {
-
-				// I don't need anything in here
-				// NB - kold is then the first point at which r_grid_cm has been exceeded
-				// therefore the interpolation is done between kold-1 and kold
-
-			}
-
-		}
-
-	}
-
-
-	// Now we define the values for delta[0] and delta[1], for the cell-face variables
-	// q[k] = delta[0]*q0[kold-1] + delta[1]*q0[kold]
-
-	delta[0] = (radius_cm[kold] - r_grid_cm)/(radius_cm[kold] - radius_cm[kold-1]);
-
-	delta[1] = (r_grid_cm - radius_cm[kold-1])/(radius_cm[kold] - radius_cm[kold-1]);
-
-
-	// Here we then define the cell-face variables, because we've already taken care of all of the possible dodgy cases
-
-                radius_cm_HR_output[i] = delta[0]*radius_cm[kold-1] + delta[1]*radius_cm[kold];
-                
-                radius_cm_HR[1] = delta[0]*radius_cm[kold-1] + delta[1]*radius_cm[kold];
-                flux_HR[1] = delta[0]*flux[kold-1] + delta[1]*flux[kold];
-                dkap_dlnrho_face_HR[1] = delta[0]*dkap_dlnrho_face[kold-1] + delta[1]*dkap_dlnrho_face[kold];
-                dkap_dlnT_face_HR[1] = delta[0]*dkap_dlnT_face[kold-1] + delta[1]*dkap_dlnT_face[kold];
-                opacity_HR[1] = delta[0]*opacity[kold-1] + delta[1]*opacity[kold];
-                rho_face_HR[1] = delta[0]*rho_face[kold-1] + delta[1]*rho_face[kold];
-
         
         
-
-	//
-	//
-	//
-	//
-	//
-	// Now we move on to the calculation for the cell-mid variables.
-	//
-	//
-	//
-	//
-	// We first need to find where the middle of the cell is, and we reuse r_grid_new to store it
-
-	
-
-		r_grid_cm = 0.5*R*( r_grid_array[2] + r_grid_array[1] );
-
-	
-
-	
-	// STILL NEED TO DEFINE rmid_cm_HR_output[i]
-	rmid_cm_HR_output[i] = r_grid_cm;
-
-	// Now we need to find kold for this cell-centre, according to the cell-centres of the old grid
-
-	if ( r_grid_cm < rmid_cm[0] ) {
-	// This sets us to use cells 0 and 1 of the old grid if we need to get anything smaller than radius_cm[0]
-	// Note that this requires extrapolation, sadly.
-	kold = 1;
-
-	} else {
-		
-		if ( r_grid_cm >= rmid_cm[Jold-1] ) {
-			// This sets us to use the outer cell, and nothing beyond it (prevents segfaults)
-			// Whilst we shouldn't need to extrapolate at the surface for the cell-surface variables, this will be needed for the cell-mid variables
-			kold = Jold-1;
-
-		} else {
-
-			for (kold = 0; rmid_cm[kold] < r_grid_cm; kold = kold + 1) {
-
-				// I don't need anything in here
-				// NB - kold is then the first point at which r_grid_cm has been exceeded
-				// therefore the interpolation is done between kold-1 and kold
-
-			}
-
-		}
-
-	}
-
-	// Now we define the values for delta[0] and delta[1], for the cell-centre variables
-	// q[i] = delta[0]*q0[kold-1] + delta[1]*q0[kold]
-
-	delta[0] = (rmid_cm[kold] - r_grid_cm)/(rmid_cm[kold] - rmid_cm[kold-1]);
-
-	delta[1] = (r_grid_cm - rmid_cm[kold-1])/(rmid_cm[kold] - rmid_cm[kold-1]);
-
-
-	// Here we define the cell-centre variables
-
-                rmid_cm_HR[1] = delta[0]*rmid_cm[kold-1] + delta[1]*rmid_cm[kold];
-                lnRho_HR[1] = delta[0]*lnRho[kold-1] + delta[1]*lnRho[kold];
-                rho_HR[1] = delta[0]*rho[kold-1] + delta[1]*rho[kold];
-                cp_HR[1] = delta[0]*cp[kold-1] + delta[1]*cp[kold];
-                temperature_HR[1] = delta[0]*temperature[kold-1] + delta[1]*temperature[kold];
-                lnT_HR[1] = delta[0]*lnT[kold-1] + delta[1]*lnT[kold];
-                pressure_HR[1] = delta[0]*pressure[kold-1] + delta[1]*pressure[kold];
-                grav_HR[1] = delta[0]*grav[kold-1] + delta[1]*grav[kold];
-                K_HR[1] = delta[0]*K[kold-1] + delta[1]*K[kold];
-                chiRho_HR[1] = delta[0]*chiRho[kold-1] + delta[1]*chiRho[kold];
-                chiT_HR[1] = delta[0]*chiT[kold-1] + delta[1]*chiT[kold];
-                grada_HR[1] = delta[0]*grada[kold-1] + delta[1]*grada[kold];
-                brunt_A_HR[1] = delta[0]*brunt_A[kold-1] + delta[1]*brunt_A[kold];
-
-
-
-
-
-
-
+        // This defines the variables for k, which will then all need to repeated because we also need to know the variables for k+1 at the same time
+        
+        // Here I define the location of the grid point as r_grid_cm
+        r_grid_cm = R*r_grid_array[1];
+        
+        if ( r_grid_cm < radius_cm[0] ) {
+            // This sets us to use cells 0 and 1 of the old grid if we need to get anything smaller than radius_cm[0]
+            // Note that this requires extrapolation, sadly.
+            kold = 1;
+            
+        } else {
+            
+            if ( r_grid_cm >= radius_cm[Jold-1] ) {
+                // This sets us to use the outer cell, and nothing beyond it (prevents segfaults)
+                // Whilst we shouldn't need to extrapolate at the surface for the cell-surface variables, this will be needed for the cell-mid variables
+                kold = Jold-1;
+                
+            } else {
+                
+                for (kold = 0; radius_cm[kold] < r_grid_cm; kold = kold + 1) {
+                    
+                    // I don't need anything in here
+                    // NB - kold is then the first point at which r_grid_cm has been exceeded
+                    // therefore the interpolation is done between kold-1 and kold
+                    
+                }
+                
+            }
+            
+        }
+        
+        
+        // Now we define the values for delta[0] and delta[1], for the cell-face variables
+        // q[k] = delta[0]*q0[kold-1] + delta[1]*q0[kold]
+        
+        delta[0] = (radius_cm[kold] - r_grid_cm)/(radius_cm[kold] - radius_cm[kold-1]);
+        
+        delta[1] = (r_grid_cm - radius_cm[kold-1])/(radius_cm[kold] - radius_cm[kold-1]);
+        
+        
+        // Here we then define the cell-face variables, because we've already taken care of all of the possible dodgy cases
+        
+        radius_cm_HR_output[k] = delta[0]*radius_cm[kold-1] + delta[1]*radius_cm[kold];
+        
+        
+        
+        radius_cm_HR[0] = delta[0]*radius_cm[kold-1] + delta[1]*radius_cm[kold];
+        
+        flux_HR[0] = delta[0]*flux[kold-1] + delta[1]*flux[kold];
+        
+        dkap_dlnrho_face_HR[0] = delta[0]*dkap_dlnrho_face[kold-1] + delta[1]*dkap_dlnrho_face[kold];
+        
+        dkap_dlnT_face_HR[0] = delta[0]*dkap_dlnT_face[kold-1] + delta[1]*dkap_dlnT_face[kold];
+        
+        opacity_HR[0] = delta[0]*opacity[kold-1] + delta[1]*opacity[kold];
+        
+        rho_face_HR[0] = delta[0]*rho_face[kold-1] + delta[1]*rho_face[kold];
+        
+        //
+        //
+        //
+        //
+        //
+        // Now we move on to the calculation for the cell-mid variables.
+        //
+        //
+        //
+        //
+        // We first need to find where the middle of the cell is, and we reuse r_grid_new to store it
+        
+        
+        
+        r_grid_cm = 0.5*R*( r_grid_array[1] + r_grid_array[0] );
+        
+        
+        
+        
+        // STILL NEED TO DEFINE rmid_cm_HR_output[k]
+        rmid_cm_HR_output[k] = r_grid_cm;
+        
+        // Now we need to find kold for this cell-centre, according to the cell-centres of the old grid
+        
+        if ( r_grid_cm < rmid_cm[0] ) {
+            // This sets us to use cells 0 and 1 of the old grid if we need to get anything smaller than radius_cm[0]
+            // Note that this requires extrapolation, sadly.
+            kold = 1;
+            
+        } else {
+            
+            if ( r_grid_cm >= rmid_cm[Jold-1] ) {
+                // This sets us to use the outer cell, and nothing beyond it (prevents segfaults)
+                // Whilst we shouldn't need to extrapolate at the surface for the cell-surface variables, this will be needed for the cell-mid variables
+                kold = Jold-1;
+                
+            } else {
+                
+                for (kold = 0; rmid_cm[kold] < r_grid_cm; kold = kold + 1) {
+                    
+                    // I don't need anything in here
+                    // NB - kold is then the first point at which r_grid_cm has been exceeded
+                    // therefore the interpolation is done between kold-1 and kold
+                    
+                }
+                
+            }
+            
+        }
+        
+        // Now we define the values for delta[0] and delta[1], for the cell-centre variables
+        // q[k] = delta[0]*q0[kold-1] + delta[1]*q0[kold]
+        
+        delta[0] = (rmid_cm[kold] - r_grid_cm)/(rmid_cm[kold] - rmid_cm[kold-1]);
+        
+        delta[1] = (r_grid_cm - rmid_cm[kold-1])/(rmid_cm[kold] - rmid_cm[kold-1]);
+        
+        
+        // Here we define the cell-centre variables
+        
+        rmid_cm_HR[0] = delta[0]*rmid_cm[kold-1] + delta[1]*rmid_cm[kold];
+        lnRho_HR[0] = delta[0]*lnRho[kold-1] + delta[1]*lnRho[kold];
+        rho_HR[0] = delta[0]*rho[kold-1] + delta[1]*rho[kold];
+        cp_HR[0] = delta[0]*cp[kold-1] + delta[1]*cp[kold];
+        temperature_HR[0] = delta[0]*temperature[kold-1] + delta[1]*temperature[kold];
+        
+        lnT_HR[0] = delta[0]*lnT[kold-1] + delta[1]*lnT[kold];
+        pressure_HR[0] = delta[0]*pressure[kold-1] + delta[1]*pressure[kold];
+        grav_HR[0] = delta[0]*grav[kold-1] + delta[1]*grav[kold];
+        K_HR[0] = delta[0]*K[kold-1] + delta[1]*K[kold];
+        chiRho_HR[0] = delta[0]*chiRho[kold-1] + delta[1]*chiRho[kold];
+        chiT_HR[0] = delta[0]*chiT[kold-1] + delta[1]*chiT[kold];
+        grada_HR[0] = delta[0]*grada[kold-1] + delta[1]*grada[kold];
+        brunt_A_HR[0] = delta[0]*brunt_A[kold-1] + delta[1]*brunt_A[kold];
+        
+        
+        
+        
+        // Here we define the variables for k+1
+        // It's the same process, except we use i=k+1, and replace all the "k"s with "i"s, and the "0"s with "1"s in the variables
+        
+        i = k+1;
+        
+        // Here I define the location of the grid point as r_grid_cm
+        r_grid_cm = R*r_grid_array[2];
+        
+        if ( r_grid_cm < radius_cm[0] ) {
+            // This sets us to use cells 0 and 1 of the old grid if we need to get anything smaller than radius_cm[0]
+            // Note that this requires extrapolation, sadly.
+            kold = 1;
+            
+        } else {
+            
+            if ( r_grid_cm >= radius_cm[Jold-1] ) {
+                // This sets us to use the outer cell, and nothing beyond it (prevents segfaults)
+                // Whilst we shouldn't need to extrapolate at the surface for the cell-surface variables, this will be needed for the cell-mid variables
+                kold = Jold-1;
+                
+            } else {
+                
+                for (kold = 0; radius_cm[kold] < r_grid_cm; kold = kold + 1) {
+                    
+                    // I don't need anything in here
+                    // NB - kold is then the first point at which r_grid_cm has been exceeded
+                    // therefore the interpolation is done between kold-1 and kold
+                    
+                }
+                
+            }
+            
+        }
+        
+        
+        // Now we define the values for delta[0] and delta[1], for the cell-face variables
+        // q[k] = delta[0]*q0[kold-1] + delta[1]*q0[kold]
+        
+        delta[0] = (radius_cm[kold] - r_grid_cm)/(radius_cm[kold] - radius_cm[kold-1]);
+        
+        delta[1] = (r_grid_cm - radius_cm[kold-1])/(radius_cm[kold] - radius_cm[kold-1]);
+        
+        
+        // Here we then define the cell-face variables, because we've already taken care of all of the possible dodgy cases
+        
+        radius_cm_HR_output[i] = delta[0]*radius_cm[kold-1] + delta[1]*radius_cm[kold];
+        
+        radius_cm_HR[1] = delta[0]*radius_cm[kold-1] + delta[1]*radius_cm[kold];
+        flux_HR[1] = delta[0]*flux[kold-1] + delta[1]*flux[kold];
+        dkap_dlnrho_face_HR[1] = delta[0]*dkap_dlnrho_face[kold-1] + delta[1]*dkap_dlnrho_face[kold];
+        dkap_dlnT_face_HR[1] = delta[0]*dkap_dlnT_face[kold-1] + delta[1]*dkap_dlnT_face[kold];
+        opacity_HR[1] = delta[0]*opacity[kold-1] + delta[1]*opacity[kold];
+        rho_face_HR[1] = delta[0]*rho_face[kold-1] + delta[1]*rho_face[kold];
+        
+        
+        
+        
+        //
+        //
+        //
+        //
+        //
+        // Now we move on to the calculation for the cell-mid variables.
+        //
+        //
+        //
+        //
+        // We first need to find where the middle of the cell is, and we reuse r_grid_new to store it
+        
+        
+        
+        r_grid_cm = 0.5*R*( r_grid_array[2] + r_grid_array[1] );
+        
+        
+        
+        
+        // STILL NEED TO DEFINE rmid_cm_HR_output[i]
+        rmid_cm_HR_output[i] = r_grid_cm;
+        
+        // Now we need to find kold for this cell-centre, according to the cell-centres of the old grid
+        
+        if ( r_grid_cm < rmid_cm[0] ) {
+            // This sets us to use cells 0 and 1 of the old grid if we need to get anything smaller than radius_cm[0]
+            // Note that this requires extrapolation, sadly.
+            kold = 1;
+            
+        } else {
+            
+            if ( r_grid_cm >= rmid_cm[Jold-1] ) {
+                // This sets us to use the outer cell, and nothing beyond it (prevents segfaults)
+                // Whilst we shouldn't need to extrapolate at the surface for the cell-surface variables, this will be needed for the cell-mid variables
+                kold = Jold-1;
+                
+            } else {
+                
+                for (kold = 0; rmid_cm[kold] < r_grid_cm; kold = kold + 1) {
+                    
+                    // I don't need anything in here
+                    // NB - kold is then the first point at which r_grid_cm has been exceeded
+                    // therefore the interpolation is done between kold-1 and kold
+                    
+                }
+                
+            }
+            
+        }
+        
+        // Now we define the values for delta[0] and delta[1], for the cell-centre variables
+        // q[i] = delta[0]*q0[kold-1] + delta[1]*q0[kold]
+        
+        delta[0] = (rmid_cm[kold] - r_grid_cm)/(rmid_cm[kold] - rmid_cm[kold-1]);
+        
+        delta[1] = (r_grid_cm - rmid_cm[kold-1])/(rmid_cm[kold] - rmid_cm[kold-1]);
+        
+        
+        // Here we define the cell-centre variables
+        
+        rmid_cm_HR[1] = delta[0]*rmid_cm[kold-1] + delta[1]*rmid_cm[kold];
+        lnRho_HR[1] = delta[0]*lnRho[kold-1] + delta[1]*lnRho[kold];
+        rho_HR[1] = delta[0]*rho[kold-1] + delta[1]*rho[kold];
+        cp_HR[1] = delta[0]*cp[kold-1] + delta[1]*cp[kold];
+        temperature_HR[1] = delta[0]*temperature[kold-1] + delta[1]*temperature[kold];
+        lnT_HR[1] = delta[0]*lnT[kold-1] + delta[1]*lnT[kold];
+        pressure_HR[1] = delta[0]*pressure[kold-1] + delta[1]*pressure[kold];
+        grav_HR[1] = delta[0]*grav[kold-1] + delta[1]*grav[kold];
+        K_HR[1] = delta[0]*K[kold-1] + delta[1]*K[kold];
+        chiRho_HR[1] = delta[0]*chiRho[kold-1] + delta[1]*chiRho[kold];
+        chiT_HR[1] = delta[0]*chiT[kold-1] + delta[1]*chiT[kold];
+        grada_HR[1] = delta[0]*grada[kold-1] + delta[1]*grada[kold];
+        brunt_A_HR[1] = delta[0]*brunt_A[kold-1] + delta[1]*brunt_A[kold];
+        
+        
+        
+        
+        
+        
+        
         
         
         
@@ -1255,60 +1255,60 @@ semimajor_axis_jupiter ! = 7.7857d13 ! jupiter semimajor axis (cm)
         
         
         //cout << "Past the interpolation bit for k = " << k << "\n";
-
-
+        
+        
         
         /*
-
+         
          This is meant to do the interpolation.
-
+         
          It first evaluates whether the point is in the higher-resolution region, if not, it just changes the value the it reads its input from; if yes, it then works out what bit of the higher-resolution region it is from.
-
+         
          First we calculate the value of x it is at, which narrows down the possible values of k.
-
+         
          Then we calculate the value of k it is at.
-
+         
          Then we get the value of n that it is at.
-
+         
          Then we've got all of the interpolation parameters, and we're all set to go.
-
+         
          Note that we'll need to repeat this for the k+1 cell because we involve both k and k+1 in the equations at the same time.
-
-
-
+         
+         
+         
          Equations
          _________
-
+         
          xcount = floor( (kold - 1)/L )
-
+         
          label = ((xcount * L) / 2)*((2*Nmax) + 1 - xcount) + ( kold - (xcount*L) - 1)*(Nmax - xcount) + n + 1
-
+         
          labelminx = minimum value of label for a given value of x
          labelminx = ((x * L) / 2)*((2*Nmax) + 1 - x) + 1
-
+         
          labelmink = minimum value of label for a given value of kold
          labelmink = ((xcount * L) / 2)*((2*Nmax) + 1 - xcount) + ( kold - (xcount*L) - 1)*(Nmax - xcount) + 1
-
+         
          kmin = minimum value of old k for a given value of x
          kmin = (L*xcount) + 1
-
+         
          */
-
-
-
-
-
         
-
-
-
+        
+        
+        
+        
+        
+        
+        
+        
         // This checks the interpolation of any given variable array
         test[k] = (radius_cm_HR[1] - radius_cm_HR[0])/R; //((temperature_HR[1]-temperature_HR[0])/(rmid_cm_HR[1]-rmid_cm_HR[0]))*( - 4.0*7.5657e-15*2.99792458e10*temperature_HR[0]*temperature_HR[0]*temperature_HR[0]/( 3.0*opacity_HR[0]*rho_HR[0] ) ); //brunt_A_HR[0]*grav_HR[0]/radius_cm_HR[0];
         test[k+1] = (radius_cm_HR[1] - radius_cm_HR[0])/R; //((temperature_HR[1]-temperature_HR[0])/(rmid_cm_HR[1]-rmid_cm_HR[0]))*( - 4.0*7.5657e-15*2.99792458e10*temperature_HR[0]*temperature_HR[0]*temperature_HR[0]/( 3.0*opacity_HR[0]*rho_HR[0] ) ); //brunt_A_HR[1]*grav_HR[1]/radius_cm_HR[1];
-
         
         
-
+        
+        
         
         
         
@@ -1328,37 +1328,37 @@ semimajor_axis_jupiter ! = 7.7857d13 ! jupiter semimajor axis (cm)
         
         rho_face_HR_output[k] = rho_face_HR[0];
         rho_face_HR_output[k+1] = rho_face_HR[1];
-
-
-	opacity_HR_output[k] = opacity_HR[0];
-	opacity_HR_output[k+1] = opacity_HR[1];
-
-
-
-	K_HR_output[k] = K_HR[0];
-	K_HR_output[k+1] = K_HR[1];
         
-
+        
+        opacity_HR_output[k] = opacity_HR[0];
+        opacity_HR_output[k+1] = opacity_HR[1];
+        
+        
+        
+        K_HR_output[k] = K_HR[0];
+        K_HR_output[k+1] = K_HR[1];
+        
+        
         
         grav_HR_output[k] = grav_HR[0];
         grav_HR_output[k+1] = grav_HR[1];
-
-	// Made such that F' = dT0/dr * ( Fprime_for_T * T'/T0   +   dT'/dT0   -   dxi/dr   +   Fprime_for_p * p'/p0 )
-	// The strange prefactor is therefore: -(4*a*c*T^3)/(3*opacity*rho)
-	Fprime_for_T[k] = ( flux_HR[0] ) * ( 3.0 - dkap_dlnT_face_HR[0]/opacity_HR[0] + (chiT_HR[0]/chiRho_HR[0])*( 1.0 + dkap_dlnrho_face_HR[0]/opacity_HR[0] ) );
-	Fprime_for_T[k+1] = ( flux_HR[1] ) * ( 3.0 - dkap_dlnT_face_HR[1]/opacity_HR[1] + (chiT_HR[1]/chiRho_HR[1])*( 1.0 + dkap_dlnrho_face_HR[1]/opacity_HR[1] ) );
-
-	Fprime_for_p[k] = ( flux_HR[0] ) * (-1.0/chiRho_HR[0])*( 1.0 + dkap_dlnrho_face_HR[0]/opacity_HR[0] );
-	Fprime_for_p[k+1] = ( flux_HR[1] ) * (-1.0/chiRho_HR[1])*( 1.0 + dkap_dlnrho_face_HR[1]/opacity_HR[1] );
-
-	// These versions have a self-calculated value for the radiative flux, which has major issues at the surface
-	//Fprime_for_T[k] = ( - 4.0*7.5657e-15*2.99792458e10*temperature_HR[0]*temperature_HR[0]*temperature_HR[0]/( 3.0*opacity_HR[0]*rho_HR[0] ) ) * ( 3.0 - dkap_dlnT_face_HR[0]/opacity_HR[0] + (chiT_HR[0]/chiRho_HR[0])*( 1.0 + dkap_dlnrho_face_HR[0]/opacity_HR[0] ) );
-	//Fprime_for_T[k+1] = ( - 4.0*7.5657e-15*2.99792458e10*temperature_HR[1]*temperature_HR[1]*temperature_HR[1]/( 3.0*opacity_HR[1]*rho_HR[1] ) ) * ( 3.0 - dkap_dlnT_face_HR[1]/opacity_HR[1] + (chiT_HR[1]/chiRho_HR[1])*( 1.0 + dkap_dlnrho_face_HR[1]/opacity_HR[1] ) );
-
-	//Fprime_for_p[k] = ( - 4.0*7.5657e-15*2.99792458e10*temperature_HR[0]*temperature_HR[0]*temperature_HR[0]/( 3.0*opacity_HR[0]*rho_HR[0] ) ) * (-1.0/chiRho_HR[0])*( 1.0 + dkap_dlnrho_face_HR[0]/opacity_HR[0] );
-	//Fprime_for_p[k+1] = ( - 4.0*7.5657e-15*2.99792458e10*temperature_HR[1]*temperature_HR[1]*temperature_HR[1]/( 3.0*opacity_HR[1]*rho_HR[1] ) ) * (-1.0/chiRho_HR[1])*( 1.0 + dkap_dlnrho_face_HR[1]/opacity_HR[1] );
-
-
+        
+        // Made such that F' = dT0/dr * ( Fprime_for_T * T'/T0   +   dT'/dT0   -   dxi/dr   +   Fprime_for_p * p'/p0 )
+        // The strange prefactor is therefore: -(4*a*c*T^3)/(3*opacity*rho)
+        Fprime_for_T[k] = ( flux_HR[0] ) * ( 3.0 - dkap_dlnT_face_HR[0]/opacity_HR[0] + (chiT_HR[0]/chiRho_HR[0])*( 1.0 + dkap_dlnrho_face_HR[0]/opacity_HR[0] ) );
+        Fprime_for_T[k+1] = ( flux_HR[1] ) * ( 3.0 - dkap_dlnT_face_HR[1]/opacity_HR[1] + (chiT_HR[1]/chiRho_HR[1])*( 1.0 + dkap_dlnrho_face_HR[1]/opacity_HR[1] ) );
+        
+        Fprime_for_p[k] = ( flux_HR[0] ) * (-1.0/chiRho_HR[0])*( 1.0 + dkap_dlnrho_face_HR[0]/opacity_HR[0] );
+        Fprime_for_p[k+1] = ( flux_HR[1] ) * (-1.0/chiRho_HR[1])*( 1.0 + dkap_dlnrho_face_HR[1]/opacity_HR[1] );
+        
+        // These versions have a self-calculated value for the radiative flux, which has major issues at the surface
+        //Fprime_for_T[k] = ( - 4.0*7.5657e-15*2.99792458e10*temperature_HR[0]*temperature_HR[0]*temperature_HR[0]/( 3.0*opacity_HR[0]*rho_HR[0] ) ) * ( 3.0 - dkap_dlnT_face_HR[0]/opacity_HR[0] + (chiT_HR[0]/chiRho_HR[0])*( 1.0 + dkap_dlnrho_face_HR[0]/opacity_HR[0] ) );
+        //Fprime_for_T[k+1] = ( - 4.0*7.5657e-15*2.99792458e10*temperature_HR[1]*temperature_HR[1]*temperature_HR[1]/( 3.0*opacity_HR[1]*rho_HR[1] ) ) * ( 3.0 - dkap_dlnT_face_HR[1]/opacity_HR[1] + (chiT_HR[1]/chiRho_HR[1])*( 1.0 + dkap_dlnrho_face_HR[1]/opacity_HR[1] ) );
+        
+        //Fprime_for_p[k] = ( - 4.0*7.5657e-15*2.99792458e10*temperature_HR[0]*temperature_HR[0]*temperature_HR[0]/( 3.0*opacity_HR[0]*rho_HR[0] ) ) * (-1.0/chiRho_HR[0])*( 1.0 + dkap_dlnrho_face_HR[0]/opacity_HR[0] );
+        //Fprime_for_p[k+1] = ( - 4.0*7.5657e-15*2.99792458e10*temperature_HR[1]*temperature_HR[1]*temperature_HR[1]/( 3.0*opacity_HR[1]*rho_HR[1] ) ) * (-1.0/chiRho_HR[1])*( 1.0 + dkap_dlnrho_face_HR[1]/opacity_HR[1] );
+        
+        
         
         
         if (k==J-1) {
@@ -1373,13 +1373,13 @@ semimajor_axis_jupiter ! = 7.7857d13 ! jupiter semimajor axis (cm)
         
         
         
-         
+        
         // This defines the delta coefficients for interpolation
         delta[0] = (rmid_cm_HR[1] - radius_cm_HR[0])/(rmid_cm_HR[1] - rmid_cm_HR[0]);
         delta[1] = (radius_cm_HR[0] - rmid_cm_HR[0])/(rmid_cm_HR[1] - rmid_cm_HR[0]);
-
-        /*
         
+        /*
+         
          This is the case with the equations used for the actual oscillations.
          
          
@@ -1513,130 +1513,130 @@ semimajor_axis_jupiter ! = 7.7857d13 ! jupiter semimajor axis (cm)
         
         // Option 1 (be aware of the need to modify for rho_face in Ar[0][0][0] and Cr[0][0][0])
         /*
-        Ar[0][0][0] = - radius_cm_HR[0]*radius_cm_HR[0]*rho_HR[1] / ( R*R*( radius_cm_HR[1] - radius_cm_HR[0] ) );
-        Ar[0][0][1] = 0;
-        Ar[0][1][0] = 0;
-        Ar[0][1][1] = -radius_cm_HR[0]*radius_cm_HR[0]/( R*R*(radius_cm_HR[1] - radius_cm_HR[0]) );
-        
-        Ai[0][0][0] = 0;
-        Ai[0][0][1] = 0;
-        Ai[0][1][0] = 0; // m*omega*rho_HR[1]*temperature_HR[1]*brunt_A_HR[1]*chiRho_HR[1]*cp_HR[1]*radius_cm_HR[0]*0.5 / (R*R*chiT_HR[1]);
-        Ai[0][1][1] = 0;
-        
-        Cr[0][0][0] = radius_cm_HR[1]*radius_cm_HR[1]*rho_HR[1] / ( R*R*( radius_cm_HR[1] - radius_cm_HR[0] ) );
-        Cr[0][0][1] = 0;
-        Cr[0][1][0] = 0;
-        Cr[0][1][1] = radius_cm_HR[1]*radius_cm_HR[1]/( R*R*(radius_cm_HR[1] - radius_cm_HR[0]) );
-        
-        Ci[0][0][0] = 0;
-        Ci[0][0][1] = 0;
-        Ci[0][1][0] = 0; // m*omega*rho_HR[1]*temperature_HR[1]*brunt_A_HR[1]*chiRho_HR[1]*cp_HR[1]*radius_cm_HR[1]*0.5 / (R*R*chiT_HR[1]);
-        Ci[0][1][1] = 0;
-        
-        Dr[0][0][0] = ( rho_HR[1]*rmid_cm_HR[1]*rmid_cm_HR[1] / (chiRho_HR[1] * pressure_HR[1]*R*R) )  -  ( ( l*(l + 1.0) )/( m*m*omega*omega*R*R ) );
-        Dr[0][0][1] = - rho_HR[1] * rmid_cm_HR[1] * rmid_cm_HR[1] * chiT_HR[1] / ( temperature_HR[1] * R * R * chiRho_HR[1] );
-        Dr[0][1][0] = 0;
-        Dr[0][1][1] = l*(l + 1.0)*K_HR[1] / (R*R);
-        
-        Di[0][0][0] = 0;
-        Di[0][0][1] = 0;
-        Di[0][1][0] = 0; // - m*omega*rho_HR[1]*temperature_HR[1]*cp_HR[1]*grada_HR[1]*rmid_cm_HR[1]*rmid_cm_HR[1] / ( R*R*pressure_HR[1] );
-        Di[0][1][1] = 0; // m*omega*rho_HR[1]*cp_HR[1]*rmid_cm_HR[1]*rmid_cm_HR[1];
-        
-        Er[0][0][0] = 0;
-        Er[0][0][1] = - ( (delta[0]/K_HR[0]) + (delta[1]/K_HR[1]) );
-        Er[0][1][0] = -m*m*omega*omega*( (delta[0]*rho_HR[0]) + (delta[1]*rho_HR[1]) );
-        Er[0][1][1] = 0;
-        
-        Ei[0][0][0] = 0;
-        Ei[0][0][1] = 0;
-        Ei[0][1][0] = 0;
-        Ei[0][1][1] = 0;
-        
-        Fr[0][0][0] = (( temperature_HR[1] - temperature_HR[0] )/( rmid_cm_HR[1] - rmid_cm_HR[0] ))*( delta[0]*( 1.0 + (dkap_dlnrho_face_HR[0]/opacity_HR[0]) )/( pressure_HR[0]*chiRho_HR[0] ) );
-        Fr[0][0][1] = (1.0/( rmid_cm_HR[1] - rmid_cm_HR[0] ))  +  ( (lnT_HR[1] - lnT_HR[0])/(rmid_cm_HR[1] - rmid_cm_HR[0]) )*delta[0]*( -3.0 + (dkap_dlnT_face_HR[0]/opacity_HR[0])  -  (chiT_HR[0]/chiRho_HR[0])*( 1.0 + (dkap_dlnrho_face_HR[0]/opacity_HR[0]) ) );
-        Fr[0][1][0] = (-1.0/(rmid_cm_HR[1] - rmid_cm_HR[0]))  +  (grav_HR[0]*rho_HR[0]*delta[0])/(chiRho_HR[0]*pressure_HR[0]);
-        Fr[0][1][1] = -delta[0]*( chiT_HR[0]/chiRho_HR[0] )*(grav_HR[0]*rho_HR[0]/temperature_HR[0]);
-        
-        Fi[0][0][0] = 0;
-        Fi[0][0][1] = 0;
-        Fi[0][1][0] = 0;
-        Fi[0][1][1] = 0;
-        
-        Hr[0][0][0] = (( temperature_HR[1] - temperature_HR[0] )/( rmid_cm_HR[1] - rmid_cm_HR[0] ))*( delta[1]*( 1.0 + (dkap_dlnrho_face_HR[0]/opacity_HR[1]) )/( pressure_HR[1]*chiRho_HR[1] ) );
-        Hr[0][0][1] = (-1.0/( rmid_cm_HR[1] - rmid_cm_HR[0] ))  +  ( (lnT_HR[1] - lnT_HR[0])/(rmid_cm_HR[1] - rmid_cm_HR[0]) )*delta[1]*( -3.0 + (dkap_dlnT_face_HR[0]/opacity_HR[1])  -  (chiT_HR[1]/chiRho_HR[1])*( 1.0 + (dkap_dlnrho_face_HR[0]/opacity_HR[1]) ) );
-        Hr[0][1][0] = (1.0/(rmid_cm_HR[1] - rmid_cm_HR[0]))  +  (grav_HR[1]*rho_HR[1]*delta[1])/(chiRho_HR[1]*pressure_HR[1]);
-        Hr[0][1][1] = -delta[1]*( chiT_HR[1]/chiRho_HR[1] )*(grav_HR[1]*rho_HR[1]/temperature_HR[1]);
-        
-        Hi[0][0][0] = 0;
-        Hi[0][0][1] = 0;
-        Hi[0][1][0] = 0;
-        Hi[0][1][1] = 0;
-        */
+         Ar[0][0][0] = - radius_cm_HR[0]*radius_cm_HR[0]*rho_HR[1] / ( R*R*( radius_cm_HR[1] - radius_cm_HR[0] ) );
+         Ar[0][0][1] = 0;
+         Ar[0][1][0] = 0;
+         Ar[0][1][1] = -radius_cm_HR[0]*radius_cm_HR[0]/( R*R*(radius_cm_HR[1] - radius_cm_HR[0]) );
+         
+         Ai[0][0][0] = 0;
+         Ai[0][0][1] = 0;
+         Ai[0][1][0] = 0; // m*omega*rho_HR[1]*temperature_HR[1]*brunt_A_HR[1]*chiRho_HR[1]*cp_HR[1]*radius_cm_HR[0]*0.5 / (R*R*chiT_HR[1]);
+         Ai[0][1][1] = 0;
+         
+         Cr[0][0][0] = radius_cm_HR[1]*radius_cm_HR[1]*rho_HR[1] / ( R*R*( radius_cm_HR[1] - radius_cm_HR[0] ) );
+         Cr[0][0][1] = 0;
+         Cr[0][1][0] = 0;
+         Cr[0][1][1] = radius_cm_HR[1]*radius_cm_HR[1]/( R*R*(radius_cm_HR[1] - radius_cm_HR[0]) );
+         
+         Ci[0][0][0] = 0;
+         Ci[0][0][1] = 0;
+         Ci[0][1][0] = 0; // m*omega*rho_HR[1]*temperature_HR[1]*brunt_A_HR[1]*chiRho_HR[1]*cp_HR[1]*radius_cm_HR[1]*0.5 / (R*R*chiT_HR[1]);
+         Ci[0][1][1] = 0;
+         
+         Dr[0][0][0] = ( rho_HR[1]*rmid_cm_HR[1]*rmid_cm_HR[1] / (chiRho_HR[1] * pressure_HR[1]*R*R) )  -  ( ( l*(l + 1.0) )/( m*m*omega*omega*R*R ) );
+         Dr[0][0][1] = - rho_HR[1] * rmid_cm_HR[1] * rmid_cm_HR[1] * chiT_HR[1] / ( temperature_HR[1] * R * R * chiRho_HR[1] );
+         Dr[0][1][0] = 0;
+         Dr[0][1][1] = l*(l + 1.0)*K_HR[1] / (R*R);
+         
+         Di[0][0][0] = 0;
+         Di[0][0][1] = 0;
+         Di[0][1][0] = 0; // - m*omega*rho_HR[1]*temperature_HR[1]*cp_HR[1]*grada_HR[1]*rmid_cm_HR[1]*rmid_cm_HR[1] / ( R*R*pressure_HR[1] );
+         Di[0][1][1] = 0; // m*omega*rho_HR[1]*cp_HR[1]*rmid_cm_HR[1]*rmid_cm_HR[1];
+         
+         Er[0][0][0] = 0;
+         Er[0][0][1] = - ( (delta[0]/K_HR[0]) + (delta[1]/K_HR[1]) );
+         Er[0][1][0] = -m*m*omega*omega*( (delta[0]*rho_HR[0]) + (delta[1]*rho_HR[1]) );
+         Er[0][1][1] = 0;
+         
+         Ei[0][0][0] = 0;
+         Ei[0][0][1] = 0;
+         Ei[0][1][0] = 0;
+         Ei[0][1][1] = 0;
+         
+         Fr[0][0][0] = (( temperature_HR[1] - temperature_HR[0] )/( rmid_cm_HR[1] - rmid_cm_HR[0] ))*( delta[0]*( 1.0 + (dkap_dlnrho_face_HR[0]/opacity_HR[0]) )/( pressure_HR[0]*chiRho_HR[0] ) );
+         Fr[0][0][1] = (1.0/( rmid_cm_HR[1] - rmid_cm_HR[0] ))  +  ( (lnT_HR[1] - lnT_HR[0])/(rmid_cm_HR[1] - rmid_cm_HR[0]) )*delta[0]*( -3.0 + (dkap_dlnT_face_HR[0]/opacity_HR[0])  -  (chiT_HR[0]/chiRho_HR[0])*( 1.0 + (dkap_dlnrho_face_HR[0]/opacity_HR[0]) ) );
+         Fr[0][1][0] = (-1.0/(rmid_cm_HR[1] - rmid_cm_HR[0]))  +  (grav_HR[0]*rho_HR[0]*delta[0])/(chiRho_HR[0]*pressure_HR[0]);
+         Fr[0][1][1] = -delta[0]*( chiT_HR[0]/chiRho_HR[0] )*(grav_HR[0]*rho_HR[0]/temperature_HR[0]);
+         
+         Fi[0][0][0] = 0;
+         Fi[0][0][1] = 0;
+         Fi[0][1][0] = 0;
+         Fi[0][1][1] = 0;
+         
+         Hr[0][0][0] = (( temperature_HR[1] - temperature_HR[0] )/( rmid_cm_HR[1] - rmid_cm_HR[0] ))*( delta[1]*( 1.0 + (dkap_dlnrho_face_HR[0]/opacity_HR[1]) )/( pressure_HR[1]*chiRho_HR[1] ) );
+         Hr[0][0][1] = (-1.0/( rmid_cm_HR[1] - rmid_cm_HR[0] ))  +  ( (lnT_HR[1] - lnT_HR[0])/(rmid_cm_HR[1] - rmid_cm_HR[0]) )*delta[1]*( -3.0 + (dkap_dlnT_face_HR[0]/opacity_HR[1])  -  (chiT_HR[1]/chiRho_HR[1])*( 1.0 + (dkap_dlnrho_face_HR[0]/opacity_HR[1]) ) );
+         Hr[0][1][0] = (1.0/(rmid_cm_HR[1] - rmid_cm_HR[0]))  +  (grav_HR[1]*rho_HR[1]*delta[1])/(chiRho_HR[1]*pressure_HR[1]);
+         Hr[0][1][1] = -delta[1]*( chiT_HR[1]/chiRho_HR[1] )*(grav_HR[1]*rho_HR[1]/temperature_HR[1]);
+         
+         Hi[0][0][0] = 0;
+         Hi[0][0][1] = 0;
+         Hi[0][1][0] = 0;
+         Hi[0][1][1] = 0;
+         */
         
         
         // Option 2  --  NB: I don't think this is currently correct
         /*
-        Ar[0][0][0] = - radius_cm_HR[0]*radius_cm_HR[0]*rho_HR[0] / ( R*R*( radius_cm_HR[1] - radius_cm_HR[0] ) );
-        Ar[0][0][1] = 0;
-        Ar[0][1][0] = 0;
-        Ar[0][1][1] = -radius_cm_HR[0]*radius_cm_HR[0]/( R*R*(radius_cm_HR[1] - radius_cm_HR[0]) );
-        
-        Ai[0][0][0] = 0;
-        Ai[0][0][1] = 0;
-        Ai[0][1][0] = 0; // m*omega*rho_HR[1]*temperature_HR[1]*brunt_A_HR[1]*chiRho_HR[1]*cp_HR[1]*radius_cm_HR[0]*0.5 / (R*R*chiT_HR[1]);
-        Ai[0][1][1] = 0;
-        
-        Cr[0][0][0] = radius_cm_HR[1]*radius_cm_HR[1]*rho_HR[1] / ( R*R*( radius_cm_HR[1] - radius_cm_HR[0] ) );
-        Cr[0][0][1] = 0;
-        Cr[0][1][0] = 0;
-        Cr[0][1][1] = radius_cm_HR[1]*radius_cm_HR[1]/( R*R*(radius_cm_HR[1] - radius_cm_HR[0]) );
-        
-        Ci[0][0][0] = 0;
-        Ci[0][0][1] = 0;
-        Ci[0][1][0] = 0; // m*omega*rho_HR[1]*temperature_HR[1]*brunt_A_HR[1]*chiRho_HR[1]*cp_HR[1]*radius_cm_HR[1]*0.5 / (R*R*chiT_HR[1]);
-        Ci[0][1][1] = 0;
-        
-        Dr[0][0][0] = ( rho_HR[1]*rmid_cm_HR[1]*rmid_cm_HR[1] / (chiRho_HR[1] * pressure_HR[1]*R*R) )  -  ( ( l*(l + 1.0) )/( m*m*omega*omega*R*R ) );
-        Dr[0][0][1] = - rho_HR[1] * rmid_cm_HR[1] * rmid_cm_HR[1] * chiT_HR[1] / ( temperature_HR[1] * R * R * chiRho_HR[1] );
-        Dr[0][1][0] = 0;
-        Dr[0][1][1] = l*(l + 1.0)*K_HR[1] / (R*R);
-        
-        Di[0][0][0] = 0;
-        Di[0][0][1] = 0;
-        Di[0][1][0] = 0; // - m*omega*rho_HR[1]*temperature_HR[1]*cp_HR[1]*grada_HR[1]*rmid_cm_HR[1]*rmid_cm_HR[1] / ( R*R*pressure_HR[1] );
-        Di[0][1][1] = 0; // m*omega*rho_HR[1]*cp_HR[1]*rmid_cm_HR[1]*rmid_cm_HR[1]/(R*R);
-        
-        Er[0][0][0] = 0;
-        Er[0][0][1] = - ( (delta[0]/K_HR[0]) + (delta[1]/K_HR[1]) );
-        Er[0][1][0] = -m*m*omega*omega*( (delta[0]*rho_HR[0]) + (delta[1]*rho_HR[1]) );
-        Er[0][1][1] = 0;
-        
-        Ei[0][0][0] = 0;
-        Ei[0][0][1] = 0;
-        Ei[0][1][0] = 0;
-        Ei[0][1][1] = 0;
-        
-        Fr[0][0][0] = (( temperature_HR[1] - temperature_HR[0] )/( rmid_cm_HR[1] - rmid_cm_HR[0] ))*( delta[0]*( 1.0 + (dkap_dlnrho_face_HR[0]/opacity_HR[0]) )/( pressure_HR[0]*chiRho_HR[0] ) );
-        Fr[0][0][1] = (1.0/( rmid_cm_HR[1] - rmid_cm_HR[0] ))  +  ( (lnT_HR[1] - lnT_HR[0])/(rmid_cm_HR[1] - rmid_cm_HR[0]) )*delta[0]*( -3.0 + (dkap_dlnT_face_HR[0]/opacity_HR[0])  -  (chiT_HR[0]/chiRho_HR[0])*( 1.0 + (dkap_dlnrho_face_HR[0]/opacity_HR[0]) ) );
-        Fr[0][1][0] = (-1.0/(rmid_cm_HR[1] - rmid_cm_HR[0]))  +  (grav_HR[0]*rho_HR[0]*delta[0])/(chiRho_HR[0]*pressure_HR[0]);
-        Fr[0][1][1] = -delta[0]*( chiT_HR[0]/chiRho_HR[0] )*(grav_HR[0]*rho_HR[0]/temperature_HR[0]);
-        
-        Fi[0][0][0] = 0;
-        Fi[0][0][1] = 0;
-        Fi[0][1][0] = 0;
-        Fi[0][1][1] = 0;
-        
-        Hr[0][0][0] = (( temperature_HR[1] - temperature_HR[0] )/( rmid_cm_HR[1] - rmid_cm_HR[0] ))*( delta[1]*( 1.0 + (dkap_dlnrho_face_HR[0]/opacity_HR[1]) )/( pressure_HR[1]*chiRho_HR[1] ) );
-        Hr[0][0][1] = (-1.0/( rmid_cm_HR[1] - rmid_cm_HR[0] ))  +  ( (lnT_HR[1] - lnT_HR[0])/(rmid_cm_HR[1] - rmid_cm_HR[0]) )*delta[1]*( -3.0 + (dkap_dlnT_face_HR[0]/opacity_HR[1])  -  (chiT_HR[1]/chiRho_HR[1])*( 1.0 + (dkap_dlnrho_face_HR[0]/opacity_HR[1]) ) );
-        Hr[0][1][0] = (1.0/(rmid_cm_HR[1] - rmid_cm_HR[0]))  +  (grav_HR[1]*rho_HR[1]*delta[1])/(chiRho_HR[1]*pressure_HR[1]);
-        Hr[0][1][1] = -delta[1]*( chiT_HR[1]/chiRho_HR[1] )*(grav_HR[1]*rho_HR[1]/temperature_HR[1]);
-        
-        Hi[0][0][0] = 0;
-        Hi[0][0][1] = 0;
-        Hi[0][1][0] = 0;
-        Hi[0][1][1] = 0;
-        */
+         Ar[0][0][0] = - radius_cm_HR[0]*radius_cm_HR[0]*rho_HR[0] / ( R*R*( radius_cm_HR[1] - radius_cm_HR[0] ) );
+         Ar[0][0][1] = 0;
+         Ar[0][1][0] = 0;
+         Ar[0][1][1] = -radius_cm_HR[0]*radius_cm_HR[0]/( R*R*(radius_cm_HR[1] - radius_cm_HR[0]) );
+         
+         Ai[0][0][0] = 0;
+         Ai[0][0][1] = 0;
+         Ai[0][1][0] = 0; // m*omega*rho_HR[1]*temperature_HR[1]*brunt_A_HR[1]*chiRho_HR[1]*cp_HR[1]*radius_cm_HR[0]*0.5 / (R*R*chiT_HR[1]);
+         Ai[0][1][1] = 0;
+         
+         Cr[0][0][0] = radius_cm_HR[1]*radius_cm_HR[1]*rho_HR[1] / ( R*R*( radius_cm_HR[1] - radius_cm_HR[0] ) );
+         Cr[0][0][1] = 0;
+         Cr[0][1][0] = 0;
+         Cr[0][1][1] = radius_cm_HR[1]*radius_cm_HR[1]/( R*R*(radius_cm_HR[1] - radius_cm_HR[0]) );
+         
+         Ci[0][0][0] = 0;
+         Ci[0][0][1] = 0;
+         Ci[0][1][0] = 0; // m*omega*rho_HR[1]*temperature_HR[1]*brunt_A_HR[1]*chiRho_HR[1]*cp_HR[1]*radius_cm_HR[1]*0.5 / (R*R*chiT_HR[1]);
+         Ci[0][1][1] = 0;
+         
+         Dr[0][0][0] = ( rho_HR[1]*rmid_cm_HR[1]*rmid_cm_HR[1] / (chiRho_HR[1] * pressure_HR[1]*R*R) )  -  ( ( l*(l + 1.0) )/( m*m*omega*omega*R*R ) );
+         Dr[0][0][1] = - rho_HR[1] * rmid_cm_HR[1] * rmid_cm_HR[1] * chiT_HR[1] / ( temperature_HR[1] * R * R * chiRho_HR[1] );
+         Dr[0][1][0] = 0;
+         Dr[0][1][1] = l*(l + 1.0)*K_HR[1] / (R*R);
+         
+         Di[0][0][0] = 0;
+         Di[0][0][1] = 0;
+         Di[0][1][0] = 0; // - m*omega*rho_HR[1]*temperature_HR[1]*cp_HR[1]*grada_HR[1]*rmid_cm_HR[1]*rmid_cm_HR[1] / ( R*R*pressure_HR[1] );
+         Di[0][1][1] = 0; // m*omega*rho_HR[1]*cp_HR[1]*rmid_cm_HR[1]*rmid_cm_HR[1]/(R*R);
+         
+         Er[0][0][0] = 0;
+         Er[0][0][1] = - ( (delta[0]/K_HR[0]) + (delta[1]/K_HR[1]) );
+         Er[0][1][0] = -m*m*omega*omega*( (delta[0]*rho_HR[0]) + (delta[1]*rho_HR[1]) );
+         Er[0][1][1] = 0;
+         
+         Ei[0][0][0] = 0;
+         Ei[0][0][1] = 0;
+         Ei[0][1][0] = 0;
+         Ei[0][1][1] = 0;
+         
+         Fr[0][0][0] = (( temperature_HR[1] - temperature_HR[0] )/( rmid_cm_HR[1] - rmid_cm_HR[0] ))*( delta[0]*( 1.0 + (dkap_dlnrho_face_HR[0]/opacity_HR[0]) )/( pressure_HR[0]*chiRho_HR[0] ) );
+         Fr[0][0][1] = (1.0/( rmid_cm_HR[1] - rmid_cm_HR[0] ))  +  ( (lnT_HR[1] - lnT_HR[0])/(rmid_cm_HR[1] - rmid_cm_HR[0]) )*delta[0]*( -3.0 + (dkap_dlnT_face_HR[0]/opacity_HR[0])  -  (chiT_HR[0]/chiRho_HR[0])*( 1.0 + (dkap_dlnrho_face_HR[0]/opacity_HR[0]) ) );
+         Fr[0][1][0] = (-1.0/(rmid_cm_HR[1] - rmid_cm_HR[0]))  +  (grav_HR[0]*rho_HR[0]*delta[0])/(chiRho_HR[0]*pressure_HR[0]);
+         Fr[0][1][1] = -delta[0]*( chiT_HR[0]/chiRho_HR[0] )*(grav_HR[0]*rho_HR[0]/temperature_HR[0]);
+         
+         Fi[0][0][0] = 0;
+         Fi[0][0][1] = 0;
+         Fi[0][1][0] = 0;
+         Fi[0][1][1] = 0;
+         
+         Hr[0][0][0] = (( temperature_HR[1] - temperature_HR[0] )/( rmid_cm_HR[1] - rmid_cm_HR[0] ))*( delta[1]*( 1.0 + (dkap_dlnrho_face_HR[0]/opacity_HR[1]) )/( pressure_HR[1]*chiRho_HR[1] ) );
+         Hr[0][0][1] = (-1.0/( rmid_cm_HR[1] - rmid_cm_HR[0] ))  +  ( (lnT_HR[1] - lnT_HR[0])/(rmid_cm_HR[1] - rmid_cm_HR[0]) )*delta[1]*( -3.0 + (dkap_dlnT_face_HR[0]/opacity_HR[1])  -  (chiT_HR[1]/chiRho_HR[1])*( 1.0 + (dkap_dlnrho_face_HR[0]/opacity_HR[1]) ) );
+         Hr[0][1][0] = (1.0/(rmid_cm_HR[1] - rmid_cm_HR[0]))  +  (grav_HR[1]*rho_HR[1]*delta[1])/(chiRho_HR[1]*pressure_HR[1]);
+         Hr[0][1][1] = -delta[1]*( chiT_HR[1]/chiRho_HR[1] )*(grav_HR[1]*rho_HR[1]/temperature_HR[1]);
+         
+         Hi[0][0][0] = 0;
+         Hi[0][0][1] = 0;
+         Hi[0][1][0] = 0;
+         Hi[0][1][1] = 0;
+         */
         
         
         
@@ -1705,7 +1705,7 @@ semimajor_axis_jupiter ! = 7.7857d13 ! jupiter semimajor axis (cm)
         
         
         
-
+        
         
         Ar[0][0][0] = - radius_cm_HR[0]*radius_cm_HR[0]*rho_face_HR[0] / ( rho_HR[1]*R*( radius_cm_HR[1] - radius_cm_HR[0] ) ); // - radius_cm_HR[0]*radius_cm_HR[0]*radius_cm_HR[0]*rho_face_HR[0] / ( rho_HR[1]*R*R*( radius_cm_HR[1] - radius_cm_HR[0] ) );
         Ar[0][0][1] = 0;
@@ -1769,49 +1769,49 @@ semimajor_axis_jupiter ! = 7.7857d13 ! jupiter semimajor axis (cm)
         
         
         /*
-        // This sets the equations to be adiabatic for x > 0.7 (that is, once the convective envelope starts)
-        if ( 0.7 < radius_cm_HR[0]/R  && radius_cm_HR[0]/R < 1.1) {
-            
-            prop = 0.0;
-            
-            if ( 0.9 < radius_cm_HR[0]/R  && radius_cm_HR[0]/R < 0.95 ) {
-                
-                prop = 1.0 - ( ( (radius_cm_HR[0]/R) - 0.9) / 0.05);
-                
-            }
-            
+         // This sets the equations to be adiabatic for x > 0.7 (that is, once the convective envelope starts)
+         if ( 0.7 < radius_cm_HR[0]/R  && radius_cm_HR[0]/R < 1.1) {
+         
+         prop = 0.0;
+         
+         if ( 0.9 < radius_cm_HR[0]/R  && radius_cm_HR[0]/R < 0.95 ) {
+         
+         prop = 1.0 - ( ( (radius_cm_HR[0]/R) - 0.9) / 0.05);
+         
+         }
          
          
-            
-            if ( 0.85 < radius_cm_HR[0]/R  && radius_cm_HR[0]/R < 0.95 ) {
-                
-                prop = ( ( (radius_cm_HR[0]/R) - 0.85) / 0.1);
-                
-            }
          
-             
          
-            
-            
-            Ai[0][0][0] = prop*Ai[0][0][0];
-            Ai[0][0][1] = prop*Ai[0][0][1];
-            Ai[0][1][0] = prop*Ai[0][1][0];
-            Ai[0][1][1] = prop*Ai[0][1][1];
-            
-            Ci[0][0][0] = prop*Ci[0][0][0];
-            Ci[0][0][1] = prop*Ci[0][0][1];
-            Ci[0][1][0] = prop*Ci[0][1][0];
-            Ci[0][1][1] = prop*Ci[0][1][1];
-            
-            Di[0][0][0] = prop*Di[0][0][0];
-            Di[0][0][1] = prop*Di[0][0][1];
-            Di[0][1][0] = prop*Di[0][1][0];
-            Di[0][1][1] = prop*Di[0][1][1];
-            
-            
-            
-        }
-        */
+         if ( 0.85 < radius_cm_HR[0]/R  && radius_cm_HR[0]/R < 0.95 ) {
+         
+         prop = ( ( (radius_cm_HR[0]/R) - 0.85) / 0.1);
+         
+         }
+         
+         
+         
+         
+         
+         Ai[0][0][0] = prop*Ai[0][0][0];
+         Ai[0][0][1] = prop*Ai[0][0][1];
+         Ai[0][1][0] = prop*Ai[0][1][0];
+         Ai[0][1][1] = prop*Ai[0][1][1];
+         
+         Ci[0][0][0] = prop*Ci[0][0][0];
+         Ci[0][0][1] = prop*Ci[0][0][1];
+         Ci[0][1][0] = prop*Ci[0][1][0];
+         Ci[0][1][1] = prop*Ci[0][1][1];
+         
+         Di[0][0][0] = prop*Di[0][0][0];
+         Di[0][0][1] = prop*Di[0][0][1];
+         Di[0][1][0] = prop*Di[0][1][0];
+         Di[0][1][1] = prop*Di[0][1][1];
+         
+         
+         
+         }
+         */
         
         
         
@@ -1828,56 +1828,56 @@ semimajor_axis_jupiter ! = 7.7857d13 ! jupiter semimajor axis (cm)
         
         d[0] = 10.0 - 9.0*rmid_cm_HR[0]/R;
         d[1] = 10.0 - 9.0*rmid_cm_HR[1]/R;
-
         
-        
-        /*
-        Mr[0][0][0] = (l*(l + 1.0)/(m*m*omega*omega*R*R))*rho_HR[1] * f * rmid_cm_HR[1] * rmid_cm_HR[1];
-        Mr[0][1][0] = 0.0;
-        
-        Mi[0][0][0] = 0.0;
-        Mi[0][1][0] = 0.0;
-        
-        
-        Nr[0][0][0] = 0.0;
-        Nr[0][1][0] = - 2.0*f*radius_cm_HR[0]*( (delta[0]*rho_HR[0]) + (delta[1]*rho_HR[1]) );
-
-        
-        Ni[0][0][0] = 0;
-        Ni[0][1][0] = 0;
-        */
-        
-        /*
-        Mr[0][0][0] = Ar[0][0][0]*a[0] + Ar[0][0][1]*b[0] + Cr[0][0][0]*a[1] + Cr[0][0][1]*b[1] + Dr[0][0][0]*c[1] + Dr[0][0][1]*d[1];
-        Mr[0][1][0] = Ar[0][1][0]*a[0] + Ar[0][1][1]*b[0] + Cr[0][1][0]*a[1] + Cr[0][1][1]*b[1] + Dr[0][1][0]*c[1] + Dr[0][1][1]*d[1];
-        
-        Mi[0][0][0] = 0.0;
-        Mi[0][1][0] = 0.0;
-        
-        
-        Nr[0][0][0] = Er[0][0][0]*a[0] + Er[0][0][1]*b[0] + Fr[0][0][0]*c[0] + Fr[0][0][1]*d[0] + Hr[0][0][0]*c[1] + Hr[0][0][1]*d[1];
-        Nr[0][1][0] = Er[0][1][0]*a[0] + Er[0][1][1]*b[0] + Fr[0][1][0]*c[0] + Fr[0][1][1]*d[0] + Hr[0][1][0]*c[1] + Hr[0][1][1]*d[1];
-        
-        
-        Ni[0][0][0] = 0;
-        Ni[0][1][0] = 0;
-        */
         
         
         /*
-        Mr[0][0][0] = ( ( ( l*(l+1.0)*rmid_cm_HR[1]*rmid_cm_HR[1]*f )/( m*m*omega*omega*R*R ) ) )*( 1.0 + prop*sin(radius_cm_HR[0]*rmid_cm_HR[1]*rho_HR[0]*pressure_HR[1])); // Ar[0][0][0]*a[0] + Ar[0][0][1]*b[0] + Cr[0][0][0]*a[1] + Cr[0][0][1]*b[1] + Dr[0][0][0]*c[1] + Dr[0][0][1]*d[1];  // ( ( l*(l+1.0)*rmid_cm_HR[1]*rmid_cm_HR[1]*f )/( m*m*omega*omega*R*R ) );
-        Mr[0][1][0] = 0.0; // Ar[0][1][0]*a[0] + Ar[0][1][1]*b[0] + Cr[0][1][0]*a[1] + Cr[0][1][1]*b[1] + Dr[0][1][0]*c[1] + Dr[0][1][1]*d[1];  // 0.0;
+         Mr[0][0][0] = (l*(l + 1.0)/(m*m*omega*omega*R*R))*rho_HR[1] * f * rmid_cm_HR[1] * rmid_cm_HR[1];
+         Mr[0][1][0] = 0.0;
+         
+         Mi[0][0][0] = 0.0;
+         Mi[0][1][0] = 0.0;
+         
+         
+         Nr[0][0][0] = 0.0;
+         Nr[0][1][0] = - 2.0*f*radius_cm_HR[0]*( (delta[0]*rho_HR[0]) + (delta[1]*rho_HR[1]) );
+         
+         
+         Ni[0][0][0] = 0;
+         Ni[0][1][0] = 0;
+         */
         
-        Mi[0][0][0] = 0.0; // Ai[0][0][0]*a[0] + Ai[0][0][1]*b[0] + Ci[0][0][0]*a[1] + Ci[0][0][1]*b[1] + Di[0][0][0]*c[1] + Di[0][0][1]*d[1];  // 0.0;
-        Mi[0][1][0] = 0.0; // Ai[0][1][0]*a[0] + Ai[0][1][1]*b[0] + Ci[0][1][0]*a[1] + Ci[0][1][1]*b[1] + Di[0][1][0]*c[1] + Di[0][1][1]*d[1];  // 0.0;
+        /*
+         Mr[0][0][0] = Ar[0][0][0]*a[0] + Ar[0][0][1]*b[0] + Cr[0][0][0]*a[1] + Cr[0][0][1]*b[1] + Dr[0][0][0]*c[1] + Dr[0][0][1]*d[1];
+         Mr[0][1][0] = Ar[0][1][0]*a[0] + Ar[0][1][1]*b[0] + Cr[0][1][0]*a[1] + Cr[0][1][1]*b[1] + Dr[0][1][0]*c[1] + Dr[0][1][1]*d[1];
+         
+         Mi[0][0][0] = 0.0;
+         Mi[0][1][0] = 0.0;
+         
+         
+         Nr[0][0][0] = Er[0][0][0]*a[0] + Er[0][0][1]*b[0] + Fr[0][0][0]*c[0] + Fr[0][0][1]*d[0] + Hr[0][0][0]*c[1] + Hr[0][0][1]*d[1];
+         Nr[0][1][0] = Er[0][1][0]*a[0] + Er[0][1][1]*b[0] + Fr[0][1][0]*c[0] + Fr[0][1][1]*d[0] + Hr[0][1][0]*c[1] + Hr[0][1][1]*d[1];
+         
+         
+         Ni[0][0][0] = 0;
+         Ni[0][1][0] = 0;
+         */
         
         
-        Nr[0][0][0] = 0.0; // Er[0][0][0]*a[0] + Er[0][0][1]*b[0] + Fr[0][0][0]*c[0] + Fr[0][0][1]*d[0] + Hr[0][0][0]*c[1] + Hr[0][0][1]*d[1];  // 0.0;
-        Nr[0][1][0] = ( - 2.0 * f * radius_cm_HR[0] / ( m*m*omega*omega*R ) ) * ( 1.0 + prop*sin(temperature_HR[1]*rho_HR[0]*radius_cm_HR[0]*temperature_HR[0]*rho_HR[1])); // Er[0][1][0]*a[0] + Er[0][1][1]*b[0] + Fr[0][1][0]*c[0] + Fr[0][1][1]*d[0] + Hr[0][1][0]*c[1] + Hr[0][1][1]*d[1];  // - 2.0 * f * radius_cm_HR[0] / ( m*m*omega*omega*R );
-        
-        Ni[0][0][0] = 0.0; // Ei[0][0][0]*a[0] + Ei[0][0][1]*b[0] + Fi[0][0][0]*c[0] + Fi[0][0][1]*d[0] + Hi[0][0][0]*c[1] + Hi[0][0][1]*d[1];  // 0.0;
-        Ni[0][1][0] = 0.0; // Ei[0][1][0]*a[0] + Ei[0][1][1]*b[0] + Fi[0][1][0]*c[0] + Fi[0][1][1]*d[0] + Hi[0][1][0]*c[1] + Hi[0][1][1]*d[1];  // 0.0;
-        */
+        /*
+         Mr[0][0][0] = ( ( ( l*(l+1.0)*rmid_cm_HR[1]*rmid_cm_HR[1]*f )/( m*m*omega*omega*R*R ) ) )*( 1.0 + prop*sin(radius_cm_HR[0]*rmid_cm_HR[1]*rho_HR[0]*pressure_HR[1])); // Ar[0][0][0]*a[0] + Ar[0][0][1]*b[0] + Cr[0][0][0]*a[1] + Cr[0][0][1]*b[1] + Dr[0][0][0]*c[1] + Dr[0][0][1]*d[1];  // ( ( l*(l+1.0)*rmid_cm_HR[1]*rmid_cm_HR[1]*f )/( m*m*omega*omega*R*R ) );
+         Mr[0][1][0] = 0.0; // Ar[0][1][0]*a[0] + Ar[0][1][1]*b[0] + Cr[0][1][0]*a[1] + Cr[0][1][1]*b[1] + Dr[0][1][0]*c[1] + Dr[0][1][1]*d[1];  // 0.0;
+         
+         Mi[0][0][0] = 0.0; // Ai[0][0][0]*a[0] + Ai[0][0][1]*b[0] + Ci[0][0][0]*a[1] + Ci[0][0][1]*b[1] + Di[0][0][0]*c[1] + Di[0][0][1]*d[1];  // 0.0;
+         Mi[0][1][0] = 0.0; // Ai[0][1][0]*a[0] + Ai[0][1][1]*b[0] + Ci[0][1][0]*a[1] + Ci[0][1][1]*b[1] + Di[0][1][0]*c[1] + Di[0][1][1]*d[1];  // 0.0;
+         
+         
+         Nr[0][0][0] = 0.0; // Er[0][0][0]*a[0] + Er[0][0][1]*b[0] + Fr[0][0][0]*c[0] + Fr[0][0][1]*d[0] + Hr[0][0][0]*c[1] + Hr[0][0][1]*d[1];  // 0.0;
+         Nr[0][1][0] = ( - 2.0 * f * radius_cm_HR[0] / ( m*m*omega*omega*R ) ) * ( 1.0 + prop*sin(temperature_HR[1]*rho_HR[0]*radius_cm_HR[0]*temperature_HR[0]*rho_HR[1])); // Er[0][1][0]*a[0] + Er[0][1][1]*b[0] + Fr[0][1][0]*c[0] + Fr[0][1][1]*d[0] + Hr[0][1][0]*c[1] + Hr[0][1][1]*d[1];  // - 2.0 * f * radius_cm_HR[0] / ( m*m*omega*omega*R );
+         
+         Ni[0][0][0] = 0.0; // Ei[0][0][0]*a[0] + Ei[0][0][1]*b[0] + Fi[0][0][0]*c[0] + Fi[0][0][1]*d[0] + Hi[0][0][0]*c[1] + Hi[0][0][1]*d[1];  // 0.0;
+         Ni[0][1][0] = 0.0; // Ei[0][1][0]*a[0] + Ei[0][1][1]*b[0] + Fi[0][1][0]*c[0] + Fi[0][1][1]*d[0] + Hi[0][1][0]*c[1] + Hi[0][1][1]*d[1];  // 0.0;
+         */
         
         
         
@@ -2056,36 +2056,36 @@ semimajor_axis_jupiter ! = 7.7857d13 ! jupiter semimajor axis (cm)
             
             // Option 1
             /*
-            etar[0][0][0] = 0.5*dp_dr_BC;
-            etar[0][0][1] = 0;
-            etar[0][1][0] = 0.5*( ( (log(flux_HR[1]) - log(flux_HR[0]))/(radius_cm_HR[1] - radius_cm_HR[0]) )  -  4.0*dlnT_dr_BC );
-            etar[0][1][1] = 0.5/flux_HR[0];
-            
-            etai[0][0][0] = 0;
-            etai[0][0][1] = 0;
-            etai[0][1][0] = 0;
-            etai[0][1][1] = 0;
-            
-            mur[0][0][0] = 0.5*dp_dr_BC;
-            mur[0][0][1] = 0;
-            mur[0][1][0] = 0.5*( ( (log(flux_HR[1]) - log(flux_HR[0]))/(radius_cm_HR[1] - radius_cm_HR[0]) )  -  4.0*dlnT_dr_BC );
-            mur[0][1][1] = 0.5/flux_HR[1];
-            
-            mui[0][0][0] = 0;
-            mui[0][0][1] = 0;
-            mui[0][1][0] = 0;
-            mui[0][1][1] = 0;
-            
-            nur[0][0][0] = 1.0;
-            nur[0][0][1] = 0;
-            nur[0][1][0] = 0;
-            nur[0][1][1] = -4.0/temperature_HR[1];
-            
-            nui[0][0][0] = 0;
-            nui[0][0][1] = 0;
-            nui[0][1][0] = 0;
-            nui[0][1][1] = 0;
-            */
+             etar[0][0][0] = 0.5*dp_dr_BC;
+             etar[0][0][1] = 0;
+             etar[0][1][0] = 0.5*( ( (log(flux_HR[1]) - log(flux_HR[0]))/(radius_cm_HR[1] - radius_cm_HR[0]) )  -  4.0*dlnT_dr_BC );
+             etar[0][1][1] = 0.5/flux_HR[0];
+             
+             etai[0][0][0] = 0;
+             etai[0][0][1] = 0;
+             etai[0][1][0] = 0;
+             etai[0][1][1] = 0;
+             
+             mur[0][0][0] = 0.5*dp_dr_BC;
+             mur[0][0][1] = 0;
+             mur[0][1][0] = 0.5*( ( (log(flux_HR[1]) - log(flux_HR[0]))/(radius_cm_HR[1] - radius_cm_HR[0]) )  -  4.0*dlnT_dr_BC );
+             mur[0][1][1] = 0.5/flux_HR[1];
+             
+             mui[0][0][0] = 0;
+             mui[0][0][1] = 0;
+             mui[0][1][0] = 0;
+             mui[0][1][1] = 0;
+             
+             nur[0][0][0] = 1.0;
+             nur[0][0][1] = 0;
+             nur[0][1][0] = 0;
+             nur[0][1][1] = -4.0/temperature_HR[1];
+             
+             nui[0][0][0] = 0;
+             nui[0][0][1] = 0;
+             nui[0][1][0] = 0;
+             nui[0][1][1] = 0;
+             */
             
             
             
@@ -2128,36 +2128,36 @@ semimajor_axis_jupiter ! = 7.7857d13 ! jupiter semimajor axis (cm)
             
             // Option 2.i
             /*
-            etar[0][0][0] = 0.5 * dp_dr_BC * R / pressure_HR[1];
-            etar[0][0][1] = 0.0;
-            etar[0][1][0] = 0.5 * R * ( ( (log(flux_HR[1]) - log(flux_HR[0]))/(radius_cm_HR[1] - radius_cm_HR[0]) )  -  4.0*dlnT_dr_BC );
-            etar[0][1][1] = 0.5 * flux_BC / flux_HR[0]; // 0.5;
-            
-            etai[0][0][0] = 0.0;
-            etai[0][0][1] = 0.0;
-            etai[0][1][0] = 0.0;
-            etai[0][1][1] = 0.0;
-            
-            mur[0][0][0] = 0.5 * dp_dr_BC * R / pressure_HR[1];
-            mur[0][0][1] = 0.0;
-            mur[0][1][0] = 0.5 * R * ( ( (log(flux_HR[1]) - log(flux_HR[0]))/(radius_cm_HR[1] - radius_cm_HR[0]) )  -  4.0*dlnT_dr_BC );
-            mur[0][1][1] = 0.5 * flux_BC / flux_HR[1]; // 0.5;
-            
-            mui[0][0][0] = 0.0;
-            mui[0][0][1] = 0.0;
-            mui[0][1][0] = 0.0;
-            mui[0][1][1] = 0.0;
-            
-            nur[0][0][0] = 1.0;
-            nur[0][0][1] = 0.0;
-            nur[0][1][0] = 0.0;
-            nur[0][1][1] = -4.0;
-            
-            nui[0][0][0] = 0.0;
-            nui[0][0][1] = 0.0;
-            nui[0][1][0] = 0.0;
-            nui[0][1][1] = 0.0;
-            */
+             etar[0][0][0] = 0.5 * dp_dr_BC * R / pressure_HR[1];
+             etar[0][0][1] = 0.0;
+             etar[0][1][0] = 0.5 * R * ( ( (log(flux_HR[1]) - log(flux_HR[0]))/(radius_cm_HR[1] - radius_cm_HR[0]) )  -  4.0*dlnT_dr_BC );
+             etar[0][1][1] = 0.5 * flux_BC / flux_HR[0]; // 0.5;
+             
+             etai[0][0][0] = 0.0;
+             etai[0][0][1] = 0.0;
+             etai[0][1][0] = 0.0;
+             etai[0][1][1] = 0.0;
+             
+             mur[0][0][0] = 0.5 * dp_dr_BC * R / pressure_HR[1];
+             mur[0][0][1] = 0.0;
+             mur[0][1][0] = 0.5 * R * ( ( (log(flux_HR[1]) - log(flux_HR[0]))/(radius_cm_HR[1] - radius_cm_HR[0]) )  -  4.0*dlnT_dr_BC );
+             mur[0][1][1] = 0.5 * flux_BC / flux_HR[1]; // 0.5;
+             
+             mui[0][0][0] = 0.0;
+             mui[0][0][1] = 0.0;
+             mui[0][1][0] = 0.0;
+             mui[0][1][1] = 0.0;
+             
+             nur[0][0][0] = 1.0;
+             nur[0][0][1] = 0.0;
+             nur[0][1][0] = 0.0;
+             nur[0][1][1] = -4.0;
+             
+             nui[0][0][0] = 0.0;
+             nui[0][0][1] = 0.0;
+             nui[0][1][0] = 0.0;
+             nui[0][1][1] = 0.0;
+             */
             
             
             
@@ -2166,7 +2166,7 @@ semimajor_axis_jupiter ! = 7.7857d13 ! jupiter semimajor axis (cm)
             
             // Option 2.i, but with the first BC being that the lagrangian derivative of rho = 0 (instead of p)
             /*
-            
+             
              etar[0][0][0] = 0.5 * dlnRho_dr_BC * R;
              etar[0][0][1] = 0.0;
              etar[0][1][0] = 0.5 * R * ( ( (log(flux_HR[1]) - log(flux_HR[0]))/(radius_cm_HR[1] - radius_cm_HR[0]) )  -  4.0*dlnT_dr_BC );
@@ -2199,42 +2199,42 @@ semimajor_axis_jupiter ! = 7.7857d13 ! jupiter semimajor axis (cm)
              
              */
             
-            // option 3 -- JP gave this to me saying that it avoids singularity at the surface, which would be good            
+            // option 3 -- JP gave this to me saying that it avoids singularity at the surface, which would be good
             /*
-
-            etar[0][0][0] = 0.5 * R * ( (-omega*omega/grav_HR[0]) + (4.0/radius_cm_HR[0]) - ((l*(l+1.0)*grav_HR[0])/(radius_cm_HR[0]*radius_cm_HR[0]*omega*omega)) );
-            etar[0][0][1] = 0.0;
-            etar[0][1][0] = 0.5 * R * ( ( (log(flux_HR[1]) - log(flux_HR[0]))/(radius_cm_HR[1] - radius_cm_HR[0]) )  -  4.0*dlnT_dr_BC );
-            etar[0][1][1] = 0.5 * flux_BC / flux_HR[0]; // 0.5;
+             
+             etar[0][0][0] = 0.5 * R * ( (-omega*omega/grav_HR[0]) + (4.0/radius_cm_HR[0]) - ((l*(l+1.0)*grav_HR[0])/(radius_cm_HR[0]*radius_cm_HR[0]*omega*omega)) );
+             etar[0][0][1] = 0.0;
+             etar[0][1][0] = 0.5 * R * ( ( (log(flux_HR[1]) - log(flux_HR[0]))/(radius_cm_HR[1] - radius_cm_HR[0]) )  -  4.0*dlnT_dr_BC );
+             etar[0][1][1] = 0.5 * flux_BC / flux_HR[0]; // 0.5;
+             
+             etai[0][0][0] = 0.0;
+             etai[0][0][1] = 0.0;
+             etai[0][1][0] = 0.0;
+             etai[0][1][1] = 0.0;
+             
+             mur[0][0][0] = 0.5 * R * ( (-omega*omega/grav_HR[1]) + (4.0/radius_cm_HR[1]) - ((l*(l+1.0)*grav_HR[1])/(radius_cm_HR[1]*radius_cm_HR[1]*omega*omega)) );
+             mur[0][0][1] = 0.0;
+             mur[0][1][0] = 0.5 * R * ( ( (log(flux_HR[1]) - log(flux_HR[0]))/(radius_cm_HR[1] - radius_cm_HR[0]) )  -  4.0*dlnT_dr_BC );
+             mur[0][1][1] = 0.5 * flux_BC / flux_HR[1]; // 0.5;
+             
+             mui[0][0][0] = 0.0;
+             mui[0][0][1] = 0.0;
+             mui[0][1][0] = 0.0;
+             mui[0][1][1] = 0.0;
+             
+             nur[0][0][0] = -(1.0 + ((pressure_HR[1]*l*(l+1.0))/(rho_HR[1]*rmid_cm_HR[1]*rmid_cm_HR[1]*omega*omega)) );
+             nur[0][0][1] = 0.0;
+             nur[0][1][0] = 0.0;
+             nur[0][1][1] = -4.0;
+             
+             nui[0][0][0] = 0.0;
+             nui[0][0][1] = 0.0;
+             nui[0][1][0] = 0.0;
+             nui[0][1][1] = 0.0;
+             
+             */
             
-            etai[0][0][0] = 0.0;
-            etai[0][0][1] = 0.0;
-            etai[0][1][0] = 0.0;
-            etai[0][1][1] = 0.0;
             
-            mur[0][0][0] = 0.5 * R * ( (-omega*omega/grav_HR[1]) + (4.0/radius_cm_HR[1]) - ((l*(l+1.0)*grav_HR[1])/(radius_cm_HR[1]*radius_cm_HR[1]*omega*omega)) );
-            mur[0][0][1] = 0.0;
-            mur[0][1][0] = 0.5 * R * ( ( (log(flux_HR[1]) - log(flux_HR[0]))/(radius_cm_HR[1] - radius_cm_HR[0]) )  -  4.0*dlnT_dr_BC );
-            mur[0][1][1] = 0.5 * flux_BC / flux_HR[1]; // 0.5;
-            
-            mui[0][0][0] = 0.0;
-            mui[0][0][1] = 0.0;
-            mui[0][1][0] = 0.0;
-            mui[0][1][1] = 0.0;
-            
-            nur[0][0][0] = -(1.0 + ((pressure_HR[1]*l*(l+1.0))/(rho_HR[1]*rmid_cm_HR[1]*rmid_cm_HR[1]*omega*omega)) );
-            nur[0][0][1] = 0.0;
-            nur[0][1][0] = 0.0;
-            nur[0][1][1] = -4.0;
-            
-            nui[0][0][0] = 0.0;
-            nui[0][0][1] = 0.0;
-            nui[0][1][0] = 0.0;
-            nui[0][1][1] = 0.0;
-
-            */
-
-
             
             
             
@@ -2270,15 +2270,15 @@ semimajor_axis_jupiter ! = 7.7857d13 ! jupiter semimajor axis (cm)
              nui[0][0][1] = 0.0;
              nui[0][1][0] = 0.0;
              nui[0][1][1] = 0.0;
-           */
+             */
             
             
             
             
-
-
-
-
+            
+            
+            
+            
             etar[0][0][0] = 0.5 * dp_dr_BC * R / pressure_HR[1];
             etar[0][0][1] = 0.0;
             etar[0][1][0] = 0.5 * R * ( ( (log(flux_HR[1]) - log(flux_HR[0]))/(radius_cm_HR[1] - radius_cm_HR[0]) )  -  4.0*dlnT_dr_BC );
@@ -2317,12 +2317,12 @@ semimajor_axis_jupiter ! = 7.7857d13 ! jupiter semimajor axis (cm)
             
             
             /*
-            xr[0][0][0] = 0.0;
-            xr[0][1][0] = 0.0;
-            
-            xi[0][0][0] = 0.0;
-            xi[0][1][0] = 0.0;
-            */
+             xr[0][0][0] = 0.0;
+             xr[0][1][0] = 0.0;
+             
+             xi[0][0][0] = 0.0;
+             xi[0][1][0] = 0.0;
+             */
             
             xr[0][0][0] = 0.0; // etar[0][0][0]*a[0] + etar[0][0][1]*b[0] + mur[0][0][0]*a[1] + mur[0][0][1]*b[1] + nur[0][0][0]*c[1] + nur[0][0][1]*d[1];  // 0.0;
             xr[0][1][0] = 0.0; // etar[0][1][0]*a[0] + etar[0][1][1]*b[0] + mur[0][1][0]*a[1] + mur[0][1][1]*b[1] + nur[0][1][0]*c[1] + nur[0][1][1]*d[1];  // 0.0;
@@ -2331,7 +2331,7 @@ semimajor_axis_jupiter ! = 7.7857d13 ! jupiter semimajor axis (cm)
             xi[0][1][0] = 0.0; // etai[0][1][0]*a[0] + etai[0][1][1]*b[0] + mui[0][1][0]*a[1] + mui[0][1][1]*b[1] + nui[0][1][0]*c[1] + nui[0][1][1]*d[1];  // 0.0;
             
             
-        
+            
             
             
             
@@ -2369,7 +2369,7 @@ semimajor_axis_jupiter ! = 7.7857d13 ! jupiter semimajor axis (cm)
                 
                 mur[0][i][1] = dummyr;
                 mui[0][i][1] = dummyi;
-
+                
                 
                 
                 
@@ -2417,293 +2417,293 @@ semimajor_axis_jupiter ! = 7.7857d13 ! jupiter semimajor axis (cm)
         /*
          
          This writes the data to the file, in the order:
-             1 - radius_cm / R
-             2, 3, 4, 5 - A
-             6, 7, 8, 9 - C
-             10,11,12,13- D
-             14,15,16,17- E
-             18,19,20,21- F
-             22,23,24,25- H
-             26, 27     - M
-             28, 29     - N
-             30 - detA
-             31 - detC
-             32 - det D
-             33 - detE
-             34 - detF
-             35 - detH
-
-             */
-
-            matrixfile << radius_cm_HR_output[k]/R << "\t\t\t" << Ar[0][0][0] << "\t\t" << Ar[0][0][1] << "\t\t" << Ar[0][1][0] << "\t\t" << Ar[0][1][1] << "\t\t" << Cr[0][0][0] << "\t\t" << Cr[0][0][1] << "\t\t" << Cr[0][1][0] << "\t\t" << Cr[0][1][1] << "\t\t" << Dr[0][0][0] << "\t\t" << Dr[0][0][1] << "\t\t" << Dr[0][1][0] << "\t\t" << Dr[0][1][1] << "\t\t" << Er[0][0][0] << "\t\t" << Er[0][0][1] << "\t\t" << Er[0][1][0] << "\t\t" << Er[0][1][1] << "\t\t" << Fr[0][0][0] << "\t\t" << Fr[0][0][1] << "\t\t" << Fr[0][1][0] << "\t\t" << Fr[0][1][1] << "\t\t" << Hr[0][0][0] << "\t\t" << Hr[0][0][1] << "\t\t" << Hr[0][1][0] << "\t\t" << Hr[0][1][1] << "\t\t" << Mr[0][0][0] << "\t\t" << Mr[0][1][0] << "\t\t" << Nr[0][0][0] << "\t\t" << Nr[0][1][0] << "\t\t" << Ar[0][0][0]*Ar[0][1][1] - Ar[0][0][1]*Ar[0][1][0] << "\t\t" << Cr[0][0][0]*Cr[0][1][1] - Cr[0][0][1]*Cr[0][1][0] << "\t\t" << Dr[0][0][0]*Dr[0][1][1] - Dr[0][0][1]*Dr[0][1][0] << "\t\t" << Er[0][0][0]*Er[0][1][1] - Er[0][0][1]*Er[0][1][0] << "\t\t" << Fr[0][0][0]*Fr[0][1][1] - Fr[0][0][1]*Fr[0][1][0] << "\t\t" << Hr[0][0][0]*Hr[0][1][1] - Hr[0][0][1]*Hr[0][1][0] << "\t\t" << "\n";
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-// Here the matrix magic happens - they must be multiplied and inverted such that they fit the useful equations above, once again in a sum up to J
-
-
-
-
-
-
-    // NOTE - as this calculates alpha_{i+1} from i things, it runs from k=0 to k=J-2, and the final step (with k=J-2) is used just to initialise the matrices for use with the BCs after the for loop closes.
-
-
-    // This initialises P
-
+         1 - radius_cm / R
+         2, 3, 4, 5 - A
+         6, 7, 8, 9 - C
+         10,11,12,13- D
+         14,15,16,17- E
+         18,19,20,21- F
+         22,23,24,25- H
+         26, 27     - M
+         28, 29     - N
+         30 - detA
+         31 - detC
+         32 - det D
+         33 - detE
+         34 - detF
+         35 - detH
+         
+         */
+        
+        matrixfile << radius_cm_HR_output[k]/R << "\t\t\t" << Ar[0][0][0] << "\t\t" << Ar[0][0][1] << "\t\t" << Ar[0][1][0] << "\t\t" << Ar[0][1][1] << "\t\t" << Cr[0][0][0] << "\t\t" << Cr[0][0][1] << "\t\t" << Cr[0][1][0] << "\t\t" << Cr[0][1][1] << "\t\t" << Dr[0][0][0] << "\t\t" << Dr[0][0][1] << "\t\t" << Dr[0][1][0] << "\t\t" << Dr[0][1][1] << "\t\t" << Er[0][0][0] << "\t\t" << Er[0][0][1] << "\t\t" << Er[0][1][0] << "\t\t" << Er[0][1][1] << "\t\t" << Fr[0][0][0] << "\t\t" << Fr[0][0][1] << "\t\t" << Fr[0][1][0] << "\t\t" << Fr[0][1][1] << "\t\t" << Hr[0][0][0] << "\t\t" << Hr[0][0][1] << "\t\t" << Hr[0][1][0] << "\t\t" << Hr[0][1][1] << "\t\t" << Mr[0][0][0] << "\t\t" << Mr[0][1][0] << "\t\t" << Nr[0][0][0] << "\t\t" << Nr[0][1][0] << "\t\t" << Ar[0][0][0]*Ar[0][1][1] - Ar[0][0][1]*Ar[0][1][0] << "\t\t" << Cr[0][0][0]*Cr[0][1][1] - Cr[0][0][1]*Cr[0][1][0] << "\t\t" << Dr[0][0][0]*Dr[0][1][1] - Dr[0][0][1]*Dr[0][1][0] << "\t\t" << Er[0][0][0]*Er[0][1][1] - Er[0][0][1]*Er[0][1][0] << "\t\t" << Fr[0][0][0]*Fr[0][1][1] - Fr[0][0][1]*Fr[0][1][0] << "\t\t" << Hr[0][0][0]*Hr[0][1][1] - Hr[0][0][1]*Hr[0][1][0] << "\t\t" << "\n";
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        // Here the matrix magic happens - they must be multiplied and inverted such that they fit the useful equations above, once again in a sum up to J
+        
+        
+        
+        
+        
+        
+        // NOTE - as this calculates alpha_{i+1} from i things, it runs from k=0 to k=J-2, and the final step (with k=J-2) is used just to initialise the matrices for use with the BCs after the for loop closes.
+        
+        
+        // This initialises P
+        
         CMatrixInv(Ar,Ai,dumMAr,dumMAi,0,0);
-
+        
         CMatrixMult(Er,Ei,dumMAr,dumMAi,Pr,Pi,0,0,0);
-
-/*        cout << "\nThis is Pr_{" << k << "} \n";
-        cout << Pr[k][0][0] << "\t" << Pr[k][0][1] << "\n";
-        cout << Pr[k][1][0] << "\t" << Pr[k][1][1] << "\n\n";
-  */
-
-    // This initialises Q - need to do it for each iteration of k, because it depends on alpha!
-
-
+        
+        /*        cout << "\nThis is Pr_{" << k << "} \n";
+         cout << Pr[k][0][0] << "\t" << Pr[k][0][1] << "\n";
+         cout << Pr[k][1][0] << "\t" << Pr[k][1][1] << "\n\n";
+         */
+        
+        // This initialises Q - need to do it for each iteration of k, because it depends on alpha!
+        
+        
         CMatrixInv(Fr,Fi,dumMAr,dumMAi,0,0);
-
+        
         CMatrixMult(alphar,alphai,dumMAr,dumMAi,Qr,Qi,k,0,0);
-
-/*        cout << "\nThis is Qr_{" << k << "} \n";
-        cout << Qr[k][0][0] << "\t" << Qr[k][0][1] << "\n";
-        cout << Qr[k][1][0] << "\t" << Qr[k][1][1] << "\n\n";
-  */
-
-    //This initialises R - need to do it for each iteration of k, because it depends on alpha!
-
-
+        
+        /*        cout << "\nThis is Qr_{" << k << "} \n";
+         cout << Qr[k][0][0] << "\t" << Qr[k][0][1] << "\n";
+         cout << Qr[k][1][0] << "\t" << Qr[k][1][1] << "\n\n";
+         */
+        
+        //This initialises R - need to do it for each iteration of k, because it depends on alpha!
+        
+        
         CMatrixMult(Qr,Qi,Er,Ei,dumMAr,dumMAi,0,0,0);
-
-/*        cout << "\nThis is (QE)r_{" << k << "} \n";
-        cout << dumMAr[0][0][0] << "\t" << dumMAr[0][0][1] << "\n";
-        cout << dumMAr[0][1][0] << "\t" << dumMAr[0][1][1] << "\n\n";
-  */
+        
+        /*        cout << "\nThis is (QE)r_{" << k << "} \n";
+         cout << dumMAr[0][0][0] << "\t" << dumMAr[0][0][1] << "\n";
+         cout << dumMAr[0][1][0] << "\t" << dumMAr[0][1][1] << "\n\n";
+         */
         dumMCr[0][0][0] = dumMAr[0][0][0] - 1.0;
         dumMCr[0][0][1] = dumMAr[0][0][1] - 0.0;
         dumMCr[0][1][0] = dumMAr[0][1][0] - 0.0;
         dumMCr[0][1][1] = dumMAr[0][1][1] - 1.0;
-
+        
         dumMCi[0][0][0] = dumMAi[0][0][0] - 0.0;
         dumMCi[0][0][1] = dumMAi[0][0][1] - 0.0;
         dumMCi[0][1][0] = dumMAi[0][1][0] - 0.0;
         dumMCi[0][1][1] = dumMAi[0][1][1] - 0.0;
-
+        
         CMatrixInv(dumMCr,dumMCi,Rr,Ri,0,0);
-
-/*        cout << "\nThis is Rr_{" << k << "} \n";
-        cout << Rr[k][0][0] << "\t" << Rr[k][0][1] << "\n";
-        cout << Rr[k][1][0] << "\t" << Rr[k][1][1] << "\n\n";
-*/
-
-
+        
+        /*        cout << "\nThis is Rr_{" << k << "} \n";
+         cout << Rr[k][0][0] << "\t" << Rr[k][0][1] << "\n";
+         cout << Rr[k][1][0] << "\t" << Rr[k][1][1] << "\n\n";
+         */
+        
+        
         /*
-
-        // Here the recursion arrays are calculated for this value of i
-
-        CMatrixInv(Ar,Ai,dumMAr,dumMAi,0,0);
-
-
-        dumMBr[0][0][0] = - dumMAr[0][0][0];
-        dumMBr[0][0][1] = - dumMAr[0][0][1];
-        dumMBr[0][1][0] = - dumMAr[0][1][0];
-        dumMBr[0][1][1] = - dumMAr[0][1][1];
-
-        dumMBi[0][0][0] = - dumMAi[0][0][0];
-        dumMBi[0][0][1] = - dumMAi[0][0][1];
-        dumMBi[0][1][0] = - dumMAi[0][1][0];
-        dumMBi[0][1][1] = - dumMAi[0][1][1];
-
-
-        //This assigns RECu
-        CMatrixMult(dumMBr,dumMBi,Cr,Ci,RECur,RECui,0,0,k);
-
-        //This assigns RECv
-        CMatrixMult(dumMBr,dumMBi,Dr,Di,RECvr,RECvi,0,0,k);
-
-        //This assigns RECc
-        CVectorMult(dumMAr,dumMAi,Mr,Mi,RECcr,RECci,0,0,k);
+         
+         // Here the recursion arrays are calculated for this value of i
+         
+         CMatrixInv(Ar,Ai,dumMAr,dumMAi,0,0);
+         
+         
+         dumMBr[0][0][0] = - dumMAr[0][0][0];
+         dumMBr[0][0][1] = - dumMAr[0][0][1];
+         dumMBr[0][1][0] = - dumMAr[0][1][0];
+         dumMBr[0][1][1] = - dumMAr[0][1][1];
+         
+         dumMBi[0][0][0] = - dumMAi[0][0][0];
+         dumMBi[0][0][1] = - dumMAi[0][0][1];
+         dumMBi[0][1][0] = - dumMAi[0][1][0];
+         dumMBi[0][1][1] = - dumMAi[0][1][1];
+         
+         
+         //This assigns RECu
+         CMatrixMult(dumMBr,dumMBi,Cr,Ci,RECur,RECui,0,0,k);
+         
+         //This assigns RECv
+         CMatrixMult(dumMBr,dumMBi,Dr,Di,RECvr,RECvi,0,0,k);
+         
+         //This assigns RECc
+         CVectorMult(dumMAr,dumMAi,Mr,Mi,RECcr,RECci,0,0,k);
          
          */
         
         
-         
-         // Case I equations (remember that you also need to change u to v when these are actually implemented)
-         
-         
-         CMatrixMult(Er,Ei,alphar,alphai,dumMAr,dumMAi,0,k,0);
         
-//        cout << "E = " << Er[0][0][0] << "\t" << Er[0][0][1] << "\t" << Er[0][1][0] << "\t" << Er[0][1][1] << "\n";
+        // Case I equations (remember that you also need to change u to v when these are actually implemented)
         
-//        cout << "alpha = " << alphar[k][0][0] << "\t" << alphar[k][0][1] << "\t" << alphar[k][1][0] << "\t" << alphar[k][1][1] << "\n";
         
-//        cout << "dumMA = " << dumMAr[0][0][0] << "\t" << dumMAr[0][1][0] << "\t" << dumMAr[0][1][0] << "\t" << dumMAr[0][1][1] << "\n";
-         
-         dumMBr[0][0][0] = Fr[0][0][0] - dumMAr[0][0][0];
-         dumMBr[0][0][1] = Fr[0][0][1] - dumMAr[0][0][1];
-         dumMBr[0][1][0] = Fr[0][1][0] - dumMAr[0][1][0];
-         dumMBr[0][1][1] = Fr[0][1][1] - dumMAr[0][1][1];
-         
-         dumMBi[0][0][0] = Fi[0][0][0] - dumMAi[0][0][0];
-         dumMBi[0][0][1] = Fi[0][0][1] - dumMAi[0][0][1];
-         dumMBi[0][1][0] = Fi[0][1][0] - dumMAi[0][1][0];
-         dumMBi[0][1][1] = Fi[0][1][1] - dumMAi[0][1][1];
+        CMatrixMult(Er,Ei,alphar,alphai,dumMAr,dumMAi,0,k,0);
         
-//        cout << "dumMB = " << dumMBr[0][0][0] << "\t" << dumMBr[0][1][0] << "\t" << dumMBr[0][1][0] << "\t" << dumMBr[0][1][1] << "\n";
-         
-         // dumMA = ( F - E alpha_{k})^{-1}
-         CMatrixInv(dumMBr,dumMBi,dumMAr,dumMAi,0,0);
+        //        cout << "E = " << Er[0][0][0] << "\t" << Er[0][0][1] << "\t" << Er[0][1][0] << "\t" << Er[0][1][1] << "\n";
         
-//        cout << "dumMA (second use) = " << dumMAr[0][0][0] << "\t" << dumMAr[0][1][0] << "\t" << dumMAr[0][1][0] << "\t" << dumMAr[0][1][1] << "\n";
-         
-         // This gives RECu = 0
-         RECur[k][0][0] = 0.0;
-         RECur[k][0][1] = 0.0;
-         RECur[k][1][0] = 0.0;
-         RECur[k][1][1] = 0.0;
-         
-         RECui[k][0][0] = 0.0;
-         RECui[k][0][1] = 0.0;
-         RECui[k][1][0] = 0.0;
-         RECui[k][1][1] = 0.0;
-         
-         dumMBr[0][0][0] = - Hr[0][0][0];
-         dumMBr[0][0][1] = - Hr[0][0][1];
-         dumMBr[0][1][0] = - Hr[0][1][0];
-         dumMBr[0][1][1] = - Hr[0][1][1];
-         
-         dumMBi[0][0][0] = - Hi[0][0][0];
-         dumMBi[0][0][1] = - Hi[0][0][1];
-         dumMBi[0][1][0] = - Hi[0][1][0];
-         dumMBi[0][1][1] = - Hi[0][1][1];
+        //        cout << "alpha = " << alphar[k][0][0] << "\t" << alphar[k][0][1] << "\t" << alphar[k][1][0] << "\t" << alphar[k][1][1] << "\n";
         
-//        cout << "dumMB (second use) = " << dumMBr[0][0][0] << "\t" << dumMBr[0][0][1] << "\t" << dumMBr[0][1][0] << "\t" << dumMBr[0][1][1] << "\n";
-         
-         // This gives RECv = - ( F - E alpha_{k})^{-1} H
-         CMatrixMult(dumMAr,dumMAi,dumMBr,dumMBi,RECvr,RECvi,0,0,k);
-         
-         CVectorMult(Er,Ei,gammar,gammai,dumVAr,dumVAi,0,k,0);
-         
-         dumVBr[0][0][0] = Nr[0][0][0] + dumVAr[0][0][0];
-         dumVBr[0][1][0] = Nr[0][1][0] + dumVAr[0][1][0];
-         
-         dumVBi[0][0][0] = Ni[0][0][0] + dumVAi[0][0][0];
-         dumVBi[0][1][0] = Ni[0][1][0] + dumVAi[0][1][0];
-         
-         // This gives RECc = ( F - E alpha_{k})^{-1} ( N + E gamma_{k} )
-         CVectorMult(dumMAr,dumMAi,dumVBr,dumVBi,RECcr,RECci,0,0,k);
-         
+        //        cout << "dumMA = " << dumMAr[0][0][0] << "\t" << dumMAr[0][1][0] << "\t" << dumMAr[0][1][0] << "\t" << dumMAr[0][1][1] << "\n";
         
-
-
-
-
-// Now we can iterate up to get alpha and gamma for all positions in the star
-
-    //alpha_{i+1}
-
-
+        dumMBr[0][0][0] = Fr[0][0][0] - dumMAr[0][0][0];
+        dumMBr[0][0][1] = Fr[0][0][1] - dumMAr[0][0][1];
+        dumMBr[0][1][0] = Fr[0][1][0] - dumMAr[0][1][0];
+        dumMBr[0][1][1] = Fr[0][1][1] - dumMAr[0][1][1];
+        
+        dumMBi[0][0][0] = Fi[0][0][0] - dumMAi[0][0][0];
+        dumMBi[0][0][1] = Fi[0][0][1] - dumMAi[0][0][1];
+        dumMBi[0][1][0] = Fi[0][1][0] - dumMAi[0][1][0];
+        dumMBi[0][1][1] = Fi[0][1][1] - dumMAi[0][1][1];
+        
+        //        cout << "dumMB = " << dumMBr[0][0][0] << "\t" << dumMBr[0][1][0] << "\t" << dumMBr[0][1][0] << "\t" << dumMBr[0][1][1] << "\n";
+        
+        // dumMA = ( F - E alpha_{k})^{-1}
+        CMatrixInv(dumMBr,dumMBi,dumMAr,dumMAi,0,0);
+        
+        //        cout << "dumMA (second use) = " << dumMAr[0][0][0] << "\t" << dumMAr[0][1][0] << "\t" << dumMAr[0][1][0] << "\t" << dumMAr[0][1][1] << "\n";
+        
+        // This gives RECu = 0
+        RECur[k][0][0] = 0.0;
+        RECur[k][0][1] = 0.0;
+        RECur[k][1][0] = 0.0;
+        RECur[k][1][1] = 0.0;
+        
+        RECui[k][0][0] = 0.0;
+        RECui[k][0][1] = 0.0;
+        RECui[k][1][0] = 0.0;
+        RECui[k][1][1] = 0.0;
+        
+        dumMBr[0][0][0] = - Hr[0][0][0];
+        dumMBr[0][0][1] = - Hr[0][0][1];
+        dumMBr[0][1][0] = - Hr[0][1][0];
+        dumMBr[0][1][1] = - Hr[0][1][1];
+        
+        dumMBi[0][0][0] = - Hi[0][0][0];
+        dumMBi[0][0][1] = - Hi[0][0][1];
+        dumMBi[0][1][0] = - Hi[0][1][0];
+        dumMBi[0][1][1] = - Hi[0][1][1];
+        
+        //        cout << "dumMB (second use) = " << dumMBr[0][0][0] << "\t" << dumMBr[0][0][1] << "\t" << dumMBr[0][1][0] << "\t" << dumMBr[0][1][1] << "\n";
+        
+        // This gives RECv = - ( F - E alpha_{k})^{-1} H
+        CMatrixMult(dumMAr,dumMAi,dumMBr,dumMBi,RECvr,RECvi,0,0,k);
+        
+        CVectorMult(Er,Ei,gammar,gammai,dumVAr,dumVAi,0,k,0);
+        
+        dumVBr[0][0][0] = Nr[0][0][0] + dumVAr[0][0][0];
+        dumVBr[0][1][0] = Nr[0][1][0] + dumVAr[0][1][0];
+        
+        dumVBi[0][0][0] = Ni[0][0][0] + dumVAi[0][0][0];
+        dumVBi[0][1][0] = Ni[0][1][0] + dumVAi[0][1][0];
+        
+        // This gives RECc = ( F - E alpha_{k})^{-1} ( N + E gamma_{k} )
+        CVectorMult(dumMAr,dumMAi,dumVBr,dumVBi,RECcr,RECci,0,0,k);
+        
+        
+        
+        
+        
+        
+        // Now we can iterate up to get alpha and gamma for all positions in the star
+        
+        //alpha_{i+1}
+        
+        
         CMatrixMult(Ar,Ai,Rr,Ri,dumMAr,dumMAi,0,0,0); // dumMA wil remain AR until the end of calculating gamma_{i+1}
-
+        
         CMatrixMult(Qr,Qi,Hr,Hi,dumMBr,dumMBi,0,0,0);
-
+        
         CMatrixMult(dumMAr,dumMAi,dumMBr,dumMBi,dumMCr,dumMCi,0,0,0);
-
+        
         dumMDr[0][0][0] = Dr[0][0][0] - dumMCr[0][0][0];
         dumMDr[0][0][1] = Dr[0][0][1] - dumMCr[0][0][1];
         dumMDr[0][1][0] = Dr[0][1][0] - dumMCr[0][1][0];
         dumMDr[0][1][1] = Dr[0][1][1] - dumMCr[0][1][1];
-
+        
         dumMDi[0][0][0] = Di[0][0][0] - dumMCi[0][0][0];
         dumMDi[0][0][1] = Di[0][0][1] - dumMCi[0][0][1];
         dumMDi[0][1][0] = Di[0][1][0] - dumMCi[0][1][0];
         dumMDi[0][1][1] = Di[0][1][1] - dumMCi[0][1][1];
-
+        
         CMatrixInv(Cr,Ci,dumMCr,dumMCi,0,0); // dumMC is C^{-1} and will remain to be so for the calculation of gamma_{i+1} as well
-
+        
         CMatrixMult(dumMCr,dumMCi,dumMDr,dumMDi,alphar,alphai,0,0,k+1);
-
-
-
-    //gamma_{i+1}
-
-
+        
+        
+        
+        //gamma_{i+1}
+        
+        
         CVectorMult(Qr,Qi,Nr,Ni,dumVAr,dumVAi,0,0,0);
-
+        
         dumVBr[0][0][0] = gammar[k][0][0] + dumVAr[0][0][0];
         dumVBr[0][1][0] = gammar[k][1][0] + dumVAr[0][1][0];
-
+        
         dumVBi[0][0][0] = gammai[k][0][0] + dumVAi[0][0][0];
         dumVBi[0][1][0] = gammai[k][1][0] + dumVAi[0][1][0];
-
+        
         CVectorMult(dumMAr,dumMAi,dumVBr,dumVBi,dumVAr,dumVAi,0,0,0); /* Note that I am reusing dumVA, but as an output once again. */
-
+        
         dumVDr[0][0][0] = dumVAr[0][0][0] - Mr[0][0][0];
         dumVDr[0][1][0] = dumVAr[0][1][0] - Mr[0][1][0];
-
+        
         dumVDi[0][0][0] = dumVAi[0][0][0] - Mi[0][0][0];
         dumVDi[0][1][0] = dumVAi[0][1][0] - Mi[0][1][0];
-
+        
         CVectorMult(dumMCr,dumMCi,dumVDr,dumVDi,gammar,gammai,0,0,k+1);
-
+        
         //cout << " " << k << "\t" << "Done a matrix magic iteration \n";
-
-
-
+        
+        
+        
     } // This closes the for loop
-
-
-
-
+    
+    
+    
+    
     // This closes the output data file for the Matrix data
     matrixfile.close();
-
-
-
-
-
-
-        cout << "Flag Exited Matrix Magic \n";
-
+    
+    
+    
+    
+    
+    
+    cout << "Flag Exited Matrix Magic \n";
+    
     
     cout << "Outermost centre of cell is at r/R = " << rmid_cm_HR[1]/R << "\n";
     
-
-// Here the outer boundary conditions must be used in order to get v_{J-1}
-
-
-
-
-
-
-
-
-
-
-
+    
+    // Here the outer boundary conditions must be used in order to get v_{J-1}
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
     /*
-
-
+     
+     
      ********************************
      *                              *
      *                              *
@@ -2715,114 +2715,114 @@ semimajor_axis_jupiter ! = 7.7857d13 ! jupiter semimajor axis (cm)
      *                              *
      *                              *
      ********************************
-
-
-
-
+     
+     
+     
+     
      The outer boundary conditions can be expressed in the form of a vector equation as:
-
+     
      \eta u_{J-2} + \mu u_{J-1} + \nu v_{J-1} = x
-
+     
      which is valid for the centre of the outermost cell, labelled J-1
-
+     
      If this is used in coordination with the oscillation equations and the u-v relation for J-2, as:
-
+     
      A_{J-2,J-1} u_{J-2} + C_{J-2,J-1} u_{J-1} + D_{J-2,J-1} v_{J-1} = M_{J-2,J-1}
-
+     
      E_{J-2,J-1} u_{J-2} + F_{J-2,J-1} v_{J-2} + H_{J-2,J-1} v_{J-1} = N_{J-2,J-1}
-
+     
      u_{J-2} + alpha_{J-2} v_{J-2} + gamma_{J-2} = 0
-
+     
      we can eliminate everything except v_{J-1}, which gives us the (very long) expression:
-
+     
      v_{J-1} = [ C^{-1} D - mu^{-1} nu + ( mu^{-1} eta - C^{-1} A ) ( alpha_{J-2} F^{-1} E - 1 )^{-1} alpha_{J-2} F^{-1} H ]^{-1}
-                [ C^{-1} M - mu^{-1} x + ( mu^{-1} eta - C^{-1} A ) ( alpha_{J-2} F^{-1} E - 1 )^{-1} ( alpha_{J-2} F^{-1} N + gamma_{J-2} ) ]
-
+     [ C^{-1} M - mu^{-1} x + ( mu^{-1} eta - C^{-1} A ) ( alpha_{J-2} F^{-1} E - 1 )^{-1} ( alpha_{J-2} F^{-1} N + gamma_{J-2} ) ]
+     
      Introducing the following variables breaks down the expression somewhat:
-
+     
      R = [ alpha_{i} F^{-1} E - 1 ]^{-1} = [ Q E - 1 ]^{-1}  --  NB: this has already been defined and used earlier, this is just a reminder
-
+     
      BCa = ( mu^{-1} eta - C^{-1} A ) R
-
+     
      BCb = mu^{-1}  --  NB this is to reduce re-doing the inversion, which will marginally speed things up
-
+     
      BCc = C^{-1}  --  NB this is just the same reasoning as for BCb
-
-
+     
+     
      which gives
-
+     
      v_{J-1} = [ BCc D - BCb nu + BCa Q H ]^{-1} [ BCc M - BCb x + BCa ( Q N + gamma_{J-2} ) ]
-
-
+     
+     
      */
-
-
-
-// Boundary condition simplification variables calculated here
-
+    
+    
+    
+    // Boundary condition simplification variables calculated here
+    
     // BCb defined here
     CMatrixInv(mur,mui,BCbr,BCbi,0,0);
-
+    
     CMatrixInv(Cr,Ci,dumMAr,dumMAi,0,0);
-
+    
     // BCc defined here
     BCcr[0][0][0] = dumMAr[0][0][0];
     BCcr[0][0][1] = dumMAr[0][0][1];
     BCcr[0][1][0] = dumMAr[0][1][0];
     BCcr[0][1][1] = dumMAr[0][1][1];
-
+    
     BCci[0][0][0] = dumMAi[0][0][0];
     BCci[0][0][1] = dumMAi[0][0][1];
     BCci[0][1][0] = dumMAi[0][1][0];
     BCci[0][1][1] = dumMAi[0][1][1];
-
-
+    
+    
     CMatrixMult(BCbr,BCbi,etar,etai,dumMAr,dumMAi,0,0,0);
-
+    
     CMatrixMult(BCcr,BCci,Ar,Ai,dumMBr,dumMBi,0,0,0);
-
+    
     dumMCr[0][0][0] = dumMAr[0][0][0] - dumMBr[0][0][0];
     dumMCr[0][0][1] = dumMAr[0][0][1] - dumMBr[0][0][1];
     dumMCr[0][1][0] = dumMAr[0][1][0] - dumMBr[0][1][0];
     dumMCr[0][1][1] = dumMAr[0][1][1] - dumMBr[0][1][1];
-
+    
     dumMCi[0][0][0] = dumMAi[0][0][0] - dumMBi[0][0][0];
     dumMCi[0][0][1] = dumMAi[0][0][1] - dumMBi[0][0][1];
     dumMCi[0][1][0] = dumMAi[0][1][0] - dumMBi[0][1][0];
     dumMCi[0][1][1] = dumMAi[0][1][1] - dumMBi[0][1][1];
-
+    
     // BCa defined here
     CMatrixMult(dumMCr,dumMCi,Rr,Ri,BCar,BCai,0,0,0);
-
-
+    
+    
     // This initialises P
-
+    
     CMatrixInv(Ar,Ai,dumMAr,dumMAi,0,0);
-
+    
     CMatrixMult(Er,Ei,dumMAr,dumMAi,Pr,Pi,0,0,0);
-
+    
     /*        cout << "\nThis is Pr_{" << k << "} \n";
      cout << Pr[k][0][0] << "\t" << Pr[k][0][1] << "\n";
      cout << Pr[k][1][0] << "\t" << Pr[k][1][1] << "\n\n";
      */
-
+    
     // This initialises Q - need to do it for each iteration of k, because it depends on alpha!
-
-
+    
+    
     CMatrixInv(Fr,Fi,dumMAr,dumMAi,0,0);
-
+    
     CMatrixMult(alphar,alphai,dumMAr,dumMAi,Qr,Qi,k,0,0);
-
+    
     /*        cout << "\nThis is Qr_{" << k << "} \n";
      cout << Qr[k][0][0] << "\t" << Qr[k][0][1] << "\n";
      cout << Qr[k][1][0] << "\t" << Qr[k][1][1] << "\n\n";
      */
-
+    
     //This initialises R - need to do it for each iteration of k, because it depends on alpha!
-
-
+    
+    
     CMatrixMult(Qr,Qi,Er,Ei,dumMAr,dumMAi,0,0,0);
-
+    
     /*        cout << "\nThis is (QE)r_{" << k << "} \n";
      cout << dumMAr[0][0][0] << "\t" << dumMAr[0][0][1] << "\n";
      cout << dumMAr[0][1][0] << "\t" << dumMAr[0][1][1] << "\n\n";
@@ -2831,137 +2831,137 @@ semimajor_axis_jupiter ! = 7.7857d13 ! jupiter semimajor axis (cm)
     dumMCr[0][0][1] = dumMAr[0][0][1] - 0.0;
     dumMCr[0][1][0] = dumMAr[0][1][0] - 0.0;
     dumMCr[0][1][1] = dumMAr[0][1][1] - 1.0;
-
+    
     dumMCi[0][0][0] = dumMAi[0][0][0] - 0.0;
     dumMCi[0][0][1] = dumMAi[0][0][1] - 0.0;
     dumMCi[0][1][0] = dumMAi[0][1][0] - 0.0;
     dumMCi[0][1][1] = dumMAi[0][1][1] - 0.0;
-
+    
     CMatrixInv(dumMCr,dumMCi,Rr,Ri,0,0);
-
+    
     /*        cout << "\nThis is Rr_{" << k << "} \n";
      cout << Rr[k][0][0] << "\t" << Rr[k][0][1] << "\n";
      cout << Rr[k][1][0] << "\t" << Rr[k][1][1] << "\n\n";
      */
-
-
-
-
-
-
-
-
-// Here we calculate v_{J-1}
-
+    
+    
+    
+    
+    
+    
+    
+    
+    // Here we calculate v_{J-1}
+    
     CMatrixMult(BCcr,BCci,Dr,Di,dumMAr,dumMAi,0,0,0);
-
-/*    cout << "(BCc D)r \n";
-    cout << dumMAr[0][0][0] << "\t" << dumMAr[0][0][1] << "\n";
-    cout << dumMAr[0][1][0] << "\t" << dumMAr[0][1][1] << "\n\n";
-  */
+    
+    /*    cout << "(BCc D)r \n";
+     cout << dumMAr[0][0][0] << "\t" << dumMAr[0][0][1] << "\n";
+     cout << dumMAr[0][1][0] << "\t" << dumMAr[0][1][1] << "\n\n";
+     */
     CMatrixMult(BCbr,BCbi,nur,nui,dumMBr,dumMBi,0,0,0);
-
-/*    cout << "(BCb nu)r \n";
-    cout << dumMBr[0][0][0] << "\t" << dumMBr[0][0][1] << "\n";
-    cout << dumMBr[0][1][0] << "\t" << dumMBr[0][1][1] << "\n\n";
-  */
+    
+    /*    cout << "(BCb nu)r \n";
+     cout << dumMBr[0][0][0] << "\t" << dumMBr[0][0][1] << "\n";
+     cout << dumMBr[0][1][0] << "\t" << dumMBr[0][1][1] << "\n\n";
+     */
     CMatrixMult(Qr,Qi,Hr,Hi,dumMCr,dumMCi,0,0,0);
-
+    
     CMatrixMult(BCar,BCai,dumMCr,dumMCi,dumMDr,dumMDi,0,0,0);
-
-/*    cout << "(BCa Q H)r \n";
-    cout << dumMDr[0][0][0] << "\t" << dumMDr[0][0][1] << "\n";
-    cout << dumMDr[0][1][0] << "\t" << dumMDr[0][1][1] << "\n\n";
-  */
+    
+    /*    cout << "(BCa Q H)r \n";
+     cout << dumMDr[0][0][0] << "\t" << dumMDr[0][0][1] << "\n";
+     cout << dumMDr[0][1][0] << "\t" << dumMDr[0][1][1] << "\n\n";
+     */
     dumMEr[0][0][0] = dumMAr[0][0][0] - dumMBr[0][0][0] + dumMDr[0][0][0];
     dumMEr[0][0][1] = dumMAr[0][0][1] - dumMBr[0][0][1] + dumMDr[0][0][1];
     dumMEr[0][1][0] = dumMAr[0][1][0] - dumMBr[0][1][0] + dumMDr[0][1][0];
     dumMEr[0][1][1] = dumMAr[0][1][1] - dumMBr[0][1][1] + dumMDr[0][1][1];
-
+    
     dumMEi[0][0][0] = dumMAi[0][0][0] - dumMBi[0][0][0] + dumMDi[0][0][0];
     dumMEi[0][0][1] = dumMAi[0][0][1] - dumMBi[0][0][1] + dumMDi[0][0][1];
     dumMEi[0][1][0] = dumMAi[0][1][0] - dumMBi[0][1][0] + dumMDi[0][1][0];
     dumMEi[0][1][1] = dumMAi[0][1][1] - dumMBi[0][1][1] + dumMDi[0][1][1];
-
+    
     // This gets us to: dumMA[0] = ( BCc D - BCb nu + BCa Q H )^{-1}
     CMatrixInv(dumMEr,dumMEi,dumMAr,dumMAi,0,0);
-
-/*    cout << "( BCc D - BCb nu + BCa Q H )^{-1} r \n";
-    cout << dumMAr[0][0][0] << "\t" << dumMAr[0][0][1] << "\n";
-    cout << dumMAr[0][1][0] << "\t" << dumMAr[0][1][1] << "\n\n";
-  */
-
+    
+    /*    cout << "( BCc D - BCb nu + BCa Q H )^{-1} r \n";
+     cout << dumMAr[0][0][0] << "\t" << dumMAr[0][0][1] << "\n";
+     cout << dumMAr[0][1][0] << "\t" << dumMAr[0][1][1] << "\n\n";
+     */
+    
     CVectorMult(BCcr,BCci,Mr,Mi,dumVAr,dumVAi,0,0,0);
-
+    
     CVectorMult(BCbr,BCbi,xr,xi,dumVBr,dumVBi,0,0,0);
-
+    
     CVectorMult(Qr,Qi,Nr,Ni,dumVCr,dumVCi,0,0,0);
-
+    
     dumVDr[0][0][0] = dumVCr[0][0][0] + gammar[J-2][0][0];
     dumVDr[0][1][0] = dumVCr[0][1][0] + gammar[J-2][1][0];
-
+    
     dumVDi[0][0][0] = dumVCi[0][0][0] + gammai[J-2][0][0];
     dumVDi[0][1][0] = dumVCi[0][1][0] + gammai[J-2][1][0];
-
+    
     CVectorMult(BCar,BCai,dumVDr,dumVDi,dumVCr,dumVCi,0,0,0);
-
+    
     // This gives us: BCc M - BCb x + BCa ( Q N + gamma_{J-2} )
     dumVDr[0][0][0] = dumVAr[0][0][0] - dumVBr[0][0][0] + dumVCr[0][0][0];
     dumVDr[0][1][0] = dumVAr[0][1][0] - dumVBr[0][1][0] + dumVCr[0][1][0];
-
+    
     dumVDi[0][0][0] = dumVAi[0][0][0] - dumVBi[0][0][0] + dumVCi[0][0][0];
     dumVDi[0][1][0] = dumVAi[0][1][0] - dumVBi[0][1][0] + dumVCi[0][1][0];
-
-
-
-
-
-
+    
+    
+    
+    
+    
+    
     // This step actually gets us v_{J-1}
     CVectorMult(dumMAr,dumMAi,dumVDr,dumVDi,vr,vi,0,0,J-1);
-
+    
     cout << "Original method:\n" << "Got vr_{J-1} \t \n";
-
-
-
-
-
+    
+    
+    
+    
+    
     // We use v_{J-1} to calculate u_{J-1} too
     // alpha_{i} v_{i}
     CVectorMult(alphar,alphai,vr,vi,dumVAr,dumVAi,J-1,J-1,0);
     // Gives u_{J-1}
     ur[J-1][0][0] = - dumVAr[0][0][0] - gammar[J-1][0][0];
     ur[J-1][1][0] = - dumVAr[0][1][0] - gammar[J-1][1][0];
-
+    
     ui[J-1][0][0] = - dumVAi[0][0][0] - gammai[J-1][0][0];
     ui[J-1][1][0] = - dumVAi[0][1][0] - gammai[J-1][1][0];
-
+    
     cout << "Got u_{J-1} ( J-1 = " << J-1 <<" ) \n";
-
+    
     cout << "\nThis is ur_{J-1} \n";
     cout << ur[J-1][0][0] << "\n";
     cout << ur[J-1][1][0] << "\n\n";
-
+    
     cout << "\nThis is vr_{J-1} \n";
     cout << vr[J-1][0][0] << "\n";
     cout << vr[J-1][1][0] << "\n\n";
-
-
-
-
-
-
-
-
-
-
-
-
-
-
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
     /*
-
-
+     
+     
      ********************************
      *                              *
      *                              *
@@ -2973,211 +2973,211 @@ semimajor_axis_jupiter ! = 7.7857d13 ! jupiter semimajor axis (cm)
      *                              *
      *                              *
      ********************************
-
-
-
-
+     
+     
+     
+     
      The outer boundary conditions can be expressed in the form of a vector equation as:
-
+     
      \eta u_{J-2} + \mu u_{J-1} + \nu v_{J-1} = x
-
+     
      which is valid for the centre of the outermost cell, labelled J-1
-
+     
      If this is used in coordination with the oscillation equations and the u-v relation for J-2, as:
-
+     
      A_{J-2,J-1} u_{J-2} + C_{J-2,J-1} u_{J-1} + D_{J-2,J-1} v_{J-1} = M_{J-2,J-1}
-
+     
      E_{J-2,J-1} u_{J-2} + F_{J-2,J-1} v_{J-2} + H_{J-2,J-1} v_{J-1} = N_{J-2,J-1}
-
+     
      u_{J-2} + alpha_{J-2} v_{J-2} + gamma_{J-2} = 0
-
+     
      we can eliminate everything except v_{J-1}, which gives us the (very long) expression:
-
+     
      v_{J-1} = [ H - ( E - F alpha_{J-2}^{-1} ) ( A - C mu^{-1} eta )^{-1} ( D - C mu^{-1} nu ) ]^{-1} [ N_{J-2} + F alpha_{J-2}^{-1} gamma_{J-2} - ( E - F alpha_{J-2}^{-1} ) ( A - C mu^{-1} eta )^{-1} ( M - C mu^{-1} x ) ]
-
-
+     
+     
      Introducing the following variables breaks down the expression somewhat:
-
+     
      BCa = F alpha_{J-2}^{-1}
-
+     
      BCb = C mu^{-1}
-
+     
      BCc = ( E - F alpha_{J-2}^{-1} ) ( A - C mu^{-1} eta )^{-1} = ( E - BCa ) ( A - BCb eta )^{-1}
-
-
+     
+     
      which gives
-
+     
      v_{J-1} = [ H - BCc ( D - BCb nu ) ]^{-1} [ N_{J-2} + BCa gamma_{J-2} - BCc ( M_{J-2} - BCb x ) ]
-
-
+     
+     
      */
-
-
-
+    
+    
+    
     // Boundary condition simplification variables calculated here
-
-
+    
+    
     // BCa defined here
-	//cout << "FLAG line 3000\n";
+    //cout << "FLAG line 3000\n";
     CMatrixInv(alphar,alphai,dumMAr,dumMAi,J-2,0);
-
+    
     CMatrixMult(Fr,Fi,dumMAr,dumMAi,BCar,BCai,0,0,0);
-
-
+    
+    
     // BCb defined here
-
+    
     CMatrixInv(mur,mui,dumMAr,dumMAi,0,0);
-
+    
     CMatrixMult(Cr,Ci,dumMAr,dumMAi,BCbr,BCbi,0,0,0);
-
-
+    
+    
     // BCc defined here
-
+    
     CMatrixMult(BCbr,BCbi,etar,etai,dumMAr,dumMAi,0,0,0);
-
+    
     dumMCr[0][0][0] = Ar[0][0][0] - dumMAr[0][0][0];
     dumMCr[0][0][1] = Ar[0][0][1] - dumMAr[0][0][1];
     dumMCr[0][1][0] = Ar[0][1][0] - dumMAr[0][1][0];
     dumMCr[0][1][1] = Ar[0][1][1] - dumMAr[0][1][1];
-
+    
     dumMCi[0][0][0] = Ai[0][0][0] - dumMAi[0][0][0];
     dumMCi[0][0][1] = Ai[0][0][1] - dumMAi[0][0][1];
     dumMCi[0][1][0] = Ai[0][1][0] - dumMAi[0][1][0];
     dumMCi[0][1][1] = Ai[0][1][1] - dumMAi[0][1][1];
-
+    
     CMatrixInv(dumMCr,dumMCi,dumMBr,dumMBi,0,0);
-
+    
     dumMAr[0][0][0] = Er[0][0][0] - BCar[0][0][0];
     dumMAr[0][0][1] = Er[0][0][1] - BCar[0][0][1];
     dumMAr[0][1][0] = Er[0][1][0] - BCar[0][1][0];
     dumMAr[0][1][1] = Er[0][1][1] - BCar[0][1][1];
-
+    
     dumMAi[0][0][0] = Ei[0][0][0] - BCai[0][0][0];
     dumMAi[0][0][1] = Ei[0][0][1] - BCai[0][0][1];
     dumMAi[0][1][0] = Ei[0][1][0] - BCai[0][1][0];
     dumMAi[0][1][1] = Ei[0][1][1] - BCai[0][1][1];
-
+    
     CMatrixMult(dumMAr,dumMAi,dumMBr,dumMBi,BCcr,BCci,0,0,0);
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
     // Here we calculate v_{J-1}
-
-
+    
+    
     CMatrixMult(BCbr,BCbi,nur,nui,dumMAr,dumMAi,0,0,0);
-
+    
     dumMBr[0][0][0] = Dr[0][0][0] - dumMAr[0][0][0];
     dumMBr[0][0][1] = Dr[0][0][1] - dumMAr[0][0][1];
     dumMBr[0][1][0] = Dr[0][1][0] - dumMAr[0][1][0];
     dumMBr[0][1][1] = Dr[0][1][1] - dumMAr[0][1][1];
-
+    
     dumMBi[0][0][0] = Di[0][0][0] - dumMAi[0][0][0];
     dumMBi[0][0][1] = Di[0][0][1] - dumMAi[0][0][1];
     dumMBi[0][1][0] = Di[0][1][0] - dumMAi[0][1][0];
     dumMBi[0][1][1] = Di[0][1][1] - dumMAi[0][1][1];
-
+    
     CMatrixMult(BCcr,BCci,dumMBr,dumMBi,dumMAr,dumMAi,0,0,0);
-
+    
     dumMBr[0][0][0] = Hr[0][0][0] - dumMAr[0][0][0];
     dumMBr[0][0][1] = Hr[0][0][1] - dumMAr[0][0][1];
     dumMBr[0][1][0] = Hr[0][1][0] - dumMAr[0][1][0];
     dumMBr[0][1][1] = Hr[0][1][1] - dumMAr[0][1][1];
-
+    
     dumMBi[0][0][0] = Hi[0][0][0] - dumMAi[0][0][0];
     dumMBi[0][0][1] = Hi[0][0][1] - dumMAi[0][0][1];
     dumMBi[0][1][0] = Hi[0][1][0] - dumMAi[0][1][0];
     dumMBi[0][1][1] = Hi[0][1][1] - dumMAi[0][1][1];
-
+    
     // This gives: dumMA  ==  [ H - ( E - F alpha_{J-2}^{-1} ) ( A - C mu^{-1} eta )^{-1} ( D - C mu^{-1} nu ) ]^{-1}  ==  [ H - BCc ( D - BCb nu ) ]^{-1}
     CMatrixInv(dumMBr,dumMBi,dumMCr,dumMCi,0,0);
-
-
-
+    
+    
+    
     CVectorMult(BCar,BCai,gammar,gammai,dumVAr,dumVAi,0,J-2,0);
-
+    
     CVectorMult(BCbr,BCbi,xr,xi,dumVCr,dumVCi,0,0,0);
-
+    
     dumVBr[0][0][0] = Mr[0][0][0] - dumVCr[0][0][0];
     dumVBr[0][1][0] = Mr[0][1][0] - dumVCr[0][1][0];
-
+    
     dumVBi[0][0][0] = Mi[0][0][0] - dumVCi[0][0][0];
     dumVBi[0][1][0] = Mi[0][1][0] - dumVCi[0][1][0];
-
+    
     CVectorMult(BCcr,BCci,dumVBr,dumVBi,dumVCr,dumVCi,0,0,0);
-
+    
     // This gives: dumVD  ==  N_{J-2} + F alpha_{J-2}^{-1} gamma_{J-2} - ( E - F alpha_{J-2}^{-1} ) ( A - C mu^{-1} eta )^{-1} ( M - C mu^{-1} x )  ==  [ N_{J-2} + BCa gamma_{J-2} - BCc ( M_{J-2} - BCb x ) ]
     dumVDr[0][0][0] = Nr[0][0][0] + dumVAr[0][0][0] - dumVCr[0][0][0];
     dumVDr[0][1][0] = Nr[0][1][0] + dumVAr[0][1][0] - dumVCr[0][1][0];
-
+    
     dumVDi[0][0][0] = Ni[0][0][0] + dumVAi[0][0][0] - dumVCi[0][0][0];
     dumVDi[0][1][0] = Ni[0][1][0] + dumVAi[0][1][0] - dumVCi[0][1][0];
-
-
-
+    
+    
+    
     // This step actually gets us v_{J-1}
     CVectorMult(dumMCr,dumMCi,dumVDr,dumVDi,vr,vi,0,0,J-1);
-
+    
     cout << "Method I:\n" << "Got vr_{J-1} \t \n";
-
+    
     /*    cout << "\nThis is vr_{J-1} \n";
      cout << vr[J-1][0][0] << "\n";
      cout << vr[J-1][1][0] << "\n\n";
      */
-
-
-
+    
+    
+    
     // We use v_{J-1} to calculate u_{J-1} too
     // alpha_{i} v_{i}
     CVectorMult(alphar,alphai,vr,vi,dumVAr,dumVAi,J-1,J-1,0);
     // Gives u_{J-1}
     ur[J-1][0][0] = - dumVAr[0][0][0] - gammar[J-1][0][0];
     ur[J-1][1][0] = - dumVAr[0][1][0] - gammar[J-1][1][0];
-
+    
     ui[J-1][0][0] = - dumVAi[0][0][0] - gammai[J-1][0][0];
     ui[J-1][1][0] = - dumVAi[0][1][0] - gammai[J-1][1][0];
-
+    
     cout << "Got u_{J-1} ( J-1 = " << J-1 <<" ) \n";
-
+    
     cout << "\nThis is ur_{J-1} \n";
     cout << ur[J-1][0][0] << "\n";
     cout << ur[J-1][1][0] << "\n\n";
-
+    
     cout << "\nThis is vr_{J-1} \n";
     cout << vr[J-1][0][0] << "\n";
     cout << vr[J-1][1][0] << "\n\n";
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
     /*
-
-
+     
+     
      ********************************
      *                              *
      *                              *
@@ -3189,136 +3189,136 @@ semimajor_axis_jupiter ! = 7.7857d13 ! jupiter semimajor axis (cm)
      *                              *
      *                              *
      ********************************
-
-
-
-
+     
+     
+     
+     
      The outer boundary conditions can be expressed in the form of a vector equation as:
-
+     
      \eta u_{J-2} + \mu u_{J-1} + \nu v_{J-1} = x
-
+     
      which is valid for the centre of the outermost cell, labelled J-1
-
+     
      If this is used in coordination with the oscillation equations and the u-v relation for J-2, as:
-
+     
      A_{J-2,J-1} u_{J-2} + C_{J-2,J-1} u_{J-1} + D_{J-2,J-1} v_{J-1} = M_{J-2,J-1}
-
+     
      E_{J-2,J-1} u_{J-2} + F_{J-2,J-1} v_{J-2} + H_{J-2,J-1} v_{J-1} = N_{J-2,J-1}
-
+     
      u_{J-2} + alpha_{J-2} v_{J-2} + gamma_{J-2} = 0
-
+     
      we can eliminate everything except v_{J-1}, which gives us the (very long) expression:
-
+     
      v_{J-1} = [ H - ( E - F alpha_{J-2}^{-1} ) ( eta - mu C^{-1} A )^{-1} ( nu - mu C^{-1} D ) ]^{-1} [ N_{J-2} + F alpha_{J-2}^{-1} gamma_{J-2} - ( E - F alpha_{J-2}^{-1} ) ( eta - mu C^{-1} A )^{-1} ( x - mu C^{-1} M ) ]
-
-
+     
+     
      Introducing the following variables breaks down the expression somewhat:
-
+     
      BCa = F alpha_{J-2}^{-1}
-
+     
      BCb = mu C^{-1}
-
+     
      BCc = ( E - F alpha_{J-2}^{-1} ) ( eta - mu C^{-1} A )^{-1} = ( E - BCa ) ( eta - BCb A )^{-1}
-
-
+     
+     
      which gives
-
+     
      v_{J-1} = [ H - BCc ( nu - BCb D ) ]^{-1} [ N_{J-2} + BCa gamma_{J-2} - BCc ( x - BCb M_{J-2} ) ]
-
-
+     
+     
      */
-
-
-
+    
+    
+    
     // Boundary condition simplification variables calculated here
-
-
+    
+    
     // BCa defined here
-
+    
     CMatrixInv(alphar,alphai,dumMAr,dumMAi,J-2,0);
     cout << "Flag inverse 1\n";
-
+    
     CMatrixMult(Fr,Fi,dumMAr,dumMAi,BCar,BCai,0,0,0);
-
-
+    
+    
     // BCb defined here
-
+    
     CMatrixInv(Cr,Ci,dumMAr,dumMAi,0,0);
     cout << "Flag inverse 2\n";
-
+    
     CMatrixMult(mur,mui,dumMAr,dumMAi,BCbr,BCbi,0,0,0);
-
-
+    
+    
     // BCc defined here
-
+    
     CMatrixMult(BCbr,BCbi,Ar,Ai,dumMAr,dumMAi,0,0,0);
-
+    
     dumMCr[0][0][0] = etar[0][0][0] - dumMAr[0][0][0];
     dumMCr[0][0][1] = etar[0][0][1] - dumMAr[0][0][1];
     dumMCr[0][1][0] = etar[0][1][0] - dumMAr[0][1][0];
     dumMCr[0][1][1] = etar[0][1][1] - dumMAr[0][1][1];
-
+    
     dumMCi[0][0][0] = etai[0][0][0] - dumMAi[0][0][0];
     dumMCi[0][0][1] = etai[0][0][1] - dumMAi[0][0][1];
     dumMCi[0][1][0] = etai[0][1][0] - dumMAi[0][1][0];
     dumMCi[0][1][1] = etai[0][1][1] - dumMAi[0][1][1];
-
+    
     CMatrixInv(dumMCr,dumMCi,dumMBr,dumMBi,0,0);
     cout << "Flag inverse 3\n";
-
+    
     dumMAr[0][0][0] = Er[0][0][0] - BCar[0][0][0];
     dumMAr[0][0][1] = Er[0][0][1] - BCar[0][0][1];
     dumMAr[0][1][0] = Er[0][1][0] - BCar[0][1][0];
     dumMAr[0][1][1] = Er[0][1][1] - BCar[0][1][1];
-
+    
     dumMAi[0][0][0] = Ei[0][0][0] - BCai[0][0][0];
     dumMAi[0][0][1] = Ei[0][0][1] - BCai[0][0][1];
     dumMAi[0][1][0] = Ei[0][1][0] - BCai[0][1][0];
     dumMAi[0][1][1] = Ei[0][1][1] - BCai[0][1][1];
-
+    
     CMatrixMult(dumMAr,dumMAi,dumMBr,dumMBi,BCcr,BCci,0,0,0);
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
     // Here we calculate v_{J-1}
-
-
+    
+    
     CMatrixMult(BCbr,BCbi,Dr,Di,dumMAr,dumMAi,0,0,0);
-
+    
     dumMBr[0][0][0] = nur[0][0][0] - dumMAr[0][0][0];
     dumMBr[0][0][1] = nur[0][0][1] - dumMAr[0][0][1];
     dumMBr[0][1][0] = nur[0][1][0] - dumMAr[0][1][0];
     dumMBr[0][1][1] = nur[0][1][1] - dumMAr[0][1][1];
-
+    
     dumMBi[0][0][0] = nui[0][0][0] - dumMAi[0][0][0];
     dumMBi[0][0][1] = nui[0][0][1] - dumMAi[0][0][1];
     dumMBi[0][1][0] = nui[0][1][0] - dumMAi[0][1][0];
     dumMBi[0][1][1] = nui[0][1][1] - dumMAi[0][1][1];
-
+    
     CMatrixMult(BCcr,BCci,dumMBr,dumMBi,dumMAr,dumMAi,0,0,0);
-
+    
     dumMBr[0][0][0] = Hr[0][0][0] - dumMAr[0][0][0];
     dumMBr[0][0][1] = Hr[0][0][1] - dumMAr[0][0][1];
     dumMBr[0][1][0] = Hr[0][1][0] - dumMAr[0][1][0];
     dumMBr[0][1][1] = Hr[0][1][1] - dumMAr[0][1][1];
-
+    
     dumMBi[0][0][0] = Hi[0][0][0] - dumMAi[0][0][0];
     dumMBi[0][0][1] = Hi[0][0][1] - dumMAi[0][0][1];
     dumMBi[0][1][0] = Hi[0][1][0] - dumMAi[0][1][0];
     dumMBi[0][1][1] = Hi[0][1][1] - dumMAi[0][1][1];
-
+    
     // This gives: dumMA  ==  [ H - ( E - F alpha_{J-2}^{-1} ) ( eta - mu C^{-1} A )^{-1} ( nu - mu C^{-1} D ) ]^{-1}  ==  [ H - BCc ( nu - BCb D ) ]^{-1}
     CMatrixInv(dumMBr,dumMBi,dumMCr,dumMCi,0,0);
     cout << "Flag inverse 4\n";
@@ -3327,66 +3327,66 @@ semimajor_axis_jupiter ! = 7.7857d13 ! jupiter semimajor axis (cm)
     cout << dumMBr[0][0][0] << "\t" << dumMBr[0][0][1] << "\n";
     cout << dumMBr[0][1][0] << "\t" << dumMBr[0][1][1] << "\n\n";
     
- 
+    
     cout << dumMCr[0][0][0] << "\t" << dumMCr[0][0][1] << "\n";
     cout << dumMCr[0][1][0] << "\t" << dumMCr[0][1][1] << "\n\n";
-
-
+    
+    
     CVectorMult(BCar,BCai,gammar,gammai,dumVAr,dumVAi,0,J-2,0);
-
+    
     CVectorMult(BCbr,BCbi,Mr,Mi,dumVCr,dumVCi,0,0,0);
-
+    
     dumVBr[0][0][0] = xr[0][0][0] - dumVCr[0][0][0];
     dumVBr[0][1][0] = xr[0][1][0] - dumVCr[0][1][0];
-
+    
     dumVBi[0][0][0] = xi[0][0][0] - dumVCi[0][0][0];
     dumVBi[0][1][0] = xi[0][1][0] - dumVCi[0][1][0];
-
+    
     CVectorMult(BCcr,BCci,dumVBr,dumVBi,dumVCr,dumVCi,0,0,0);
-
+    
     // This gives: dumVD  ==  N_{J-2} + F alpha_{J-2}^{-1} gamma_{J-2} - ( E - F alpha_{J-2}^{-1} ) ( eta - mu C^{-1} A )^{-1} ( x - mu C^{-1} M )  ==  [ N_{J-2} + BCa gamma_{J-2} - BCc ( x - BCb M_{J-2} ) ]
     dumVDr[0][0][0] = Nr[0][0][0] + dumVAr[0][0][0] - dumVCr[0][0][0];
     dumVDr[0][1][0] = Nr[0][1][0] + dumVAr[0][1][0] - dumVCr[0][1][0];
-
+    
     dumVDi[0][0][0] = Ni[0][0][0] + dumVAi[0][0][0] - dumVCi[0][0][0];
     dumVDi[0][1][0] = Ni[0][1][0] + dumVAi[0][1][0] - dumVCi[0][1][0];
-
-
-
+    
+    
+    
     // This step actually gets us v_{J-1}
     CVectorMult(dumMCr,dumMCi,dumVDr,dumVDi,vr,vi,0,0,J-1);
-
+    
     cout << "Method II:\n" << "Got vr_{J-1} \t \n";
-
+    
     /*    cout << "\nThis is vr_{J-1} \n";
      cout << vr[J-1][0][0] << "\n";
      cout << vr[J-1][1][0] << "\n\n";
      */
-
-
-
+    
+    
+    
     // We use v_{J-1} to calculate u_{J-1} too
     // alpha_{i} v_{i}
     CVectorMult(alphar,alphai,vr,vi,dumVAr,dumVAi,J-1,J-1,0);
     // Gives u_{J-1}
     ur[J-1][0][0] = - dumVAr[0][0][0] - gammar[J-1][0][0];
     ur[J-1][1][0] = - dumVAr[0][1][0] - gammar[J-1][1][0];
-
+    
     ui[J-1][0][0] = - dumVAi[0][0][0] - gammai[J-1][0][0];
     ui[J-1][1][0] = - dumVAi[0][1][0] - gammai[J-1][1][0];
-
+    
     cout << "Got u_{J-1} ( J-1 = " << J-1 <<" ) \n";
-
+    
     cout << "\nThis is ur_{J-1} \n";
     cout << ur[J-1][0][0] << "\n";
     cout << ur[J-1][1][0] << "\n\n";
-
+    
     cout << "\nThis is vr_{J-1} \n";
     cout << vr[J-1][0][0] << "\n";
     cout << vr[J-1][1][0] << "\n\n";
-
-
-
+    
+    
+    
     
     
     
@@ -3498,7 +3498,7 @@ semimajor_axis_jupiter ! = 7.7857d13 ! jupiter semimajor axis (cm)
     
     // This gives: dumMA  ==  [ D - C alpha_{J-1} + A eta^{-1} ( mu alpha_{J-1} - nu ) ]^{-1}  ==  [ D - C alpha_{J-1} + BCa ( mu alpha_{J-1} - nu ) ]^{-1}
     CMatrixInv(dumMCr,dumMCi,dumMAr,dumMAi,0,0);
-   
+    
     
     CVectorMult(mur,mui,gammar,gammai,dumVAr,dumVAi,0,J-1,0);
     
@@ -3557,7 +3557,7 @@ semimajor_axis_jupiter ! = 7.7857d13 ! jupiter semimajor axis (cm)
     
     
     
-   
+    
     
     
     
@@ -3725,8 +3725,8 @@ semimajor_axis_jupiter ! = 7.7857d13 ! jupiter semimajor axis (cm)
     cout << "\nThis is vr_{J-1} \n";
     cout << vr[J-1][0][0] << "\n";
     cout << vr[J-1][1][0] << "\n\n";
-
-
+    
+    
     
     
     
@@ -3745,37 +3745,37 @@ semimajor_axis_jupiter ! = 7.7857d13 ! jupiter semimajor axis (cm)
     
     
     // Now that all of the alphas and gammas have been produced, we can evaluate u_{i} from u_{i+1} and v_{i+1}.  This means that we will need to use u_{i} with alpha and gamma to get v_{i} before we move onto the next iteration (as in, it's got to happen within the same loop).
-
+    
     // The equation we use is: u_{i} = RECu u_{i+1} + RECv v_{i+1} + RECc
-
-
+    
+    
     //u_{i}
     for (k=J-2; k >= 0; k = k - 1) {
-
+        
         CVectorMult(RECur,RECui,ur,ui,dumVAr,dumVAi,k,k+1,0);
-
+        
         CVectorMult(RECvr,RECvi,vr,vi,dumVBr,dumVBi,k,k+1,0);
-
+        
         vr[k][0][0] = dumVAr[0][0][0] + dumVBr[0][0][0] + RECcr[k][0][0];
         vr[k][1][0] = dumVAr[0][1][0] + dumVBr[0][1][0] + RECcr[k][1][0];
-
+        
         vi[k][0][0] = dumVAi[0][0][0] + dumVBi[0][0][0] + RECci[k][0][0];
         vi[k][1][0] = dumVAi[0][1][0] + dumVBi[0][1][0] + RECci[k][1][0];
         
-//        cout << "vr[" << k << "][0][0] = " << vr[k][0][0] << "\n";
-//        cout << "vr[" << k << "][1][0] = " << vr[k][1][0] << "\n";
+        //        cout << "vr[" << k << "][0][0] = " << vr[k][0][0] << "\n";
+        //        cout << "vr[" << k << "][1][0] = " << vr[k][1][0] << "\n";
         
-//        cout << "RECu = " << RECur[k][0][0] << "\t" << RECur[k][0][1] << "\t" << RECur[k][1][0] << "\t" << RECur[k][1][1] << "\n";
+        //        cout << "RECu = " << RECur[k][0][0] << "\t" << RECur[k][0][1] << "\t" << RECur[k][1][0] << "\t" << RECur[k][1][1] << "\n";
         
-//        cout << "RECv = " << RECvr[k][0][0] << "\t" << RECvr[k][0][1] << "\t" << RECvr[k][1][0] << "\t" << RECvr[k][1][1] << "\n";
+        //        cout << "RECv = " << RECvr[k][0][0] << "\t" << RECvr[k][0][1] << "\t" << RECvr[k][1][0] << "\t" << RECvr[k][1][1] << "\n";
         
-//        cout << "dumVAr = " << dumVAr[0][0][0] << "\n";
-//        cout << "dumVAr = " << dumVAr[0][1][0] << "\n";
+        //        cout << "dumVAr = " << dumVAr[0][0][0] << "\n";
+        //        cout << "dumVAr = " << dumVAr[0][1][0] << "\n";
         
-//        cout << "dumVBr = " << dumVBr[0][0][0] << "\n";
-//        cout << "dumVBr = " << dumVBr[0][1][0] << "\n\n";
-
-
+        //        cout << "dumVBr = " << dumVBr[0][0][0] << "\n";
+        //        cout << "dumVBr = " << dumVBr[0][1][0] << "\n\n";
+        
+        
         CVectorMult(alphar,alphai,vr,vi,dumVAr,dumVAi,k,k,0);
         
         ur[k][0][0] = - dumVAr[0][0][0] - gammar[k][0][0];
@@ -3784,31 +3784,31 @@ semimajor_axis_jupiter ! = 7.7857d13 ! jupiter semimajor axis (cm)
         ui[k][0][0] = - dumVAi[0][0][0] - gammai[k][0][0];
         ui[k][1][0] = - dumVAi[0][1][0] - gammai[k][1][0];
         
-
+        
         /*
-        //Now need to follow up from here and then do use the gammas and alphas to get the v for the u that we've just calculated.
-
-        // alpha_{i}^{-1}
-        CMatrixInv(alphar,alphai,dumMAr,dumMAi,k,0);
-
-        // - ( gamma_{i} + u_{i} )
-        dumVCr[0][0][0] = - gammar[k][0][0] - ur[k][0][0];
-        dumVCr[0][1][0] = - gammar[k][1][0] - ur[k][1][0];
-
-        dumVCi[0][0][0] = - gammai[k][0][0] - ui[k][0][0];
-        dumVCi[0][1][0] = - gammai[k][1][0] - ui[k][1][0];
-
-        // Gives v_{i}
-        CVectorMult(dumMAr,dumMAi,dumVCr,dumVCi,vr,vi,0,0,k);
+         //Now need to follow up from here and then do use the gammas and alphas to get the v for the u that we've just calculated.
+         
+         // alpha_{i}^{-1}
+         CMatrixInv(alphar,alphai,dumMAr,dumMAi,k,0);
+         
+         // - ( gamma_{i} + u_{i} )
+         dumVCr[0][0][0] = - gammar[k][0][0] - ur[k][0][0];
+         dumVCr[0][1][0] = - gammar[k][1][0] - ur[k][1][0];
+         
+         dumVCi[0][0][0] = - gammai[k][0][0] - ui[k][0][0];
+         dumVCi[0][1][0] = - gammai[k][1][0] - ui[k][1][0];
+         
+         // Gives v_{i}
+         CVectorMult(dumMAr,dumMAi,dumVCr,dumVCi,vr,vi,0,0,k);
          */
-
-
-
-
-//        cout << "\t Done the v_{" << k << "} and u_{" << k << "} loop \n";
-
-
-
+        
+        
+        
+        
+        //        cout << "\t Done the v_{" << k << "} and u_{" << k << "} loop \n";
+        
+        
+        
     }
     
     
@@ -3848,15 +3848,15 @@ semimajor_axis_jupiter ! = 7.7857d13 ! jupiter semimajor axis (cm)
     
     
     
-
-
-
-
-
+    
+    
+    
+    
+    
     // This bit opens the file to write the data into
     ofstream outfile;
     outfile.open("Output/Henyey_dx_max_Ubuntu_interp.dat", ios::out);
-
+    
     // This sets the precision at which values are printed at to the named file output
     outfile.precision(10);
     
@@ -3865,20 +3865,20 @@ semimajor_axis_jupiter ! = 7.7857d13 ! jupiter semimajor axis (cm)
     comparison_file.open("Output/comparison_file.dat", ios::out);
     
     comparison_file.precision(10);
-
+    
     double xi_h_r, xi_h_pprime_part, xi_r_eq, H_rho, H_p, mod_xi_radial, xi_h_real, xi_h_imaginary, mod_xi_h, delta_P_r, delta_P_i, mod_delta_P, delta_P_r_old, delta_P_i_old, delta_P_r_next, delta_P_i_next;
     double ddelta_P_dr_r, ddelta_P_dr_i, V_div_xi_r_r, V_div_xi_r_i, num_r, num_i, denom_r, denom_i, dgrr_dr, otherVdiv_r, otherVdiv_i, pprime_comp_r, pprime_comp_i;
     double Gvar_r, Gvar_i, Hvar_r, Hvar_i, gradient, pprime_comp_second_r, pprime_comp_second_i, rhoprime_r, rhoprime_i, dp0dr, dplus, dminus, dp0dr_old, dp0dr_avg, dp0dr_sum;
     double delta_P_r_new, delta_P_i_new, xi_h_over_xi_r_real, xi_h_over_xi_r_im, log_mod_xi_r, log_mod_xi_h, d2p_dr2, dp_dr, d2p0_dr2, dp0dr_plus, dp0dr_minus;
     double dDeltaP_dr_b_r, dDeltaP_dr_b_i, dpprime_dr_b_r, dpprime_dr_b_i, dxi_r_dr_b_r, dxi_r_dr_b_i, dp0_dr_b, d2p0_dr2_b, V_div_xi_r_b_r, V_div_xi_r_b_i;
     double xi_r_analytic_r, xi_r_analytic_i, D_analytic, V_analytic_r, V_analytic_i, Fprime_analytic_r, Fprime_analytic_i, dTprime_dT_r, dTprime_dT_i, dT0_dr, dxi_r_dr_r, dxi_r_dr_i, deltaP_hydro_r, deltaP_hydro_i;
-
+    
     //
     //
     //
     //
     //
-    //    
+    //
     //
     //
     // This is the loop for output
@@ -3892,7 +3892,7 @@ semimajor_axis_jupiter ! = 7.7857d13 ! jupiter semimajor axis (cm)
     //
     //
     //
-
+    
     kold = 0;
     
     for (k=0; k<J; k=k+1) {
@@ -3901,161 +3901,161 @@ semimajor_axis_jupiter ! = 7.7857d13 ! jupiter semimajor axis (cm)
         
         xi_h_pprime_part = m*omega*((mp + Mstar)/(100.0*mp)) * (1.0/(rmid_cm_HR_output[k] * m * m * omega * omega)) * ( (pressure_HR_output[k] * vr[k][0][0] / rho_HR_output[k]) );
         
-
-	// Here the value for kold is calculated
-       if ( rmid_cm_HR_output[k] < 0.5*(rmid_cm[0]+rmid_cm[1]) ) {
-          // We need to use the 0th, 1st and 2nd old cells, so set kold = 1
-          kold = 1;
-
-       } else {
-
-	       if (rmid_cm_HR_output[k] > 0.5*(rmid_cm[Jold-2]+rmid_cm[Jold-1]) ) {
-		    // We need to use the Jold-3, Jold-2 and Jold-1 cells, so set kold = Jold-2
-		    kold = Jold - 2;
-
-	       } else {
-
-		    if ( rmid_cm_HR_output[k] > 0.5*(rmid_cm[kold-1]+rmid_cm[kold]) && rmid_cm_HR_output[k] < 0.5*(rmid_cm[kold]+rmid_cm[kold+1]) ) {
-			// If our current value for kold works, we keep it
-			kold = kold;
-
-		    } else {
-
-			for (kold=0; rmid_cm_HR_output[k] > 0.5*(rmid_cm[kold]+rmid_cm[kold+1]); kold = kold + 1 ){
-			// Don't need anything in here, as it is all covered by the for loop itself
-			}
-
-		    }
-
-
-
-	       }
-
-
-       }
-
-	// Checking the value of kold that has been chosen
-
-	if ( rmid_cm_HR_output[k] > 0.5*(rmid_cm[kold-1]+rmid_cm[kold]) && rmid_cm_HR_output[k] < 0.5*(rmid_cm[kold]+rmid_cm[kold+1]) ) {
-		// Everything is okay here
-	} else {
-		cout << "Oh dear! Problem with the value of kold for k = " << k << ", at rmid_cm = " << rmid_cm_HR_output[k] << "\n";
-
-	}
-
-
-	if (k % 10000000000 == 0) {
-		cout << 0.5*(rmid_cm[kold-1]+rmid_cm[kold])/R << "\t\t" << rmid_cm_HR_output[k]/R << "\t\t" << 0.5*(rmid_cm[kold]+rmid_cm[kold+1])/R << "\n";
-
-		cout << "rmid_cm_HR_output[k] = " << rmid_cm_HR_output[k] << "\n";
-		cout << "rmid_cm_[kold-1] = " << rmid_cm[kold-1] << "\n";
-		cout << "rmid_cm[kold] = " << rmid_cm[kold] << "\n";
-		cout << "rmid_cm[kold+1] = " << rmid_cm[kold+1] << "\n";
-		cout << "pressure[kold-1] = " << pressure[kold-1] << "\n";
-		cout << "pressure[kold] = " << pressure[kold] << "\n";
-		cout << "pressure[kold+1] = " << pressure[kold+1] << "\n";
-	}
-
-	// Here the first and second derivatives of the background pressure are calculated, I reuse the delta[3] array from earlier
-
-	delta[0] = rmid_cm_HR_output[k] - rmid_cm[kold-1];
-	delta[1] = rmid_cm_HR_output[k] - rmid_cm[kold];
-	delta[2] = rmid_cm[kold+1] - rmid_cm_HR_output[k];
-
-	dp_dr = pressure[kold+1]*(delta[1] - delta[0])/( (delta[2]+delta[0])*(delta[1]-delta[2]) )   +   pressure[kold]*(delta[0]-delta[2])/( (delta[1]-delta[2])/(delta[1]+delta[0]) )   -   pressure[kold-1]*(delta[1]+delta[2])/( (delta[2]+delta[0])*(delta[1]+delta[0]) );
-
-	d2p_dr2 = -2.0*pressure[kold+1]/( (delta[1]-delta[2])*(delta[0]+delta[2]) )   +   2.0*pressure[kold]/( (delta[1]-delta[2])*(delta[1]+delta[0]) )   +   2.0*pressure[kold-1]/( (delta[2]+delta[0])*(delta[1]+delta[0]) );
-
-
-	d2p0_dr2 = ((2.0)/( (delta[2]+delta[0])*delta[2]*delta[0] ))*(  pressure[kold+1]*delta[0]  -  pressure_HR_output[k]*(delta[2]+delta[0]) + pressure[kold-1]*delta[2]  );
-
-
-
-
-
-	// These are the variables which I am using for this version of getting dDeltaP_dr_b_r etc, because I want to see if I can get it to be a little bit smoother
-	// dDeltaP_dr_b_r, dDeltaP_dr_b_i, dpprime_dr_b_r, dpprime_dr_b_i, dxi_r_dr_r, dxi_r_dr_b_i, dp0_dr_b, d2p0_dr2_b
-
-	if (k == 0) {
-
-		dpprime_dr_b_r = (pressure_HR_output[1]*vr[1][0][0] - pressure_HR_output[0]*vr[0][0][0])/(rmid_cm_HR_output[1] - rmid_cm_HR_output[0]);
-
-		dpprime_dr_b_i = (pressure_HR_output[1]*vi[1][0][0] - pressure_HR_output[0]*vi[0][0][0])/(rmid_cm_HR_output[1] - rmid_cm_HR_output[0]);
-
-		dxi_r_dr_b_r = R*(ur[k+1][0][0] - ur[k][0][0])/(radius_cm_HR_output[k+1] - radius_cm_HR_output[k]);
-
-		dxi_r_dr_b_i = R*(ui[k+1][0][0] - ui[k][0][0])/(radius_cm_HR_output[k+1] - radius_cm_HR_output[k]);
-
-		dp0_dr_b = (pressure_HR_output[1] - pressure_HR_output[0])/(rmid_cm_HR_output[1] - rmid_cm_HR_output[0]);
-
-		// Just reuse this from earlier, at least for the moment. See if it's good enough and then maybe upgrade it later
-		d2p0_dr2_b = d2p0_dr2;
-
-		// We don't include xi_r in this one, as it's at the centre, xo xi_r should = 0
-		dDeltaP_dr_b_r = dpprime_dr_b_r  +  ( dxi_r_dr_b_r * dp0_dr_b ); // + ( R*ur[k][0][0]*d2p0_dr2_b );
-
-		dDeltaP_dr_b_r = dpprime_dr_b_i  +  ( dxi_r_dr_b_i * dp0_dr_b ); // + ( R*ui[k][0][0]*d2p0_dr2_b );
-
-	} else {
-
-		if (k == J-1) {
-
-			dpprime_dr_b_r = (pressure_HR_output[J-1]*vr[J-1][0][0] - pressure_HR_output[J-2]*vr[J-2][0][0])/(rmid_cm_HR_output[J-1] - rmid_cm_HR_output[J-2]);
-
-			dpprime_dr_b_i = (pressure_HR_output[J-1]*vi[J-1][0][0] - pressure_HR_output[J-2]*vi[J-2][0][0])/(rmid_cm_HR_output[J-1] - rmid_cm_HR_output[J-2]);
-
-			dxi_r_dr_b_r = R*(ur[k][0][0] - ur[k-1][0][0])/(radius_cm_HR_output[k] - radius_cm_HR_output[k-1]);
-
-			dxi_r_dr_b_i = R*(ui[k][0][0] - ui[k-1][0][0])/(radius_cm_HR_output[k] - radius_cm_HR_output[k-1]);
-
-			dp0_dr_b = (pressure_HR_output[k] - pressure_HR_output[k-1])/(rmid_cm_HR_output[k] - rmid_cm_HR_output[k-1]);
-
-			// Just reuse this from earlier, at least for the moment. See if it's good enough and then maybe upgrade it later
-			d2p0_dr2_b = d2p0_dr2;
-
-
-
-		} else {
-
-			delta[0] = rmid_cm_HR_output[k] - rmid_cm_HR_output[k-1];
-			delta[1] = rmid_cm_HR_output[k] - rmid_cm_HR_output[k];
-			delta[2] = rmid_cm_HR_output[k+1] - rmid_cm_HR_output[k];
-
-			dpprime_dr_b_r = pressure_HR_output[k+1]*vr[k+1][0][0]*delta[0]/(delta[2]*( delta[0] + delta[2] ))   +   pressure_HR_output[k]*vr[k][0][0]*(delta[2] - delta[0])/(delta[0]*delta[2])   -   pressure_HR_output[k-1]*vr[k-1][0][0]*delta[2]/(delta[0]*( delta[0]+delta[2] ));
-
-			dpprime_dr_b_i = pressure_HR_output[k+1]*vi[k+1][0][0]*delta[0]/(delta[2]*( delta[0] + delta[2] ))   +   pressure_HR_output[k]*vi[k][0][0]*(delta[2] - delta[0])/(delta[0]*delta[2])   -   pressure_HR_output[k-1]*vi[k-1][0][0]*delta[2]/(delta[0]*( delta[0]+delta[2] ));
-
-			dxi_r_dr_b_r = R*(ur[k][0][0] - ur[k-1][0][0])/(radius_cm_HR_output[k] - radius_cm_HR_output[k-1]);
-
-			dxi_r_dr_b_i = R*(ui[k][0][0] - ui[k-1][0][0])/(radius_cm_HR_output[k] - radius_cm_HR_output[k-1]);
-
-			dp0_dr_b = pressure_HR_output[k+1]*delta[0]/(delta[2]*( delta[0] + delta[2] ))   +   pressure_HR_output[k]*(delta[2] - delta[0])/(delta[0]*delta[2])   -   pressure_HR_output[k-1]*delta[2]/(delta[0]*( delta[0]+delta[2] ));
-
-			// Just reuse this from earlier, at least for the moment. See if it's good enough and then maybe upgrade it later
-			d2p0_dr2_b = d2p0_dr2;
-
-		}
-
-
-		// Here the cases for k != 0 are all covered
-		dDeltaP_dr_b_r = dpprime_dr_b_r  +  ( dxi_r_dr_b_r * dp0_dr_b )  +  ( 0.5*R*(ur[k][0][0] + ur[k-1][0][0])*d2p0_dr2_b );
-
-		dDeltaP_dr_b_i = dpprime_dr_b_i  +  ( dxi_r_dr_b_i * dp0_dr_b )  +  ( 0.5*R*(ui[k][0][0] + ui[k-1][0][0])*d2p0_dr2_b );
-
-
-
-
-	}
-
-
-
-	// The above stuff is used to give V_div_xi_r later on, once the derivatice of g*r^2 has been calculated
-
-
-
-
-
-
+        
+        // Here the value for kold is calculated
+        if ( rmid_cm_HR_output[k] < 0.5*(rmid_cm[0]+rmid_cm[1]) ) {
+            // We need to use the 0th, 1st and 2nd old cells, so set kold = 1
+            kold = 1;
+            
+        } else {
+            
+            if (rmid_cm_HR_output[k] > 0.5*(rmid_cm[Jold-2]+rmid_cm[Jold-1]) ) {
+                // We need to use the Jold-3, Jold-2 and Jold-1 cells, so set kold = Jold-2
+                kold = Jold - 2;
+                
+            } else {
+                
+                if ( rmid_cm_HR_output[k] > 0.5*(rmid_cm[kold-1]+rmid_cm[kold]) && rmid_cm_HR_output[k] < 0.5*(rmid_cm[kold]+rmid_cm[kold+1]) ) {
+                    // If our current value for kold works, we keep it
+                    kold = kold;
+                    
+                } else {
+                    
+                    for (kold=0; rmid_cm_HR_output[k] > 0.5*(rmid_cm[kold]+rmid_cm[kold+1]); kold = kold + 1 ){
+                        // Don't need anything in here, as it is all covered by the for loop itself
+                    }
+                    
+                }
+                
+                
+                
+            }
+            
+            
+        }
+        
+        // Checking the value of kold that has been chosen
+        
+        if ( rmid_cm_HR_output[k] > 0.5*(rmid_cm[kold-1]+rmid_cm[kold]) && rmid_cm_HR_output[k] < 0.5*(rmid_cm[kold]+rmid_cm[kold+1]) ) {
+            // Everything is okay here
+        } else {
+            cout << "Oh dear! Problem with the value of kold for k = " << k << ", at rmid_cm = " << rmid_cm_HR_output[k] << "\n";
+            
+        }
+        
+        
+        if (k % 10000000000 == 0) {
+            cout << 0.5*(rmid_cm[kold-1]+rmid_cm[kold])/R << "\t\t" << rmid_cm_HR_output[k]/R << "\t\t" << 0.5*(rmid_cm[kold]+rmid_cm[kold+1])/R << "\n";
+            
+            cout << "rmid_cm_HR_output[k] = " << rmid_cm_HR_output[k] << "\n";
+            cout << "rmid_cm_[kold-1] = " << rmid_cm[kold-1] << "\n";
+            cout << "rmid_cm[kold] = " << rmid_cm[kold] << "\n";
+            cout << "rmid_cm[kold+1] = " << rmid_cm[kold+1] << "\n";
+            cout << "pressure[kold-1] = " << pressure[kold-1] << "\n";
+            cout << "pressure[kold] = " << pressure[kold] << "\n";
+            cout << "pressure[kold+1] = " << pressure[kold+1] << "\n";
+        }
+        
+        // Here the first and second derivatives of the background pressure are calculated, I reuse the delta[3] array from earlier
+        
+        delta[0] = rmid_cm_HR_output[k] - rmid_cm[kold-1];
+        delta[1] = rmid_cm_HR_output[k] - rmid_cm[kold];
+        delta[2] = rmid_cm[kold+1] - rmid_cm_HR_output[k];
+        
+        dp_dr = pressure[kold+1]*(delta[1] - delta[0])/( (delta[2]+delta[0])*(delta[1]-delta[2]) )   +   pressure[kold]*(delta[0]-delta[2])/( (delta[1]-delta[2])/(delta[1]+delta[0]) )   -   pressure[kold-1]*(delta[1]+delta[2])/( (delta[2]+delta[0])*(delta[1]+delta[0]) );
+        
+        d2p_dr2 = -2.0*pressure[kold+1]/( (delta[1]-delta[2])*(delta[0]+delta[2]) )   +   2.0*pressure[kold]/( (delta[1]-delta[2])*(delta[1]+delta[0]) )   +   2.0*pressure[kold-1]/( (delta[2]+delta[0])*(delta[1]+delta[0]) );
+        
+        
+        d2p0_dr2 = ((2.0)/( (delta[2]+delta[0])*delta[2]*delta[0] ))*(  pressure[kold+1]*delta[0]  -  pressure_HR_output[k]*(delta[2]+delta[0]) + pressure[kold-1]*delta[2]  );
+        
+        
+        
+        
+        
+        // These are the variables which I am using for this version of getting dDeltaP_dr_b_r etc, because I want to see if I can get it to be a little bit smoother
+        // dDeltaP_dr_b_r, dDeltaP_dr_b_i, dpprime_dr_b_r, dpprime_dr_b_i, dxi_r_dr_r, dxi_r_dr_b_i, dp0_dr_b, d2p0_dr2_b
+        
+        if (k == 0) {
+            
+            dpprime_dr_b_r = (pressure_HR_output[1]*vr[1][0][0] - pressure_HR_output[0]*vr[0][0][0])/(rmid_cm_HR_output[1] - rmid_cm_HR_output[0]);
+            
+            dpprime_dr_b_i = (pressure_HR_output[1]*vi[1][0][0] - pressure_HR_output[0]*vi[0][0][0])/(rmid_cm_HR_output[1] - rmid_cm_HR_output[0]);
+            
+            dxi_r_dr_b_r = R*(ur[k+1][0][0] - ur[k][0][0])/(radius_cm_HR_output[k+1] - radius_cm_HR_output[k]);
+            
+            dxi_r_dr_b_i = R*(ui[k+1][0][0] - ui[k][0][0])/(radius_cm_HR_output[k+1] - radius_cm_HR_output[k]);
+            
+            dp0_dr_b = (pressure_HR_output[1] - pressure_HR_output[0])/(rmid_cm_HR_output[1] - rmid_cm_HR_output[0]);
+            
+            // Just reuse this from earlier, at least for the moment. See if it's good enough and then maybe upgrade it later
+            d2p0_dr2_b = d2p0_dr2;
+            
+            // We don't include xi_r in this one, as it's at the centre, xo xi_r should = 0
+            dDeltaP_dr_b_r = dpprime_dr_b_r  +  ( dxi_r_dr_b_r * dp0_dr_b ); // + ( R*ur[k][0][0]*d2p0_dr2_b );
+            
+            dDeltaP_dr_b_r = dpprime_dr_b_i  +  ( dxi_r_dr_b_i * dp0_dr_b ); // + ( R*ui[k][0][0]*d2p0_dr2_b );
+            
+        } else {
+            
+            if (k == J-1) {
+                
+                dpprime_dr_b_r = (pressure_HR_output[J-1]*vr[J-1][0][0] - pressure_HR_output[J-2]*vr[J-2][0][0])/(rmid_cm_HR_output[J-1] - rmid_cm_HR_output[J-2]);
+                
+                dpprime_dr_b_i = (pressure_HR_output[J-1]*vi[J-1][0][0] - pressure_HR_output[J-2]*vi[J-2][0][0])/(rmid_cm_HR_output[J-1] - rmid_cm_HR_output[J-2]);
+                
+                dxi_r_dr_b_r = R*(ur[k][0][0] - ur[k-1][0][0])/(radius_cm_HR_output[k] - radius_cm_HR_output[k-1]);
+                
+                dxi_r_dr_b_i = R*(ui[k][0][0] - ui[k-1][0][0])/(radius_cm_HR_output[k] - radius_cm_HR_output[k-1]);
+                
+                dp0_dr_b = (pressure_HR_output[k] - pressure_HR_output[k-1])/(rmid_cm_HR_output[k] - rmid_cm_HR_output[k-1]);
+                
+                // Just reuse this from earlier, at least for the moment. See if it's good enough and then maybe upgrade it later
+                d2p0_dr2_b = d2p0_dr2;
+                
+                
+                
+            } else {
+                
+                delta[0] = rmid_cm_HR_output[k] - rmid_cm_HR_output[k-1];
+                delta[1] = rmid_cm_HR_output[k] - rmid_cm_HR_output[k];
+                delta[2] = rmid_cm_HR_output[k+1] - rmid_cm_HR_output[k];
+                
+                dpprime_dr_b_r = pressure_HR_output[k+1]*vr[k+1][0][0]*delta[0]/(delta[2]*( delta[0] + delta[2] ))   +   pressure_HR_output[k]*vr[k][0][0]*(delta[2] - delta[0])/(delta[0]*delta[2])   -   pressure_HR_output[k-1]*vr[k-1][0][0]*delta[2]/(delta[0]*( delta[0]+delta[2] ));
+                
+                dpprime_dr_b_i = pressure_HR_output[k+1]*vi[k+1][0][0]*delta[0]/(delta[2]*( delta[0] + delta[2] ))   +   pressure_HR_output[k]*vi[k][0][0]*(delta[2] - delta[0])/(delta[0]*delta[2])   -   pressure_HR_output[k-1]*vi[k-1][0][0]*delta[2]/(delta[0]*( delta[0]+delta[2] ));
+                
+                dxi_r_dr_b_r = R*(ur[k][0][0] - ur[k-1][0][0])/(radius_cm_HR_output[k] - radius_cm_HR_output[k-1]);
+                
+                dxi_r_dr_b_i = R*(ui[k][0][0] - ui[k-1][0][0])/(radius_cm_HR_output[k] - radius_cm_HR_output[k-1]);
+                
+                dp0_dr_b = pressure_HR_output[k+1]*delta[0]/(delta[2]*( delta[0] + delta[2] ))   +   pressure_HR_output[k]*(delta[2] - delta[0])/(delta[0]*delta[2])   -   pressure_HR_output[k-1]*delta[2]/(delta[0]*( delta[0]+delta[2] ));
+                
+                // Just reuse this from earlier, at least for the moment. See if it's good enough and then maybe upgrade it later
+                d2p0_dr2_b = d2p0_dr2;
+                
+            }
+            
+            
+            // Here the cases for k != 0 are all covered
+            dDeltaP_dr_b_r = dpprime_dr_b_r  +  ( dxi_r_dr_b_r * dp0_dr_b )  +  ( 0.5*R*(ur[k][0][0] + ur[k-1][0][0])*d2p0_dr2_b );
+            
+            dDeltaP_dr_b_i = dpprime_dr_b_i  +  ( dxi_r_dr_b_i * dp0_dr_b )  +  ( 0.5*R*(ui[k][0][0] + ui[k-1][0][0])*d2p0_dr2_b );
+            
+            
+            
+            
+        }
+        
+        
+        
+        // The above stuff is used to give V_div_xi_r later on, once the derivatice of g*r^2 has been calculated
+        
+        
+        
+        
+        
+        
         
         // This saves the delta_P values from the previous step with the suffix _old
         delta_P_r_old = delta_P_r;
@@ -4109,7 +4109,7 @@ semimajor_axis_jupiter ! = 7.7857d13 ! jupiter semimajor axis (cm)
                 
                 
                 
-            // For all case which can have k+1 and k-1 and still be all okay
+                // For all case which can have k+1 and k-1 and still be all okay
                 
                 
                 
@@ -4185,7 +4185,7 @@ semimajor_axis_jupiter ! = 7.7857d13 ! jupiter semimajor axis (cm)
             
             // We avoid surface problems here (requires k=J, which isn't a thing)
             
-           
+            
             delta_P_r_next = delta_P_r;
             
             delta_P_i_next = delta_P_i;
@@ -4194,15 +4194,15 @@ semimajor_axis_jupiter ! = 7.7857d13 ! jupiter semimajor axis (cm)
         } else {
             
             
-                // For all case which can have i+1 and i-1 and still be all okay
-                
-                // Lagrangian perturbation to pressure (real part)
-                delta_P_r_next = (pressure_HR_output[i]*vr[i][0][0]) + (R*0.5*(ur[i][0][0] + ur[i-1][0][0]))*( (pressure_HR_output[i+1] - pressure_HR_output[i-1])/(rmid_cm_HR_output[i+1] - rmid_cm_HR_output[i-1]) );
-                
-                // Lagrangian perturbation to pressure (imaginary part)
-                delta_P_i_next = (pressure_HR_output[i]*vi[i][0][0]) + (R*0.5*(ui[i][0][0] + ui[i-1][0][0]))*( (pressure_HR_output[i+1] - pressure_HR_output[i-1])/(rmid_cm_HR_output[i+1] - rmid_cm_HR_output[i-1]) );
-                
-
+            // For all case which can have i+1 and i-1 and still be all okay
+            
+            // Lagrangian perturbation to pressure (real part)
+            delta_P_r_next = (pressure_HR_output[i]*vr[i][0][0]) + (R*0.5*(ur[i][0][0] + ur[i-1][0][0]))*( (pressure_HR_output[i+1] - pressure_HR_output[i-1])/(rmid_cm_HR_output[i+1] - rmid_cm_HR_output[i-1]) );
+            
+            // Lagrangian perturbation to pressure (imaginary part)
+            delta_P_i_next = (pressure_HR_output[i]*vi[i][0][0]) + (R*0.5*(ui[i][0][0] + ui[i-1][0][0]))*( (pressure_HR_output[i+1] - pressure_HR_output[i-1])/(rmid_cm_HR_output[i+1] - rmid_cm_HR_output[i-1]) );
+            
+            
         }
         
         
@@ -4237,7 +4237,7 @@ semimajor_axis_jupiter ! = 7.7857d13 ! jupiter semimajor axis (cm)
             
         }
         
-
+        
         
         // Here we get the numerator and denomiator in real and imaginary parts for the caluclation of V_div_xi_r
         
@@ -4252,13 +4252,13 @@ semimajor_axis_jupiter ! = 7.7857d13 ! jupiter semimajor axis (cm)
         V_div_xi_r_r = (  (num_r*denom_r)  +  (num_i*denom_i)  )/(  (denom_r*denom_r)  +  (denom_i*denom_i)  );
         
         V_div_xi_r_i = (  num_i*denom_r  -  num_r*denom_i  )/(  denom_r*denom_r  +  denom_i*denom_i  );
-
-
-
-
-	// Here we do it for the other attempt at getting the derivative of DeltaP (that is, attempt b)
-
-	num_r = (grav_HR_output[k]/(rmid_cm_HR_output[k]*m*m*omega*omega)) * (   -dDeltaP_dr_b_r   +   (rho_HR_output[k]*f*rmid_cm_HR_output[k]*rmid_cm_HR_output[k]*( -(2.0/rmid_cm_HR_output[k]) + (rmid_cm_HR_output[k]*rmid_cm_HR_output[k]/grav_HR_output[k])*dgrr_dr ) )  );
+        
+        
+        
+        
+        // Here we do it for the other attempt at getting the derivative of DeltaP (that is, attempt b)
+        
+        num_r = (grav_HR_output[k]/(rmid_cm_HR_output[k]*m*m*omega*omega)) * (   -dDeltaP_dr_b_r   +   (rho_HR_output[k]*f*rmid_cm_HR_output[k]*rmid_cm_HR_output[k]*( -(2.0/rmid_cm_HR_output[k]) + (rmid_cm_HR_output[k]*rmid_cm_HR_output[k]/grav_HR_output[k])*dgrr_dr ) )  );
         
         num_i = (grav_HR_output[k]/(rmid_cm_HR_output[k]*m*m*omega*omega)) * (   -dDeltaP_dr_b_i   );
         
@@ -4270,70 +4270,70 @@ semimajor_axis_jupiter ! = 7.7857d13 ! jupiter semimajor axis (cm)
         
         V_div_xi_r_b_i = (  num_i*denom_r  -  num_r*denom_i  )/(  denom_r*denom_r  +  denom_i*denom_i  );
         
-       
-
+        
+        
         
         // Here the analytic expression for xi_r is caluclated
-
-	D = (1.0  -  l*(l+1.0)*grav_HR_output[k]*grav_HR_output[k]/(rmid_cm_HR_output[k]*rmid_cm_HR_output[k]*m*m*m*m*omega*omega*omega*omega)   -   (rmid_cm_HR_output[k]*rmid_cm_HR_output[k]/(m*m*omega*omega))*dgrr_dr  );
-
-
-	xi_r_analytic_r = (-1.0/(m*m*omega*omega*rho_HR_output[k]*D)) * (  -dDeltaP_dr_b_r - ( l*(l+1.0)*grav_HR_output[k]*delta_P_r/(rmid_cm_HR_output[k]*rmid_cm_HR_output[k]*m*m*omega*omega) )  -  rho_HR_output[k]*( 2.0*f*rmid_cm_HR_output[k] + l*(l+1.0)*grav_HR_output[k]*f/(m*m*omega*omega) )  );
-
-	xi_r_analytic_i = (-1.0/(m*m*omega*omega*rho_HR_output[k]*D)) * (  -dDeltaP_dr_b_i - ( l*(l+1.0)*grav_HR_output[k]*delta_P_i/(rmid_cm_HR_output[k]*rmid_cm_HR_output[k]*m*m*omega*omega) )  );
-
-
-	// Here the analytic expression for V is calculated
-
-	V_analytic_r = (1.0/(D*m*m*omega*omega*radius_cm_HR_output[k]*rho_HR_output[k]))  *  (   (grav_HR_output[k]*dDeltaP_dr_b_r)/(m*m*omega*omega)   +   delta_P_r*( 1.0- (radius_cm_HR_output[k]*radius_cm_HR_output[k]*dgrr_dr)/(m*m*omega*omega) )   +   rho_HR_output[k]*( 2.0*f*radius_cm_HR_output[k]*grav_HR_output[k]/(m*m*omega*omega)  + f*radius_cm_HR_output[k]*radius_cm_HR_output[k]*( 1.0 - (radius_cm_HR_output[k]*radius_cm_HR_output[k]*dgrr_dr)/(m*m*omega*omega) ) )   );
-
-	V_analytic_i = (1.0/(D*m*m*omega*omega*radius_cm_HR_output[k]*rho_HR_output[k]))  *  (   (grav_HR_output[k]*dDeltaP_dr_b_i)/(m*m*omega*omega)   +   delta_P_i*( 1.0- (radius_cm_HR_output[k]*radius_cm_HR_output[k]*dgrr_dr)/(m*m*omega*omega) )   );
-
-
-	// Here the analytic expression for F' is calculated according to the earlier definitions such that F' = F0 * ( Fprime_forT * T'/T0  +  dT'/dT - dxi/dr  +  Fprime_for_p * p'/p0 )
-
-	if ( k == J-1) {
-		// dTprime_dT and dT0_dr are unchanged
-		dTprime_dT_r = dTprime_dT_r;
-		dTprime_dT_i = dTprime_dT_i;
-
-		dT0_dr = dT0_dr;
-
-		dxi_r_dr_r = dxi_r_dr_r;
-		dxi_r_dr_i = dxi_r_dr_i;
-
-		delta[0] = (rmid_cm_HR_output[k] - radius_cm_HR_output[k])/(rmid_cm_HR_output[k] - rmid_cm_HR_output[k-1]);
-		delta[1] = (radius_cm_HR_output[k] - rmid_cm_HR_output[k-1])/(rmid_cm_HR_output[k] - rmid_cm_HR_output[k-1]);
-
-		Fprime_analytic_r = ( Fprime_for_T[k]*(delta[0]*vr[k-1][1][0] + delta[1]*vr[k][1][0])  +  ( flux_HR_output[k] )*(dTprime_dT_r)  +  Fprime_for_p[k]*(delta[0]*vr[k-1][0][0] + delta[1]*vr[k][0][0]) );
-
-		Fprime_analytic_i = ( Fprime_for_T[k]*(delta[0]*vi[k-1][1][0] + delta[1]*vi[k][1][0])  +  ( flux_HR_output[k] )*(dTprime_dT_r)  +  Fprime_for_p[k]*(delta[0]*vi[k-1][0][0] + delta[1]*vi[k][0][0]) );
- 
-	} else {
-
-		dTprime_dT_r = ( temperature_HR_output[k+1]*vr[k+1][1][0]  -  temperature_HR_output[k]*vr[k][1][0] )/( temperature_HR_output[k+1]  -  temperature_HR_output[k] );
-		dTprime_dT_i = ( temperature_HR_output[k+1]*vi[k+1][1][0]  -  temperature_HR_output[k]*vi[k][1][0] )/( temperature_HR_output[k+1]  -  temperature_HR_output[k] );
-
-		dT0_dr = (temperature_HR_output[k+1] - temperature_HR_output[k])/(rmid_cm_HR_output[k+1] - rmid_cm_HR_output[k]);
-
-		dxi_r_dr_r = R*( ur[k+1][0][0] - ur[k][0][0] )/( radius_cm_HR_output[k+1] - radius_cm_HR_output[k] );
-
-		dxi_r_dr_i = R*( ui[k+1][0][0] - ui[k][0][0] )/( radius_cm_HR_output[k+1] - radius_cm_HR_output[k] );
-
-		delta[0] = (rmid_cm_HR_output[k+1] - radius_cm_HR_output[k])/(rmid_cm_HR_output[k+1] - rmid_cm_HR_output[k]);
-		delta[1] = (radius_cm_HR_output[k] - rmid_cm_HR_output[k])/(rmid_cm_HR_output[k+1] - rmid_cm_HR_output[k]);
-
-		Fprime_analytic_r = ( Fprime_for_T[k]*(delta[0]*vr[k][1][0] + delta[1]*vr[k+1][1][0])  +  ( flux_HR_output[k] )*(dTprime_dT_r)  +  Fprime_for_p[k]*(delta[0]*vr[k][0][0] + delta[1]*vr[k+1][0][0]) );
-
-		Fprime_analytic_i = ( Fprime_for_T[k]*(delta[0]*vi[k][1][0] + delta[1]*vi[k+1][1][0])  +  ( flux_HR_output[k] )*(dTprime_dT_r)  +  Fprime_for_p[k]*(delta[0]*vi[k][0][0] + delta[1]*vi[k+1][0][0]) );
-
-	}
-
-	//cout << "Flag by Fprime, " << k << "\n";
-
-
-
-
+        
+        D = (1.0  -  l*(l+1.0)*grav_HR_output[k]*grav_HR_output[k]/(rmid_cm_HR_output[k]*rmid_cm_HR_output[k]*m*m*m*m*omega*omega*omega*omega)   -   (rmid_cm_HR_output[k]*rmid_cm_HR_output[k]/(m*m*omega*omega))*dgrr_dr  );
+        
+        
+        xi_r_analytic_r = (-1.0/(m*m*omega*omega*rho_HR_output[k]*D)) * (  -dDeltaP_dr_b_r - ( l*(l+1.0)*grav_HR_output[k]*delta_P_r/(rmid_cm_HR_output[k]*rmid_cm_HR_output[k]*m*m*omega*omega) )  -  rho_HR_output[k]*( 2.0*f*rmid_cm_HR_output[k] + l*(l+1.0)*grav_HR_output[k]*f/(m*m*omega*omega) )  );
+        
+        xi_r_analytic_i = (-1.0/(m*m*omega*omega*rho_HR_output[k]*D)) * (  -dDeltaP_dr_b_i - ( l*(l+1.0)*grav_HR_output[k]*delta_P_i/(rmid_cm_HR_output[k]*rmid_cm_HR_output[k]*m*m*omega*omega) )  );
+        
+        
+        // Here the analytic expression for V is calculated
+        
+        V_analytic_r = (1.0/(D*m*m*omega*omega*radius_cm_HR_output[k]*rho_HR_output[k]))  *  (   (grav_HR_output[k]*dDeltaP_dr_b_r)/(m*m*omega*omega)   +   delta_P_r*( 1.0- (radius_cm_HR_output[k]*radius_cm_HR_output[k]*dgrr_dr)/(m*m*omega*omega) )   +   rho_HR_output[k]*( 2.0*f*radius_cm_HR_output[k]*grav_HR_output[k]/(m*m*omega*omega)  + f*radius_cm_HR_output[k]*radius_cm_HR_output[k]*( 1.0 - (radius_cm_HR_output[k]*radius_cm_HR_output[k]*dgrr_dr)/(m*m*omega*omega) ) )   );
+        
+        V_analytic_i = (1.0/(D*m*m*omega*omega*radius_cm_HR_output[k]*rho_HR_output[k]))  *  (   (grav_HR_output[k]*dDeltaP_dr_b_i)/(m*m*omega*omega)   +   delta_P_i*( 1.0- (radius_cm_HR_output[k]*radius_cm_HR_output[k]*dgrr_dr)/(m*m*omega*omega) )   );
+        
+        
+        // Here the analytic expression for F' is calculated according to the earlier definitions such that F' = F0 * ( Fprime_forT * T'/T0  +  dT'/dT - dxi/dr  +  Fprime_for_p * p'/p0 )
+        
+        if ( k == J-1) {
+            // dTprime_dT and dT0_dr are unchanged
+            dTprime_dT_r = dTprime_dT_r;
+            dTprime_dT_i = dTprime_dT_i;
+            
+            dT0_dr = dT0_dr;
+            
+            dxi_r_dr_r = dxi_r_dr_r;
+            dxi_r_dr_i = dxi_r_dr_i;
+            
+            delta[0] = (rmid_cm_HR_output[k] - radius_cm_HR_output[k])/(rmid_cm_HR_output[k] - rmid_cm_HR_output[k-1]);
+            delta[1] = (radius_cm_HR_output[k] - rmid_cm_HR_output[k-1])/(rmid_cm_HR_output[k] - rmid_cm_HR_output[k-1]);
+            
+            Fprime_analytic_r = ( Fprime_for_T[k]*(delta[0]*vr[k-1][1][0] + delta[1]*vr[k][1][0])  +  ( flux_HR_output[k] )*(dTprime_dT_r)  +  Fprime_for_p[k]*(delta[0]*vr[k-1][0][0] + delta[1]*vr[k][0][0]) );
+            
+            Fprime_analytic_i = ( Fprime_for_T[k]*(delta[0]*vi[k-1][1][0] + delta[1]*vi[k][1][0])  +  ( flux_HR_output[k] )*(dTprime_dT_r)  +  Fprime_for_p[k]*(delta[0]*vi[k-1][0][0] + delta[1]*vi[k][0][0]) );
+            
+        } else {
+            
+            dTprime_dT_r = ( temperature_HR_output[k+1]*vr[k+1][1][0]  -  temperature_HR_output[k]*vr[k][1][0] )/( temperature_HR_output[k+1]  -  temperature_HR_output[k] );
+            dTprime_dT_i = ( temperature_HR_output[k+1]*vi[k+1][1][0]  -  temperature_HR_output[k]*vi[k][1][0] )/( temperature_HR_output[k+1]  -  temperature_HR_output[k] );
+            
+            dT0_dr = (temperature_HR_output[k+1] - temperature_HR_output[k])/(rmid_cm_HR_output[k+1] - rmid_cm_HR_output[k]);
+            
+            dxi_r_dr_r = R*( ur[k+1][0][0] - ur[k][0][0] )/( radius_cm_HR_output[k+1] - radius_cm_HR_output[k] );
+            
+            dxi_r_dr_i = R*( ui[k+1][0][0] - ui[k][0][0] )/( radius_cm_HR_output[k+1] - radius_cm_HR_output[k] );
+            
+            delta[0] = (rmid_cm_HR_output[k+1] - radius_cm_HR_output[k])/(rmid_cm_HR_output[k+1] - rmid_cm_HR_output[k]);
+            delta[1] = (radius_cm_HR_output[k] - rmid_cm_HR_output[k])/(rmid_cm_HR_output[k+1] - rmid_cm_HR_output[k]);
+            
+            Fprime_analytic_r = ( Fprime_for_T[k]*(delta[0]*vr[k][1][0] + delta[1]*vr[k+1][1][0])  +  ( flux_HR_output[k] )*(dTprime_dT_r)  +  Fprime_for_p[k]*(delta[0]*vr[k][0][0] + delta[1]*vr[k+1][0][0]) );
+            
+            Fprime_analytic_i = ( Fprime_for_T[k]*(delta[0]*vi[k][1][0] + delta[1]*vi[k+1][1][0])  +  ( flux_HR_output[k] )*(dTprime_dT_r)  +  Fprime_for_p[k]*(delta[0]*vi[k][0][0] + delta[1]*vi[k+1][0][0]) );
+            
+        }
+        
+        //cout << "Flag by Fprime, " << k << "\n";
+        
+        
+        
+        
         
         
         
@@ -4343,7 +4343,7 @@ semimajor_axis_jupiter ! = 7.7857d13 ! jupiter semimajor axis (cm)
         //This gets V_div stuff via the momentum equation
         
         otherVdiv_r = ( R*ur[k][0][0]*(pressure_HR_output[k]*vr[k][0][0]  +  rho_HR_output[k]*f*rmid_cm_HR_output[k]*rmid_cm_HR_output[k])   +   pressure_HR_output[k]*vi[k][0][0]*R*ui[k][0][0] )/( rho_HR_output[k]*m*m*omega*omega*R*R*( ur[k][0][0]*ur[k][0][0] + ui[k][0][0]*ui[k][0][0] ) );
-       
+        
         
         otherVdiv_i = ( R*ur[k][0][0]*(pressure_HR_output[k]*vi[k][0][0])   -   (pressure_HR_output[k]*vr[k][0][0]  +  rho_HR_output[k]*f*rmid_cm_HR_output[k]*rmid_cm_HR_output[k])*R*ur[k][0][0] )/( rho_HR_output[k]*m*m*omega*omega*R*R*( ur[k][0][0]*ur[k][0][0] + ui[k][0][0]*ui[k][0][0] ) );
         
@@ -4379,25 +4379,25 @@ semimajor_axis_jupiter ! = 7.7857d13 ! jupiter semimajor axis (cm)
         log_mod_xi_h = log10(sqrt((xi_h_real*xi_h_real) + (xi_h_imaginary*xi_h_imaginary)));
         
         
-
-
-	// Here I get deltaP by using hydrostatic equilibrium to say dp-/dr = - rho*grav
-	if (k==0) {
-
-		deltaP_hydro_r = pressure_HR_output[k]*vr[k][0][0] - R*0.5*(ur[k+1][0][0] + ur[k][0][0])*rho_HR_output[k]*grav_HR_output[k];
-
-		deltaP_hydro_i = pressure_HR_output[k]*vi[k][0][0] - R*0.5*(ui[k+1][0][0] + ui[k][0][0])*rho_HR_output[k]*grav_HR_output[k];
-
-
-
-
-	} else {
-
-		deltaP_hydro_r = pressure_HR_output[k]*vr[k][0][0] - R*0.5*(ur[k][0][0] + ur[k-1][0][0])*rho_HR_output[k]*grav_HR_output[k];
-
-		deltaP_hydro_i = pressure_HR_output[k]*vi[k][0][0] - R*0.5*(ui[k][0][0] + ui[k-1][0][0])*rho_HR_output[k]*grav_HR_output[k];
-
-	}
+        
+        
+        // Here I get deltaP by using hydrostatic equilibrium to say dp-/dr = - rho*grav
+        if (k==0) {
+            
+            deltaP_hydro_r = pressure_HR_output[k]*vr[k][0][0] - R*0.5*(ur[k+1][0][0] + ur[k][0][0])*rho_HR_output[k]*grav_HR_output[k];
+            
+            deltaP_hydro_i = pressure_HR_output[k]*vi[k][0][0] - R*0.5*(ui[k+1][0][0] + ui[k][0][0])*rho_HR_output[k]*grav_HR_output[k];
+            
+            
+            
+            
+        } else {
+            
+            deltaP_hydro_r = pressure_HR_output[k]*vr[k][0][0] - R*0.5*(ur[k][0][0] + ur[k-1][0][0])*rho_HR_output[k]*grav_HR_output[k];
+            
+            deltaP_hydro_i = pressure_HR_output[k]*vi[k][0][0] - R*0.5*(ui[k][0][0] + ui[k-1][0][0])*rho_HR_output[k]*grav_HR_output[k];
+            
+        }
         
         
         
@@ -4423,7 +4423,7 @@ semimajor_axis_jupiter ! = 7.7857d13 ! jupiter semimajor axis (cm)
         } else {
             
             gradient = ( (rho_face_HR_output[k+1] - rho_face_HR_output[k])/(radius_cm_HR_output[k+1] - radius_cm_HR_output[k]) ); // (  ( (radius_cm_HR_output[k+1]*radius_cm_HR_output[k+1]*rho_face_HR_output[k+1]*ur[k+1][0][0])  -  (radius_cm_HR_output[k]*radius_cm_HR_output[k]*rho_face_HR_output[k]*ur[k][0][0]) ) / (  radius_cm_HR_output[k+1] - radius_cm_HR_output[k]  )  );
-
+            
             //cout << radius_cm_HR_output[k]*radius_cm_HR_output[k]*rho_face_HR_output[k]*ur[k][0][0] << "\n";
             
             Gvar_r = ((m*m*omega*omega)/(l*(l+1.0))) * (R/rmid_cm_HR_output[k]) * gradient;
@@ -4446,23 +4446,29 @@ semimajor_axis_jupiter ! = 7.7857d13 ! jupiter semimajor axis (cm)
         
         
         
+        // Equilibrium tide
+        xi_r_eq = (-f*radius_cm_HR_output[k]*radius_cm_HR_output[k]/grav_HR_output[k]);
         
         
         
         
         
         
-     /*
-        cout << radius_cm[k] << "\tReal parts\n";
-        cout << ur[k][0][0] << "\t\t" << vr[k][0][0] << "\t\t\t\t" << alphar[k][0][0] << "\t\t" << alphar[k][0][1] << "\t\t\t\t" << gammar[k][0][0] << "\n" ;
-        cout << ur[k][1][0] << "\t\t" << vr[k][1][0] << "\t\t\t\t" << alphar[k][1][0] << "\t\t" << alphar[k][1][1] << "\t\t\t\t" << gammar[k][1][0] << "\n\n" ;
-
-        cout << radius_cm[k] << "\tImaginary parts\n";
-        cout << ui[k][0][0] << "\t\t" << vi[k][0][0] << "\t\t\t\t" << alphai[k][0][0] << "\t\t" << alphai[k][0][1] << "\t\t\t\t" << gammai[k][0][0] << "\n" ;
-        cout << ui[k][1][0] << "\t\t" << vi[k][1][0] << "\t\t\t\t" << alphai[k][1][0] << "\t\t" << alphai[k][1][1] << "\t\t\t\t" << gammai[k][1][0] << "\n\n" ;
-*/
-
-
+        
+        
+        
+        
+        /*
+         cout << radius_cm[k] << "\tReal parts\n";
+         cout << ur[k][0][0] << "\t\t" << vr[k][0][0] << "\t\t\t\t" << alphar[k][0][0] << "\t\t" << alphar[k][0][1] << "\t\t\t\t" << gammar[k][0][0] << "\n" ;
+         cout << ur[k][1][0] << "\t\t" << vr[k][1][0] << "\t\t\t\t" << alphar[k][1][0] << "\t\t" << alphar[k][1][1] << "\t\t\t\t" << gammar[k][1][0] << "\n\n" ;
+         
+         cout << radius_cm[k] << "\tImaginary parts\n";
+         cout << ui[k][0][0] << "\t\t" << vi[k][0][0] << "\t\t\t\t" << alphai[k][0][0] << "\t\t" << alphai[k][0][1] << "\t\t\t\t" << gammai[k][0][0] << "\n" ;
+         cout << ui[k][1][0] << "\t\t" << vi[k][1][0] << "\t\t\t\t" << alphai[k][1][0] << "\t\t" << alphai[k][1][1] << "\t\t\t\t" << gammai[k][1][0] << "\n\n" ;
+         */
+        
+        
         /* This writes the data to the file, in the order:
          1 - radius_cm
          2 - a
@@ -4493,7 +4499,7 @@ semimajor_axis_jupiter ! = 7.7857d13 ! jupiter semimajor axis (cm)
          27- p' (c * pressure)
          28- T' (d * temperature)
          29- m * omega * xi_r in units given in Terquem, 1998 (figure 1): ( mp / (mp + Mstar) ) m/s
-         30- a (imaginary part)pl file u  
+         30- a (imaginary part)pl file u
          31- b (imaginary part)
          32- c (imaginary part)
          33- d (imaginary part)
@@ -4557,44 +4563,58 @@ semimajor_axis_jupiter ! = 7.7857d13 ! jupiter semimajor axis (cm)
          91- log10(mod(xi_h))
          92- mod(xi_h/xi_r)
          93- mod(V/xi_r)
-	 94- dp_dr (second order interpolation for gradient of background pressure)
-	 95- d2p_dr2 (second order interpolation for secondderivative of background pressure)
-	 96- d2p0_dr2 (essentially first order interpolation kind of thing)
-	 97- dDeltaP_dr_b_r
-	 98- dDeltaP_dr_b_i
-	 99- dpprime_dr_b_r
-	100- dpprime_dr_b_i
-	101- dxi_r_dr_b_r
-	102- dxi_r_dr_b_i
-	103- dp0_dr_b
-	104- d2p0_dr2_b
-	105- V_div_xi_r_b_r
-	106- V_div_xi_r_b_i
-	107- xi_r_analytic_r
-	108- xi_r_analytic_i
-	109- V_analytic_r
-	110- V_analytic_iz\
-	111- Fprime_analytic_r
-	112- Fprime_analytic_i
-	113- dTprime_dT_r
-	114- dTprime_dT_i
-	115- Fprime_analytic_r T' part
-	116- Fprime_analytic_i T' part
-	117- Fprime_analytic_r p' part
-	118- Fprime_analytic_i p' part
-	119- Fprime_analytic_r gradT part
-	120- Fprime_analytic_i gradT part
-	121- flux_recovered  ->  radiative flux directly computed
-	122- -K*dT0_dr
-	123- rho*g
-	124- deltaP_hydro_r  -> this uses hydrostatic equilibrium to use dp0_dr = -rho*g
-	125- deltaP_hydro_i
-	
+         94- dp_dr (second order interpolation for gradient of background pressure)
+         95- d2p_dr2 (second order interpolation for secondderivative of background pressure)
+         96- d2p0_dr2 (essentially first order interpolation kind of thing)
+         97- dDeltaP_dr_b_r
+         98- dDeltaP_dr_b_i
+         99- dpprime_dr_b_r
+         100- dpprime_dr_b_i
+         101- dxi_r_dr_b_r
+         102- dxi_r_dr_b_i
+         103- dp0_dr_b
+         104- d2p0_dr2_b
+         105- V_div_xi_r_b_r
+         106- V_div_xi_r_b_i
+         107- xi_r_analytic_r
+         108- xi_r_analytic_i
+         109- V_analytic_r
+         110- V_analytic_iz\
+         111- Fprime_analytic_r
+         112- Fprime_analytic_i
+         113- dTprime_dT_r
+         114- dTprime_dT_i
+         115- Fprime_analytic_r T' part
+         116- Fprime_analytic_i T' part
+         117- Fprime_analytic_r p' part
+         118- Fprime_analytic_i p' part
+         119- Fprime_analytic_r gradT part
+         120- Fprime_analytic_i gradT part
+         121- flux_recovered  ->  radiative flux directly computed
+         122- -K*dT0_dr
+         123- rho*g
+         124- deltaP_hydro_r  -> this uses hydrostatic equilibrium to use dp0_dr = -rho*g
+         125- deltaP_hydro_i
+         126- (m omega)^2 rho xi_h real
+         127- (m omega)^2 rho xi_h imaginary
+         128- other side of that equation ^ (real)
+         129- other side of that equation ^ (imaginary)
+         130- log10( mod(xi_radial) )
+         131- log10( mod(F') )
+         132- log10( mod(p') )
+         133- log10( mod(T') )
+         134- xi_r_r / xi_r_eq
+         135- xi_r_i / xi_r_eq
+         136- xi_h_real / xi_r_eq
+         137- xi_h_imaginary / xi_r_eq
+         138- xi_r_eq
+         139- xi_r_i
+         
          */
-
-//	Fprime_analytic_r = dT0_dr*( Fprime_for_T[k]*vr[k][1][0]  +  ( - 4.0*7.5657e-15*2.99792458e10*temperature_HR_output[k]*temperature_HR_output[k]*temperature_HR_output[k]/( 3.0*opacity_HR_output[k]*rho_HR_output[k] ) )*(dTprime_dT_r  -  dxi_r_dr_r)  +  Fprime_for_p[k]*vr[k][0][0] );
-
-//	Fprime_analytic_i = dT0_dr*( Fprime_for_T[k]*vi[k][1][0]  +  ( - 4.0*7.5657e-15*2.99792458e10*temperature_HR_output[k]*temperature_HR_output[k]*temperature_HR_output[k]/( 3.0*opacity_HR_output[k]*rho_HR_output[k] ) )*(dTprime_dT_i  -  dxi_r_dr_i)  +  Fprime_for_p[k]*vi[k][0][0] );
+        
+        //	Fprime_analytic_r = dT0_dr*( Fprime_for_T[k]*vr[k][1][0]  +  ( - 4.0*7.5657e-15*2.99792458e10*temperature_HR_output[k]*temperature_HR_output[k]*temperature_HR_output[k]/( 3.0*opacity_HR_output[k]*rho_HR_output[k] ) )*(dTprime_dT_r  -  dxi_r_dr_r)  +  Fprime_for_p[k]*vr[k][0][0] );
+        
+        //	Fprime_analytic_i = dT0_dr*( Fprime_for_T[k]*vi[k][1][0]  +  ( - 4.0*7.5657e-15*2.99792458e10*temperature_HR_output[k]*temperature_HR_output[k]*temperature_HR_output[k]/( 3.0*opacity_HR_output[k]*rho_HR_output[k] ) )*(dTprime_dT_i  -  dxi_r_dr_i)  +  Fprime_for_p[k]*vi[k][0][0] );
         
         // 1 to 10
         outfile << radius_cm_HR_output[k]/R << "\t\t\t" << ur[k][0][0] << "\t\t" << ur[k][1][0] << "\t\t" << vr[k][0][0] << "\t\t" << vr[k][1][0] << "\t\t" << alphar[k][0][0] << "\t" << alphar[k][0][1] << "\t" << alphar[k][1][0] << "\t" << alphar[k][1][1] << "\t" << alphai[k][0][0] << "\t";
@@ -4625,19 +4645,22 @@ semimajor_axis_jupiter ! = 7.7857d13 ! jupiter semimajor axis (cm)
         
         // 91 to 100
         outfile << log_mod_xi_h << "\t\t" << sqrt((xi_h_over_xi_r_real*xi_h_over_xi_r_real) + (xi_h_over_xi_r_im*xi_h_over_xi_r_im)) << "\t\t" << sqrt((V_div_xi_r_r*V_div_xi_r_r) + (V_div_xi_r_i*V_div_xi_r_i)) << "\t\t" << dp_dr << "\t\t" << d2p_dr2 << "\t\t" << d2p0_dr2 << "\t\t" << dDeltaP_dr_b_r << "\t\t" << dDeltaP_dr_b_i << "\t\t" << dpprime_dr_b_r << "\t\t" << dpprime_dr_b_i << "\t\t";
-
-	// 101 to 110
-	outfile << dxi_r_dr_b_r << "\t\t" << dxi_r_dr_b_i << "\t\t" << dp0_dr_b << "\t\t" << d2p0_dr2_b << "\t\t" << V_div_xi_r_b_r << "\t\t" << V_div_xi_r_b_i << "\t\t" << xi_r_analytic_r << "\t\t" << xi_r_analytic_i << "\t\t" << V_analytic_r << "\t\t" << V_analytic_i << "\t\t";
-
-	// 111 to 120
-	outfile << Fprime_analytic_r << "\t\t" << Fprime_analytic_i << "\t\t" << dTprime_dT_r << "\t\t" << dTprime_dT_i << "\t\t" << ( Fprime_for_T[k]*vr[k][1][0]) << "\t\t" << ( Fprime_for_T[k]*vi[k][1][0]) << "\t\t" << Fprime_for_p[k]*vr[k][0][0] << "\t\t" << Fprime_for_p[k]*vi[k][0][0] << "\t\t" << (flux_HR_output[k])*(dTprime_dT_r  -  0.0*dxi_r_dr_r) << "\t\t" << (flux_HR_output[k])*(dTprime_dT_i  -  dxi_r_dr_i) << "\t\t";
-
-	// 121 to 130
-	outfile << dT0_dr*( - 4.0*7.5657e-15*2.99792458e10*temperature_HR_output[k]*temperature_HR_output[k]*temperature_HR_output[k]/( 3.0*opacity_HR_output[k]*rho_HR_output[k] ) ) << "\t\t" << -K_HR_output[k]*dT0_dr << "\t\t" << -rho_HR_output[k]*grav_HR_output[k] << "\t\t" << deltaP_hydro_r << "\t\t" << deltaP_hydro_i << "\n";
-
+        
+        // 101 to 110
+        outfile << dxi_r_dr_b_r << "\t\t" << dxi_r_dr_b_i << "\t\t" << dp0_dr_b << "\t\t" << d2p0_dr2_b << "\t\t" << V_div_xi_r_b_r << "\t\t" << V_div_xi_r_b_i << "\t\t" << xi_r_analytic_r << "\t\t" << xi_r_analytic_i << "\t\t" << V_analytic_r << "\t\t" << V_analytic_i << "\t\t";
+        
+        // 111 to 120
+        outfile << Fprime_analytic_r << "\t\t" << Fprime_analytic_i << "\t\t" << dTprime_dT_r << "\t\t" << dTprime_dT_i << "\t\t" << ( Fprime_for_T[k]*vr[k][1][0]) << "\t\t" << ( Fprime_for_T[k]*vi[k][1][0]) << "\t\t" << Fprime_for_p[k]*vr[k][0][0] << "\t\t" << Fprime_for_p[k]*vi[k][0][0] << "\t\t" << (flux_HR_output[k])*(dTprime_dT_r  -  0.0*dxi_r_dr_r) << "\t\t" << (flux_HR_output[k])*(dTprime_dT_i  -  dxi_r_dr_i) << "\t\t";
+        
+        // 121 to 130
+        outfile << dT0_dr*( - 4.0*7.5657e-15*2.99792458e10*temperature_HR_output[k]*temperature_HR_output[k]*temperature_HR_output[k]/( 3.0*opacity_HR_output[k]*rho_HR_output[k] ) ) << "\t\t" << -K_HR_output[k]*dT0_dr << "\t\t" << -rho_HR_output[k]*grav_HR_output[k] << "\t\t" << deltaP_hydro_r << "\t\t" << deltaP_hydro_i << "\t\t" << m*m*omega*omega*rho_HR_output[k]*xi_h_real << "\t\t" << m*m*omega*omega*rho_HR_output[k]*xi_h_imaginary << "\t\t" << (deltaP_hydro_r/rmid_cm_HR_output[k]) + (grav_HR_output[k]*rho_HR_output[k]*R*0.5*(ur[k][0][0]+ur[k-1][0][0])/rmid_cm_HR_output[k]) + (rho_HR_output[k]*f*rmid_cm_HR_output[k]) << "\t\t" << (deltaP_hydro_i/rmid_cm_HR_output[k]) + (grav_HR_output[k]*rho_HR_output[k]*R*0.5*(ui[k][0][0]+ui[k-1][0][0])/rmid_cm_HR_output[k]) << "\t\t" << 0.5*log10(R*R*( ur[k][0][0]*ur[k][0][0] + ui[k][0][0]*ui[k][0][0]  )) << "\t\t";
+        
+        // 131 to 140
+        outfile << 0.5*log10(flux_BC*flux_BC*( ur[k][1][0]*ur[k][1][0] + ui[k][1][0]*ui[k][1][0]  )) << "\t\t" << 0.5*log10( pressure_HR_output[k]*pressure_HR_output[k]*(vr[k][0][0]*vr[k][0][0] + vi[k][0][0]*vi[k][0][0]  )) << "\t\t" << 0.5*log10( temperature_HR_output[k]*temperature_HR_output[k]*(vr[k][1][0]*vr[k][1][0] + vi[k][1][0]*vi[k][1][0]  )) << "\t\t" << (R*ur[k][0][0])/xi_r_eq << "\t\t" << (R*ui[k][0][0])/xi_r_eq << "\t\t" << xi_h_real/xi_r_eq << "\t\t" << xi_h_imaginary/xi_r_eq << "\t\t" << xi_r_eq << "\t\t" << ui[k][0][0]*R << "\n";
         
         
-
+        
+        
         xi_r_eq = mp*R*R*R*R/(4.0*Mstar*D*D*D);
         
         /*
@@ -4646,7 +4669,7 @@ semimajor_axis_jupiter ! = 7.7857d13 ! jupiter semimajor axis (cm)
          3 - xi_r_im / R (scaled so that 1 at R = equilibrium tide)
          4 - test
          
-        */
+         */
         
         comparison_file << log10(pressure_HR_output[k]/((G*Mstar*Mstar/(R*R*R*R)))) << "\t\t" << log10( ur[k][0][0]*R*R / (xi_r_eq * radius_cm_HR_output[k]) ) << "\t\t" << log10( ui[k][0][0]*R*R / (xi_r_eq * radius_cm_HR_output[k]) ) << "\t\t" << test[k] << "\n";
         
@@ -4655,14 +4678,14 @@ semimajor_axis_jupiter ! = 7.7857d13 ! jupiter semimajor axis (cm)
         
         
     }
-
+    
     // This closes the output data file
     outfile.close();
     
     // This closes the comparison file
     comparison_file.close();
-
-
+    
+    
     cout << "ur[J-1][0][0] =\t" << ur[J-1][0][0] << "\n";
     
     dumMAr[0][0][0] = 1.0;
@@ -4677,12 +4700,12 @@ semimajor_axis_jupiter ! = 7.7857d13 ! jupiter semimajor axis (cm)
     
     
     CMatrixDiagInv(dumMAr,dumMAi,dumMBr,dumMBi,0,0);
-
-
-
-
-
-
+    
+    
+    
+    
+    
+    
     sum = count[Jold-1] - Jold;
     
     //cout << "\n\n   total number of new cells needed = " << sum << "\n\n";
@@ -4692,13 +4715,13 @@ semimajor_axis_jupiter ! = 7.7857d13 ! jupiter semimajor axis (cm)
     sum = 3.2 / 1.01;
     
     cout << "\n\n 3.2 / 1.01 = " << sum << "\n";
-
+    
     //cout << "\n\ndx_max_surface_tracker = " << dx_max_surface_tracker << "\n\n";
     
     
     
     
-// This outputs the necessary data for the photometry file
+    // This outputs the necessary data for the photometry file
     
     // This bit opens the file to write the data into
     ofstream photodata;
@@ -4723,13 +4746,13 @@ semimajor_axis_jupiter ! = 7.7857d13 ! jupiter semimajor axis (cm)
     
     photodata.close();
     
-
-
-
-
-
-
-
+    
+    
+    
+    
+    
+    
+    
 }
 // main's  curly brackets have just been closed
 
@@ -4742,28 +4765,28 @@ semimajor_axis_jupiter ! = 7.7857d13 ! jupiter semimajor axis (cm)
 
 
 /*
-Here are the definitions of the functions, in the order:
-    CompMult - does complex multiplication
-    CompDiv - does complex division
-    MatrixMult - matrix multiplication
-    MatrixInv - inverts a matrix
-    VectorMult - multiplies a vector by a matrix
-    CMatrixMult - does complex matrix multiplication
-    CMatrixInv - does complex matrix inversion
-    CVectorMult - does complex vector multiplication
-
-
-*/
+ Here are the definitions of the functions, in the order:
+ CompMult - does complex multiplication
+ CompDiv - does complex division
+ MatrixMult - matrix multiplication
+ MatrixInv - inverts a matrix
+ VectorMult - multiplies a vector by a matrix
+ CMatrixMult - does complex matrix multiplication
+ CMatrixInv - does complex matrix inversion
+ CVectorMult - does complex vector multiplication
+ 
+ 
+ */
 
 int CompMult(double* xr, double* xi, double* yr, double* yi, double* zr, double* zi)
 {
     // x*y = z, each of which is split into the real and imaginary parts, as denoted by the second letter (r or i)
-
+    
     (*zr) = (*xr)*(*yr) - (*xi)*(*yi);
     (*zi) = (*xi)*(*yr) + (*xr)*(*yi);
-
+    
     return (0);
-
+    
 }
 
 int CompDiv(double* xr, double* xi, double* yr, double* yi, double* zr, double* zi)
@@ -4771,9 +4794,9 @@ int CompDiv(double* xr, double* xi, double* yr, double* yi, double* zr, double* 
     // (x/y) = z, each of which is split into the real and imaginary parts, as denoted by the second letter (r or i)
     (*zr) = ((*xr)*(*yr) + (*xi)*(*yi))/(((*yr)*(*yr))+((*yi)*(*yi)));
     (*zi) = ((*xi)*(*yr) - (*xr)*(*yi))/(((*yr)*(*yr))+((*yi)*(*yi)));
-
+    
     return (0);
-
+    
 }
 
 int MatrixMult(double X[][2][2], double Y[][2][2], double Z[][2][2], int i, int j, int k)
@@ -4783,15 +4806,15 @@ int MatrixMult(double X[][2][2], double Y[][2][2], double Z[][2][2], int i, int 
     // i is the index of the first matrix, j of the second, and k of the output matrix
     // X and Y are the matrices to be multiplied, as XY = Z
     // Z is the output matrix
-
-
+    
+    
     Z[k][0][0] = X[i][0][0]*Y[j][0][0] + X[i][0][1]*Y[j][1][0];
     Z[k][0][1] = X[i][0][0]*Y[j][0][1] + X[i][0][1]*Y[j][1][1];
     Z[k][1][0] = X[i][1][0]*Y[j][0][0] + X[i][1][1]*Y[j][1][0];
     Z[k][1][1] = X[i][1][0]*Y[j][0][1] + X[i][1][1]*Y[j][1][1];
-
+    
     return (0);
-
+    
 }
 
 
@@ -4803,22 +4826,22 @@ int MatrixInv(double X[][2][2], double Z[][2][2], int i)
     // i starts at 0, and goes to J-1
     // X is the matrix to be inverted, such that Z = X^(-1)
     // Z is the output matrix
-
+    
     double det;
-
+    
     det = X[i][0][0]*X[i][1][1] - X[i][0][1]*X[i][1][0] ;
-
+    
     Z[i][0][0] = X[i][1][1]/det;
     Z[i][0][1] = -X[i][0][1]/det;
     Z[i][1][0] = -X[i][1][0]/det;
     Z[i][1][1] = X[i][0][0]/det;
-
+    
     if (det == 0) {
         cout << "Determinant = 0 \n";
     }
-
+    
     return (0);
-
+    
 }
 
 
@@ -4831,14 +4854,14 @@ int VectorMult(double X[][2][2], double Y[][2][1], double Z[][2][1], int i, int 
     // i, j and k generally start at 0, and go to J-1, but this is not the case when using boundary condition vectors
     // X and Y are the matrix and vector to be multiplied, as X_{i}Y_{j} = Z_{k}
     // Z is the output vector
-
-
+    
+    
     Z[k][0][0] = X[i][0][0]*Y[j][0][0] + X[i][0][1]*Y[j][1][0];
     Z[k][1][0] = X[i][1][0]*Y[j][0][0] + X[i][1][1]*Y[j][1][0];
-
-
+    
+    
     return (0);
-
+    
 }
 
 
@@ -4852,56 +4875,56 @@ int CMatrixMult(double Xr[][2][2], double Xi[][2][2] , double Yr[][2][2], double
     // Z = XY
     // Z is the output matrix
     // The second letters on the matrix names refer to whether they contain the real or imaginary part
-
+    
     double ar, ai, br, bi;
-
-//    cout << "The first matrix is:\n\n";
-//    cout << Xr[i][0][0] << " + " << Xi[i][0][0] << " i \t\t\t" << Xr[i][0][1] << " + " << Xi[i][0][1] << " i \n";
-//    cout << Xr[i][1][0] << " + " << Xi[i][1][0] << " i \t\t\t" << Xr[i][1][1] << " + " << Xi[i][1][1] << " i \n\n";
-
-//    cout << "The second matrix is:\n\n";
-//    cout << Yr[j][0][0] << " + " << Yi[j][0][0] << " i \t\t\t" << Yr[j][0][1] << " + " << Yi[j][0][1] << " i \n";
-//    cout << Yr[j][1][0] << " + " << Yi[j][1][0] << " i \t\t\t" << Yr[j][1][1] << " + " << Yi[j][1][1] << " i \n\n\n";
-
+    
+    //    cout << "The first matrix is:\n\n";
+    //    cout << Xr[i][0][0] << " + " << Xi[i][0][0] << " i \t\t\t" << Xr[i][0][1] << " + " << Xi[i][0][1] << " i \n";
+    //    cout << Xr[i][1][0] << " + " << Xi[i][1][0] << " i \t\t\t" << Xr[i][1][1] << " + " << Xi[i][1][1] << " i \n\n";
+    
+    //    cout << "The second matrix is:\n\n";
+    //    cout << Yr[j][0][0] << " + " << Yi[j][0][0] << " i \t\t\t" << Yr[j][0][1] << " + " << Yi[j][0][1] << " i \n";
+    //    cout << Yr[j][1][0] << " + " << Yi[j][1][0] << " i \t\t\t" << Yr[j][1][1] << " + " << Yi[j][1][1] << " i \n\n\n";
+    
     CompMult(&Xr[i][0][0],&Xi[i][0][0],&Yr[j][0][0],&Yi[j][0][0],&ar,&ai);
-
+    
     CompMult(&Xr[i][0][1],&Xi[i][0][1],&Yr[j][1][0],&Yi[j][1][0],&br,&bi);
-
+    
     // This gives the 00 component
     Zr[k][0][0] = ar + br;
     Zi[k][0][0] = ai + bi;
-
-
+    
+    
     CompMult(&Xr[i][0][0],&Xi[i][0][0],&Yr[j][0][1],&Yi[j][0][1],&ar,&ai);
-
+    
     CompMult(&Xr[i][0][1],&Xi[i][0][1],&Yr[j][1][1],&Yi[j][1][1],&br,&bi);
-
+    
     // This gives the 01 component
     Zr[k][0][1] = ar + br;
     Zi[k][0][1] = ai + bi;
-
-
+    
+    
     CompMult(&Xr[i][1][0],&Xi[i][1][0],&Yr[j][0][0],&Yi[j][0][0],&ar,&ai);
-
+    
     CompMult(&Xr[i][1][1],&Xi[i][1][1],&Yr[j][1][0],&Yi[j][1][0],&br,&bi);
-
+    
     // This gives the 10 component
     Zr[k][1][0] = ar + br;
     Zi[k][1][0] = ai + bi;
-
-
+    
+    
     CompMult(&Xr[i][1][0],&Xi[i][1][0],&Yr[j][0][1],&Yi[j][0][1],&ar,&ai);
-
+    
     CompMult(&Xr[i][1][1],&Xi[i][1][1],&Yr[j][1][1],&Yi[j][1][1],&br,&bi);
-
+    
     // This gives the 11 component
     Zr[k][1][1] = ar + br;
     Zi[k][1][1] = ai + bi;
-
-
-
+    
+    
+    
     return (0);
-
+    
 }
 
 
@@ -4914,40 +4937,40 @@ int CMatrixInv(double Xr[][2][2], double Xi[][2][2] , double Zr[][2][2], double 
     // X is the matrix to be inverted, such that Z = X^(-1)
     // Z is the output matrix
     // The second letters on the matrix names refer to whether they contain the real or imaginary part
-
+    
     double detr, deti, ar, ai, br, bi, condnum, norm, norminv, absA, absB, absC, absD;
-
-//    cout << "The matrix to be inverted is:\n\n";
-//    cout << Xr[i][0][0] << " + " << Xi[i][0][0] << " i \t\t\t" << Xr[i][0][1] << " + " << Xi[i][0][1] << " i \n";
-//    cout << Xr[i][1][0] << " + " << Xi[i][1][0] << " i \t\t\t" << Xr[i][1][1] << " + " << Xi[i][1][1] << " i \n";
-
+    
+    //    cout << "The matrix to be inverted is:\n\n";
+    //    cout << Xr[i][0][0] << " + " << Xi[i][0][0] << " i \t\t\t" << Xr[i][0][1] << " + " << Xi[i][0][1] << " i \n";
+    //    cout << Xr[i][1][0] << " + " << Xi[i][1][0] << " i \t\t\t" << Xr[i][1][1] << " + " << Xi[i][1][1] << " i \n";
+    
     CompMult(&Xr[i][0][0],&Xi[i][0][0],&Xr[i][1][1],&Xi[i][1][1],&ar,&ai);
-
-//    cout << "(" << Xr[i][0][0] << " + " << Xi[i][0][0] << " i) * (" << Xr[i][1][1] << " + " << Xi[i][1][1] << " i) = "<< ar << " + " << ai << " i \n";
-
+    
+    //    cout << "(" << Xr[i][0][0] << " + " << Xi[i][0][0] << " i) * (" << Xr[i][1][1] << " + " << Xi[i][1][1] << " i) = "<< ar << " + " << ai << " i \n";
+    
     CompMult(&Xr[i][0][1],&Xi[i][0][1],&Xr[i][1][0],&Xi[i][1][0],&br,&bi);
-
-//    cout << "(" << Xr[i][0][1] << " + " << Xi[i][0][1] << " i) * (" << Xr[i][1][0] << " + " << Xi[i][1][0] << " i) = "<< br << " + " << bi << " i \n";
-
+    
+    //    cout << "(" << Xr[i][0][1] << " + " << Xi[i][0][1] << " i) * (" << Xr[i][1][0] << " + " << Xi[i][1][0] << " i) = "<< br << " + " << bi << " i \n";
+    
     detr = ar - br;
     deti = ai - bi;
-
+    
     // This gives the 00 component
     CompDiv(&Xr[i][1][1],&Xi[i][1][1],&detr,&deti,&Zr[j][0][0],&Zi[j][0][0]);
-
+    
     // This gives the 11 component
     CompDiv(&Xr[i][0][0],&Xi[i][0][0],&detr,&deti,&Zr[j][1][1],&Zi[j][1][1]);
-
+    
     CompDiv(&Xr[i][0][1],&Xi[i][0][1],&detr,&deti,&Zr[j][0][1],&Zi[j][0][1]);
-
+    
     CompDiv(&Xr[i][1][0],&Xi[i][1][0],&detr,&deti,&Zr[j][1][0],&Zi[j][1][0]);
-
+    
     Zr[j][0][1] = (-1.0)*(Zr[j][0][1]);
     Zi[j][0][1] = (-1.0)*(Zi[j][0][1]);
-
+    
     Zr[j][1][0] = (-1.0)*(Zr[j][1][0]);
     Zi[j][1][0] = (-1.0)*(Zi[j][1][0]);
-
+    
     if (detr == 0 && deti == 0) {
         cout << "Determinant = 0 \n" << "Input matrix was:\n";
         cout << Xr[i][0][0] << " + " << Xi[i][0][0] << " i \t\t\t" << Xr[i][0][1] << " + " << Xi[i][0][1] << " i \n";
@@ -5003,12 +5026,12 @@ int CMatrixInv(double Xr[][2][2], double Xi[][2][2] , double Zr[][2][2], double 
         
     }
     
-
     
     
-
+    
+    
     return (0);
-
+    
 }
 
 
@@ -5021,40 +5044,40 @@ int CVectorMult(double Xr[][2][2], double Xi[][2][2] , double Yr[][2][1], double
     // Z = XY
     // Z is the output vector
     // The second letters on the matrix names refer to whether they contain the real or imaginary part
-
+    
     double ar, ai, br, bi;
-
-//    cout << "The matrix is:\n\n";
-//    cout << Xr[i][0][0] << " + " << Xi[i][0][0] << " i \t\t\t" << Xr[i][0][1] << " + " << Xi[i][0][1] << " i \n";
-//    cout << Xr[i][1][0] << " + " << Xi[i][1][0] << " i \t\t\t" << Xr[i][1][1] << " + " << Xi[i][1][1] << " i \n\n";
-
-//    cout << "The vector is:\n\n";
-//    cout << Yr[j][0][0] << " + " << Yi[j][0][0] << " i \n";
-//    cout << Yr[j][1][0] << " + " << Yi[j][1][0] << " i \n\n\n";
-
+    
+    //    cout << "The matrix is:\n\n";
+    //    cout << Xr[i][0][0] << " + " << Xi[i][0][0] << " i \t\t\t" << Xr[i][0][1] << " + " << Xi[i][0][1] << " i \n";
+    //    cout << Xr[i][1][0] << " + " << Xi[i][1][0] << " i \t\t\t" << Xr[i][1][1] << " + " << Xi[i][1][1] << " i \n\n";
+    
+    //    cout << "The vector is:\n\n";
+    //    cout << Yr[j][0][0] << " + " << Yi[j][0][0] << " i \n";
+    //    cout << Yr[j][1][0] << " + " << Yi[j][1][0] << " i \n\n\n";
+    
     CompMult(&Xr[i][0][0],&Xi[i][0][0],&Yr[j][0][0],&Yi[j][0][0],&ar,&ai);
-
+    
     CompMult(&Xr[i][0][1],&Xi[i][0][1],&Yr[j][1][0],&Yi[j][1][0],&br,&bi);
-
+    
     // This gives the 00 component
     Zr[k][0][0] = ar + br;
     Zi[k][0][0] = ai + bi;
-
-
-
+    
+    
+    
     CompMult(&Xr[i][1][0],&Xi[i][1][0],&Yr[j][0][0],&Yi[j][0][0],&ar,&ai);
-
+    
     CompMult(&Xr[i][1][1],&Xi[i][1][1],&Yr[j][1][0],&Yi[j][1][0],&br,&bi);
-
+    
     // This gives the 10 component
     Zr[k][1][0] = ar + br;
     Zi[k][1][0] = ai + bi;
-
-
-
-
+    
+    
+    
+    
     return (0);
-
+    
 }
 
 
@@ -5080,9 +5103,9 @@ int CMatrixDiagInv(double Xr[][2][2], double Xi[][2][2] , double Zr[][2][2], dou
     double dumMAr[1][2][2], dumMAi[1][2][2];  // This is a dummy matrix
     
     
-        cout << "\nThe matrix to be inverted is:\n";
-        cout << Xr[i][0][0] << " + " << Xi[i][0][0] << " i \t\t\t" << Xr[i][0][1] << " + " << Xi[i][0][1] << " i \n";
-        cout << Xr[i][1][0] << " + " << Xi[i][1][0] << " i \t\t\t" << Xr[i][1][1] << " + " << Xi[i][1][1] << " i \n\n";
+    cout << "\nThe matrix to be inverted is:\n";
+    cout << Xr[i][0][0] << " + " << Xi[i][0][0] << " i \t\t\t" << Xr[i][0][1] << " + " << Xi[i][0][1] << " i \n";
+    cout << Xr[i][1][0] << " + " << Xi[i][1][0] << " i \t\t\t" << Xr[i][1][1] << " + " << Xi[i][1][1] << " i \n\n";
     
     CompMult(&Xr[i][0][0],&Xi[i][0][0],&Xr[i][1][1],&Xi[i][1][1],&ar,&ai);
     
@@ -5116,7 +5139,7 @@ int CMatrixDiagInv(double Xr[][2][2], double Xi[][2][2] , double Zr[][2][2], dou
     cout << "lambdaP = \t" << lambdaPr << "\t+\t" << lambdaPi << " i\n";
     
     cout << "lambdaM = \t" << lambdaMr << "\t+\t" << lambdaMi << " i\n";
-
+    
     //Now we calculate the right matrix, MR
     ur = lambdaPr - Xr[i][0][0];
     ui = lambdaPi - Xi[i][0][0];
@@ -5190,7 +5213,7 @@ int CMatrixDiagInv(double Xr[][2][2], double Xi[][2][2] , double Zr[][2][2], dou
     ui = lambdaPi - Xi[i][0][0];
     
     CompDiv(&ur,&ui,&Xr[i][1][0],&Xi[i][1][0],&vr,&vi);
-
+    
     
     MLr[0][0][0] = AP;
     
@@ -5285,7 +5308,7 @@ int CompSQRT(double* ar, double* ai , double* br, double* bi)
     
     rroot = sqrt(r);
     
-   
+    
     theta = atan( (*ai)/(*ar) );
     
     if ((*ar) < 0.0) {
@@ -5297,8 +5320,8 @@ int CompSQRT(double* ar, double* ai , double* br, double* bi)
     *br = rroot * cos( 0.5*theta );
     
     *bi = rroot * sin( 0.5*theta );
-
-
+    
+    
     
     return (0);
     
@@ -5316,7 +5339,7 @@ int CompSQRT(double* ar, double* ai , double* br, double* bi)
 int FifthOrderExtrap(double var[], double r[], double C)
 {
     /*
-    This extrapolates using the following setup:
+     This extrapolates using the following setup:
      
      dq = r_{q} - r_{x}
      where q is a stand-in for a to e, and r_{q} is the radius evaluated at the position of variable q, and r_{x} is the radius at the position of x, which we seek to extrapolate to get.
@@ -5329,7 +5352,7 @@ int FifthOrderExtrap(double var[], double r[], double C)
      
      C is a measure of how much closer the extrapolated cell will be to the centre: r[0] = r[1] / C
      
-    */
+     */
     
     
     double a, b, c, d, e, f, g, h, da, db, dc, dd, de, df, dg, dh;
@@ -5373,7 +5396,7 @@ int FifthOrderExtrap(double var[], double r[], double C)
     // This does a first order approximation (that is, linear)
     
     var[0] = (a*db)/(db - da)  -  (da*b)/(db - da);
-
+    
     
     
     return(0);
@@ -5387,75 +5410,75 @@ int FifthOrderExtrap(double var[], double r[], double C)
 
 int FunctionF(double* xadd, double* f)
 {
-	// At the value of x, this outputs the function defined within to variable f
-	
-	double x;
-
-	x = *xadd;
-
-	*f = 0.00005 + 0.00015*x*x; //0.01+0.03*x*x; //0.00005 + 0.00015*x*x;
-
-   return (0);
+    // At the value of x, this outputs the function defined within to variable f
+    
+    double x;
+    
+    x = *xadd;
+    
+    *f = 0.00005 + 0.00015*x*x; //0.01+0.03*x*x; //0.00005 + 0.00015*x*x;
+    
+    return (0);
 }
 
 
 int FunctionG(double* xadd, double* g)
 {
-	// At the value of x, this outputs the function defined within to variable g
-
-	double x;
-
-	x = *xadd;
-	
-    *g = 0.0000035; // 0.000000027; //0.0000035;
-
-   return (0);
+    // At the value of x, this outputs the function defined within to variable g
+    
+    double x;
+    
+    x = *xadd;
+    
+    *g = 0.0000035; //(0.0001 + 0.00015*x*x)*( 1.0 - exp(-(x-0.4999)/0.3) ); // 0.000000027; //0.0000035;
+    
+    return (0);
 }
 
 
 int FunctionY(double* xadd, double* y)
 {
-	// At the value of x, this outputs the function defined within to variable y
-
-	double f, g, beta, x0, x, near;
-
-	x = *xadd;
-
-	// This defines where the transition from f to g takes place
+    // At the value of x, this outputs the function defined within to variable y
+    
+    double f, g, beta, x0, x, near;
+    
+    x = *xadd;
+    
+    // This defines where the transition from f to g takes place
     x0 = 0.98; //0.9995; //0.98;
-
-	// This defines the scale over which the change takes place
-	//BEWARE!! If beta becomes too small, then we get issues with the exponentials
-	// BUT!! That has now been sorted by manually avoiding the exponentials once far from the transition point
-	beta = 0.0005; //0.0000005; //0.0005;
-
-	near = std::abs((x-x0)/beta);
-
-	FunctionF(&x,&f);
-
-	FunctionG(&x,&g);
-
-	// We only want to include the exponentials if we are near the transition point,
-	// otherwise we just assert what the value is, as either f or g, as appropriate
-	if (near < 30 ) {
-
-	*y = ( (f*exp(-(x-x0)/beta))/(1.0 + exp(-(x-x0)/beta)) ) + ( (g*exp((x-x0)/beta))/(1.0 + exp((x-x0)/beta)) );
-
-	} else {
-
-		if ( x < x0 ) {
-
-			*y = f;
-
-		} else {
-
-			*y = g;
-
-		}
-
-	}
-
-   return (0);
+    
+    // This defines the scale over which the change takes place
+    //BEWARE!! If beta becomes too small, then we get issues with the exponentials
+    // BUT!! That has now been sorted by manually avoiding the exponentials once far from the transition point
+    beta = 0.0005; //0.0000005; //0.0005;
+    
+    near = std::abs((x-x0)/beta);
+    
+    FunctionF(&x,&f);
+    
+    FunctionG(&x,&g);
+    
+    // We only want to include the exponentials if we are near the transition point,
+    // otherwise we just assert what the value is, as either f or g, as appropriate
+    if (near < 30 ) {
+        
+        *y = ( (f*exp(-(x-x0)/beta))/(1.0 + exp(-(x-x0)/beta)) ) + ( (g*exp((x-x0)/beta))/(1.0 + exp((x-x0)/beta)) );
+        
+    } else {
+        
+        if ( x < x0 ) {
+            
+            *y = f;
+            
+        } else {
+            
+            *y = g;
+            
+        }
+        
+    }
+    
+    return (0);
 }
 
 
@@ -5466,18 +5489,18 @@ int MeasureGrid(int* J_new_add, double* ratio_max_add)
     // grid_old[] is the array containing the locations of all of the previous cell outer edges
     // J_old is the previous number of cells
     // J_new is the new total number of cells
-
+    
     // y is the guide for cell width
     // f and g are the function which make up y
-
+    
     int alpha, j, k, too_big, too_small;
     
     double x, y, f, g, dx, dx_old, ratio_max;
-
+    
     ratio_max = *ratio_max_add;
     
-
-
+    
+    
     
     
     // file with all of the sample locations
@@ -5499,56 +5522,56 @@ int MeasureGrid(int* J_new_add, double* ratio_max_add)
     j = 0;
     too_big = 0;
     too_small = 0;
-
-
+    
+    
     while (x > 0.0) {
-
-	FunctionF(&x, &f);
-
-	FunctionG(&x, &g);
-
-	FunctionY(&x, &y);
-
-	dx = y;
-
-	// This initialises dx_old for the first time through
-	if( j == 0 ) {
-		dx_old = dx;
-	}
-
-	if( dx > (ratio_max*dx_old) ) {
-		dx = ratio_max*dx_old;
-		too_big = too_big + 1;
-	}
-
-	if( dx < (dx_old/ratio_max) ) {
-		dx = dx_old/ratio_max;
-		too_small = too_small + 1;
-	}
-
-	outfile << x << "\t\t\t" << f << "\t\t\t" << g << "\t\t\t" << y << "\t\t\t" << dx << "\n";
-
-	x = x - dx;
-	j = j + 1;
-	dx_old = dx;
-
-    }
-
-   outfile.close();
         
-
-	cout << "j = " << j << "\n";
-	cout << "too_big = " << too_big << "\n";
-	cout << "too_small = " << too_small << "\n";
-
-	*J_new_add = j;
-
-
-
-
-
+        FunctionF(&x, &f);
+        
+        FunctionG(&x, &g);
+        
+        FunctionY(&x, &y);
+        
+        dx = y;
+        
+        // This initialises dx_old for the first time through
+        if( j == 0 ) {
+            dx_old = dx;
+        }
+        
+        if( dx > (ratio_max*dx_old) ) {
+            dx = ratio_max*dx_old;
+            too_big = too_big + 1;
+        }
+        
+        if( dx < (dx_old/ratio_max) ) {
+            dx = dx_old/ratio_max;
+            too_small = too_small + 1;
+        }
+        
+        outfile << x << "\t\t\t" << f << "\t\t\t" << g << "\t\t\t" << y << "\t\t\t" << dx << "\n";
+        
+        x = x - dx;
+        j = j + 1;
+        dx_old = dx;
+        
+    }
+    
+    outfile.close();
+    
+    
+    cout << "j = " << j << "\n";
+    cout << "too_big = " << too_big << "\n";
+    cout << "too_small = " << too_small << "\n";
+    
+    *J_new_add = j;
+    
+    
+    
+    
+    
     return (0);
-
+    
 }
 
 
@@ -5560,89 +5583,89 @@ int MakeGrid(int J_new, double ratio_max)
     // J_old is the previous number of cells
     // The locations are written to a file, and then inverted so they can be read from the centre outwards
     // J_new is the new total number of cells
-
+    
     // y is the guide for cell width
     // f and g are the function which make up y
-
+    
     int j, k, too_big, too_small;
     
     double x, x0, y, dx, dx_old;
     
-	//cout << "flag a \n";
+    //cout << "flag a \n";
     
     // This tells us that we work from the outside edge back in
     x=1.0;
-
+    
     
     // These keep track of, respectively:
     // how many times the next cell width wanted to exceed ratio_max
     // how many times the next cell width wanted to go smaller than 1/ratio_max
     too_big = 0;
     too_small = 0;
-
-	j = 0;
-
-	k = J_new-1;
+    
+    j = 0;
+    
+    k = J_new-1;
     
     std::ofstream gridfile;
     gridfile.open("Memory/grid_new_surface.txt");
     
     gridfile.precision(12);
     
-
-	//cout << "flag b \n\n";
-
-        while (x > 0.0) {
-
-            
-            gridfile << x << "\n";
-
-            FunctionY(&x, &y);
-
-            dx = y;
-
-            // This initialises dx_old for the first time through
-            if( j == 0 ) {
-                    dx_old = dx;
-            }
-
-            if( dx > (ratio_max*dx_old) ) {
-                dx = ratio_max*dx_old;
-                too_big = too_big + 1;
-            }
-
-            if( dx < (dx_old/ratio_max) ) {
-                dx = dx_old/ratio_max;
-                too_small = too_small + 1;
-            }
-
-
-            //cout << grid_new[k] << ", " << y << ", " << dx << ", " << too_small << "; ";
-
-            x = x - dx;
-            j = j + 1;
-            k = k - 1;
+    
+    //cout << "flag b \n\n";
+    
+    while (x > 0.0) {
+        
+        
+        gridfile << x << "\n";
+        
+        FunctionY(&x, &y);
+        
+        dx = y;
+        
+        // This initialises dx_old for the first time through
+        if( j == 0 ) {
             dx_old = dx;
-            
-            if (j%10000 == 0) {
-                
-                gridfile.close();
-                
-                gridfile.open("Memory/grid_new_surface.txt", std::ofstream::app);
-                
-                gridfile.precision(12);
-                
-            }
-
-
         }
+        
+        if( dx > (ratio_max*dx_old) ) {
+            dx = ratio_max*dx_old;
+            too_big = too_big + 1;
+        }
+        
+        if( dx < (dx_old/ratio_max) ) {
+            dx = dx_old/ratio_max;
+            too_small = too_small + 1;
+        }
+        
+        
+        //cout << grid_new[k] << ", " << y << ", " << dx << ", " << too_small << "; ";
+        
+        x = x - dx;
+        j = j + 1;
+        k = k - 1;
+        dx_old = dx;
+        
+        if (j%10000 == 0) {
+            
+            gridfile.close();
+            
+            gridfile.open("Memory/grid_new_surface.txt", std::ofstream::app);
+            
+            gridfile.precision(12);
+            
+        }
+        
+        
+    }
     
     cout << "At the end of using MakeGrid, j = " << j << "\n";
     cout << "and k = " << k << "\n";
     cout << "and the last x value used was " << x+dx_old << "\n";
-
-
-	//cout << "\nflag c \n";
+    
+    
+    //cout << "\nflag c \n";
     
     gridfile.close();
     
@@ -5652,28 +5675,27 @@ int MakeGrid(int J_new, double ratio_max)
     //system("tail -r \"Memory/grid_new_surface.txt\" > \"Memory/grid_new_centre.txt\"");
     
     /*
-    string instruction1, instruction2, full_instruction, J_new_string;
-    
-    instruction1 = "tail -r -n ";
-    
-    instruction2 = " \"Memory/grid_new_surface.txt\" > \"Memory/grid_new_centre.txt\"";
-    
-    J_new_string = to_string(J_new);
-    
-    full_instruction = instruction1+J_new_string+instruction2;
-    
-    system(full_instruction.c_str());
-
+     string instruction1, instruction2, full_instruction, J_new_string;
+     
+     instruction1 = "tail -r -n ";
+     
+     instruction2 = " \"Memory/grid_new_surface.txt\" > \"Memory/grid_new_centre.txt\"";
+     
+     J_new_string = to_string(J_new);
+     
+     full_instruction = instruction1+J_new_string+instruction2;
+     
+     system(full_instruction.c_str());
+     
      */
     
     
-
-
-
+    
+    
+    
     return (0);
-
+    
 }
-
 
 
 
