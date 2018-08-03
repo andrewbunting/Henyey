@@ -515,7 +515,7 @@ int main()
     
     
     // This changes how much non-adiabaticity comes into play: 1.0 = non-adiabatic, larger makes it less so (approaches the adiabatic limit)
-    prop = 1.0;
+    prop = 10000000000.0;
     
     
     
@@ -846,7 +846,7 @@ int main()
     double delta[3];
     
     // This is an exception, as this needs to be output at the end for plotting purposes
-    double radius_cm_HR_output[J],rmid_cm_HR_output[J],flux_HR_output[J],pressure_HR_output[J],temperature_HR_output[J],test[J],rho_HR_output[J],eta_Terquem_output[J],grav_HR_output[J],rho_face_HR_output[J],Fprime_for_T[J],Fprime_for_p[J],opacity_HR_output[J],K_HR_output[J];
+    double radius_cm_HR_output[J],rmid_cm_HR_output[J],flux_HR_output[J],pressure_HR_output[J],temperature_HR_output[J],test[J],rho_HR_output[J],eta_Terquem_output[J],grav_HR_output[J],rho_face_HR_output[J],Fprime_for_T[J],Fprime_for_p[J],opacity_HR_output[J],K_HR_output[J],chiRho_HR_output[J],chiT_HR_output[J];
     
     
     
@@ -1343,12 +1343,20 @@ int main()
         grav_HR_output[k] = grav_HR[0];
         grav_HR_output[k+1] = grav_HR[1];
         
+        
+        chiRho_HR_output[k] = chiRho_HR[0];
+        chiRho_HR_output[k+1] = chiRho_HR[1];
+        
+        chiT_HR_output[k] = chiT_HR[0];
+        chiT_HR_output[k+1] = chiT_HR[1];
+        
+        
         // Made such that F' = dT0/dr * ( Fprime_for_T * T'/T0   +   dT'/dT0   -   dxi/dr   +   Fprime_for_p * p'/p0 )
         // The strange prefactor is therefore: -(4*a*c*T^3)/(3*opacity*rho)
-        Fprime_for_T[k] = ( flux_HR[0] ) * ( 3.0 - dkap_dlnT_face_HR[0]/opacity_HR[0] + (chiT_HR[0]/chiRho_HR[0])*( 1.0 + dkap_dlnrho_face_HR[0]/opacity_HR[0] ) );
+        Fprime_for_T[k] = ( flux_HR[0] ) * ( 3.0 - dkap_dlnT_face_HR[0]/(0.5*(opacity_HR[0]+opacity_HR[1])) + 0.5*((chiT_HR[0]/chiRho_HR[0])+(chiT_HR[1]/chiRho_HR[1]))*( 1.0 + dkap_dlnrho_face_HR[0]/(0.5*(opacity_HR[0]+opacity_HR[1])) ) );
         Fprime_for_T[k+1] = ( flux_HR[1] ) * ( 3.0 - dkap_dlnT_face_HR[1]/opacity_HR[1] + (chiT_HR[1]/chiRho_HR[1])*( 1.0 + dkap_dlnrho_face_HR[1]/opacity_HR[1] ) );
         
-        Fprime_for_p[k] = ( flux_HR[0] ) * (-1.0/chiRho_HR[0])*( 1.0 + dkap_dlnrho_face_HR[0]/opacity_HR[0] );
+        Fprime_for_p[k] = ( flux_HR[0] ) * (-1.0/(0.5*(chiRho_HR[0]+chiRho_HR[1])))*( 1.0 + dkap_dlnrho_face_HR[0]/(0.5*(opacity_HR[0]+opacity_HR[1])) );
         Fprime_for_p[k+1] = ( flux_HR[1] ) * (-1.0/chiRho_HR[1])*( 1.0 + dkap_dlnrho_face_HR[1]/opacity_HR[1] );
         
         // These versions have a self-calculated value for the radiative flux, which has major issues at the surface
@@ -3871,7 +3879,8 @@ int main()
     double Gvar_r, Gvar_i, Hvar_r, Hvar_i, gradient, pprime_comp_second_r, pprime_comp_second_i, rhoprime_r, rhoprime_i, dp0dr, dplus, dminus, dp0dr_old, dp0dr_avg, dp0dr_sum;
     double delta_P_r_new, delta_P_i_new, xi_h_over_xi_r_real, xi_h_over_xi_r_im, log_mod_xi_r, log_mod_xi_h, d2p_dr2, dp_dr, d2p0_dr2, dp0dr_plus, dp0dr_minus;
     double dDeltaP_dr_b_r, dDeltaP_dr_b_i, dpprime_dr_b_r, dpprime_dr_b_i, dxi_r_dr_b_r, dxi_r_dr_b_i, dp0_dr_b, d2p0_dr2_b, V_div_xi_r_b_r, V_div_xi_r_b_i;
-    double xi_r_analytic_r, xi_r_analytic_i, D_analytic, V_analytic_r, V_analytic_i, Fprime_analytic_r, Fprime_analytic_i, dTprime_dT_r, dTprime_dT_i, dT0_dr, dxi_r_dr_r, dxi_r_dr_i, deltaP_hydro_r, deltaP_hydro_i;
+    double xi_r_analytic_r, xi_r_analytic_i, D_analytic, V_analytic_r, V_analytic_i, Fprime_analytic_r, Fprime_analytic_i, dTprime_dT_r, dTprime_dT_i, dT0_dr, dxi_r_dr_r, dxi_r_dr_i, deltaP_hydro_r, deltaP_hydro_i, deltaP_hydro_next_r, deltaP_hydro_next_i, ddeltaP_dr_hydro_r, ddeltaP_dr_hydro_i, xi_r_analytic_hydro_r, xi_r_analytic_hydro_i, V_analytic_hydro_r, V_analytic_hydro_i, xi_r_analytic_hydro_next_r, xi_r_analytic_hydro_next_i, V_analytic_hydro_next_r, V_analytic_hydro_next_i, D_analytic_next;
+    double ddeltaP_dr_hydro_Jminus3_r, ddeltaP_dr_hydro_Jminus3_i, ddeltaP_dr_hydro_Jminus4_r, ddeltaP_dr_hydro_Jminus4_i, V_cont_r, V_cont_i;
     
     //
     //
@@ -3986,7 +3995,7 @@ int main()
             
             dxi_r_dr_b_i = R*(ui[k+1][0][0] - ui[k][0][0])/(radius_cm_HR_output[k+1] - radius_cm_HR_output[k]);
             
-            dp0_dr_b = (pressure_HR_output[1] - pressure_HR_output[0])/(rmid_cm_HR_output[1] - rmid_cm_HR_output[0]);
+            dp0_dr_b = -0.5*( grav_HR_output[k]*rho_HR_output[k] + grav_HR_output[k+1]*rho_HR_output[k+1] ); //(pressure_HR_output[1] - pressure_HR_output[0])/(rmid_cm_HR_output[1] - rmid_cm_HR_output[0]);
             
             // Just reuse this from earlier, at least for the moment. See if it's good enough and then maybe upgrade it later
             d2p0_dr2_b = d2p0_dr2;
@@ -4008,7 +4017,7 @@ int main()
                 
                 dxi_r_dr_b_i = R*(ui[k][0][0] - ui[k-1][0][0])/(radius_cm_HR_output[k] - radius_cm_HR_output[k-1]);
                 
-                dp0_dr_b = (pressure_HR_output[k] - pressure_HR_output[k-1])/(rmid_cm_HR_output[k] - rmid_cm_HR_output[k-1]);
+                dp0_dr_b = -0.5*( grav_HR_output[k-1]*rho_HR_output[k-1] + grav_HR_output[k]*rho_HR_output[k] ); //(pressure_HR_output[k] - pressure_HR_output[k-1])/(rmid_cm_HR_output[k] - rmid_cm_HR_output[k-1]);
                 
                 // Just reuse this from earlier, at least for the moment. See if it's good enough and then maybe upgrade it later
                 d2p0_dr2_b = d2p0_dr2;
@@ -4029,7 +4038,7 @@ int main()
                 
                 dxi_r_dr_b_i = R*(ui[k][0][0] - ui[k-1][0][0])/(radius_cm_HR_output[k] - radius_cm_HR_output[k-1]);
                 
-                dp0_dr_b = pressure_HR_output[k+1]*delta[0]/(delta[2]*( delta[0] + delta[2] ))   +   pressure_HR_output[k]*(delta[2] - delta[0])/(delta[0]*delta[2])   -   pressure_HR_output[k-1]*delta[2]/(delta[0]*( delta[0]+delta[2] ));
+                dp0_dr_b = -0.5*( grav_HR_output[k]*rho_HR_output[k] + grav_HR_output[k+1]*rho_HR_output[k+1] ); //-0.5*( grav_HR_output[k]*rho_HR_output[k] + grav_HR_output[k+1]*rho_HR_output[k+1] ); //pressure_HR_output[k+1]*delta[0]/(delta[2]*( delta[0] + delta[2] ))   +   pressure_HR_output[k]*(delta[2] - delta[0])/(delta[0]*delta[2])   -   pressure_HR_output[k-1]*delta[2]/(delta[0]*( delta[0]+delta[2] ));
                 
                 // Just reuse this from earlier, at least for the moment. See if it's good enough and then maybe upgrade it later
                 d2p0_dr2_b = d2p0_dr2;
@@ -4275,19 +4284,19 @@ int main()
         
         // Here the analytic expression for xi_r is caluclated
         
-        D = (1.0  -  l*(l+1.0)*grav_HR_output[k]*grav_HR_output[k]/(rmid_cm_HR_output[k]*rmid_cm_HR_output[k]*m*m*m*m*omega*omega*omega*omega)   -   (rmid_cm_HR_output[k]*rmid_cm_HR_output[k]/(m*m*omega*omega))*dgrr_dr  );
+        D_analytic = (1.0  -  l*(l+1.0)*grav_HR_output[k]*grav_HR_output[k]/(rmid_cm_HR_output[k]*rmid_cm_HR_output[k]*m*m*m*m*omega*omega*omega*omega)   -   (rmid_cm_HR_output[k]*rmid_cm_HR_output[k]/(m*m*omega*omega))*dgrr_dr  );
         
         
-        xi_r_analytic_r = (-1.0/(m*m*omega*omega*rho_HR_output[k]*D)) * (  -dDeltaP_dr_b_r - ( l*(l+1.0)*grav_HR_output[k]*delta_P_r/(rmid_cm_HR_output[k]*rmid_cm_HR_output[k]*m*m*omega*omega) )  -  rho_HR_output[k]*( 2.0*f*rmid_cm_HR_output[k] + l*(l+1.0)*grav_HR_output[k]*f/(m*m*omega*omega) )  );
+        xi_r_analytic_r = (-1.0/(m*m*omega*omega*rho_HR_output[k]*D_analytic)) * (  -dDeltaP_dr_b_r - ( l*(l+1.0)*grav_HR_output[k]*delta_P_r/(rmid_cm_HR_output[k]*rmid_cm_HR_output[k]*m*m*omega*omega) )  -  rho_HR_output[k]*( 2.0*f*rmid_cm_HR_output[k] + l*(l+1.0)*grav_HR_output[k]*f/(m*m*omega*omega) )  );
         
-        xi_r_analytic_i = (-1.0/(m*m*omega*omega*rho_HR_output[k]*D)) * (  -dDeltaP_dr_b_i - ( l*(l+1.0)*grav_HR_output[k]*delta_P_i/(rmid_cm_HR_output[k]*rmid_cm_HR_output[k]*m*m*omega*omega) )  );
+        xi_r_analytic_i = (-1.0/(m*m*omega*omega*rho_HR_output[k]*D_analytic)) * (  -dDeltaP_dr_b_i - ( l*(l+1.0)*grav_HR_output[k]*delta_P_i/(rmid_cm_HR_output[k]*rmid_cm_HR_output[k]*m*m*omega*omega) )  );
         
         
         // Here the analytic expression for V is calculated
         
-        V_analytic_r = (1.0/(D*m*m*omega*omega*radius_cm_HR_output[k]*rho_HR_output[k]))  *  (   (grav_HR_output[k]*dDeltaP_dr_b_r)/(m*m*omega*omega)   +   delta_P_r*( 1.0- (radius_cm_HR_output[k]*radius_cm_HR_output[k]*dgrr_dr)/(m*m*omega*omega) )   +   rho_HR_output[k]*( 2.0*f*radius_cm_HR_output[k]*grav_HR_output[k]/(m*m*omega*omega)  + f*radius_cm_HR_output[k]*radius_cm_HR_output[k]*( 1.0 - (radius_cm_HR_output[k]*radius_cm_HR_output[k]*dgrr_dr)/(m*m*omega*omega) ) )   );
+        V_analytic_r = (1.0/(D_analytic*m*m*omega*omega*radius_cm_HR_output[k]*rho_HR_output[k]))  *  (   (grav_HR_output[k]*dDeltaP_dr_b_r)/(m*m*omega*omega)   +   delta_P_r*( 1.0- (radius_cm_HR_output[k]*radius_cm_HR_output[k]*dgrr_dr)/(m*m*omega*omega) )   +   rho_HR_output[k]*( 2.0*f*radius_cm_HR_output[k]*grav_HR_output[k]/(m*m*omega*omega)  + f*radius_cm_HR_output[k]*radius_cm_HR_output[k]*( 1.0 - (radius_cm_HR_output[k]*radius_cm_HR_output[k]*dgrr_dr)/(m*m*omega*omega) ) )   );
         
-        V_analytic_i = (1.0/(D*m*m*omega*omega*radius_cm_HR_output[k]*rho_HR_output[k]))  *  (   (grav_HR_output[k]*dDeltaP_dr_b_i)/(m*m*omega*omega)   +   delta_P_i*( 1.0- (radius_cm_HR_output[k]*radius_cm_HR_output[k]*dgrr_dr)/(m*m*omega*omega) )   );
+        V_analytic_i = (1.0/(D_analytic*m*m*omega*omega*radius_cm_HR_output[k]*rho_HR_output[k]))  *  (   (grav_HR_output[k]*dDeltaP_dr_b_i)/(m*m*omega*omega)   +   delta_P_i*( 1.0- (radius_cm_HR_output[k]*radius_cm_HR_output[k]*dgrr_dr)/(m*m*omega*omega) )   );
         
         
         // Here the analytic expression for F' is calculated according to the earlier definitions such that F' = F0 * ( Fprime_forT * T'/T0  +  dT'/dT - dxi/dr  +  Fprime_for_p * p'/p0 )
@@ -4381,7 +4390,7 @@ int main()
         
         
         
-        // Here I get deltaP by using hydrostatic equilibrium to say dp-/dr = - rho*grav
+        // Here I get deltaP by using hydrostatic equilibrium to say dp/dr = - rho*grav
         if (k==0) {
             
             deltaP_hydro_r = pressure_HR_output[k]*vr[k][0][0] - R*0.5*(ur[k+1][0][0] + ur[k][0][0])*rho_HR_output[k]*grav_HR_output[k];
@@ -4389,6 +4398,14 @@ int main()
             deltaP_hydro_i = pressure_HR_output[k]*vi[k][0][0] - R*0.5*(ui[k+1][0][0] + ui[k][0][0])*rho_HR_output[k]*grav_HR_output[k];
             
             
+            deltaP_hydro_next_r = pressure_HR_output[k+1]*vr[k+1][0][0] - R*0.5*(ur[k+2][0][0] + ur[k+1][0][0])*rho_HR_output[k+1]*grav_HR_output[k+1];
+            
+            deltaP_hydro_next_i = pressure_HR_output[k+1]*vi[k+1][0][0] - R*0.5*(ui[k+2][0][0] + ui[k+1][0][0])*rho_HR_output[k+1]*grav_HR_output[k+1];
+            
+            
+            ddeltaP_dr_hydro_r = (deltaP_hydro_next_r - deltaP_hydro_r)/(rmid_cm_HR_output[k+1] - rmid_cm_HR_output[k]);
+            
+            ddeltaP_dr_hydro_i = (deltaP_hydro_next_i - deltaP_hydro_i)/(rmid_cm_HR_output[k+1] - rmid_cm_HR_output[k]);
             
             
         } else {
@@ -4397,7 +4414,133 @@ int main()
             
             deltaP_hydro_i = pressure_HR_output[k]*vi[k][0][0] - R*0.5*(ui[k][0][0] + ui[k-1][0][0])*rho_HR_output[k]*grav_HR_output[k];
             
+            if (k==J-1 || k==J-2) {
+                
+                // At the outer edge, we extrapolate its value from the inner values, assuming the gradient is constant
+                // I use ddeltaP_dr_hydro from J-4 and J-3, and extrapolate from there
+                
+                ddeltaP_dr_hydro_r = ddeltaP_dr_hydro_Jminus3_r + (radius_cm_HR_output[k] - radius_cm_HR_output[J-3])*( (ddeltaP_dr_hydro_Jminus3_r - ddeltaP_dr_hydro_Jminus4_r)/(radius_cm_HR_output[J-3] - radius_cm_HR_output[J-4]) );
+                
+                ddeltaP_dr_hydro_i = ddeltaP_dr_hydro_i + (radius_cm_HR_output[k] - radius_cm_HR_output[J-3])*( (ddeltaP_dr_hydro_Jminus3_i - ddeltaP_dr_hydro_Jminus4_i)/(radius_cm_HR_output[J-3] - radius_cm_HR_output[J-4]) );
+
+                
+            } else {
+                
+                // Otherwise, we take the derivative numerically
+                
+                deltaP_hydro_next_r = pressure_HR_output[k+1]*vr[k+1][0][0] - R*0.5*(ur[k+1][0][0] + ur[k][0][0])*rho_HR_output[k+1]*grav_HR_output[k+1];
+                
+                deltaP_hydro_next_i = pressure_HR_output[k+1]*vi[k+1][0][0] - R*0.5*(ui[k+1][0][0] + ui[k][0][0])*rho_HR_output[k+1]*grav_HR_output[k+1];
+                
+                
+                ddeltaP_dr_hydro_r = (deltaP_hydro_next_r - deltaP_hydro_r)/(rmid_cm_HR_output[k+1] - rmid_cm_HR_output[k]);
+                
+                ddeltaP_dr_hydro_i = (deltaP_hydro_next_i - deltaP_hydro_i)/(rmid_cm_HR_output[k+1] - rmid_cm_HR_output[k]);
+                
+                
+            }
+            
+            
+            if (k == J-4) {
+                
+                ddeltaP_dr_hydro_Jminus4_r = ddeltaP_dr_hydro_r;
+                
+                ddeltaP_dr_hydro_Jminus4_i = ddeltaP_dr_hydro_i;
+                
+            }
+            
+            if (k == J-3) {
+                
+                ddeltaP_dr_hydro_Jminus3_r = ddeltaP_dr_hydro_r;
+                
+                ddeltaP_dr_hydro_Jminus3_i = ddeltaP_dr_hydro_i;
+                
+            }
+            
+            
         }
+        
+        
+        
+        if (k==0 || k==J-1) {
+            
+            D_analytic = (1.0  -  l*(l+1.0)*grav_HR_output[k]*grav_HR_output[k]/(rmid_cm_HR_output[k]*rmid_cm_HR_output[k]*m*m*m*m*omega*omega*omega*omega)   -   (rmid_cm_HR_output[k]*rmid_cm_HR_output[k]/(m*m*omega*omega))*dgrr_dr  );
+            
+            // Here the analytic expression for xi_r is caluclated using the hydrostatic equilibrium assumption
+            
+            xi_r_analytic_hydro_r = (-1.0/(m*m*omega*omega*rho_HR_output[k]*D_analytic)) * (  -ddeltaP_dr_hydro_r - ( l*(l+1.0)*grav_HR_output[k]*deltaP_hydro_r/(rmid_cm_HR_output[k]*rmid_cm_HR_output[k]*m*m*omega*omega) )  -  rho_HR_output[k]*( 2.0*f*rmid_cm_HR_output[k] + l*(l+1.0)*grav_HR_output[k]*f/(m*m*omega*omega) )  );
+            
+            xi_r_analytic_hydro_i = (-1.0/(m*m*omega*omega*rho_HR_output[k]*D_analytic)) * (  -ddeltaP_dr_hydro_i - ( l*(l+1.0)*grav_HR_output[k]*deltaP_hydro_i/(rmid_cm_HR_output[k]*rmid_cm_HR_output[k]*m*m*omega*omega) )  );
+            
+            
+            // Here the analytic expression for V is calculated
+            
+            V_analytic_hydro_r = (1.0/(D_analytic*m*m*omega*omega*radius_cm_HR_output[k]*rho_HR_output[k]))  *  (   (grav_HR_output[k]*ddeltaP_dr_hydro_r)/(m*m*omega*omega)   +   deltaP_hydro_r*( 1.0 - (radius_cm_HR_output[k]*radius_cm_HR_output[k]*dgrr_dr)/(m*m*omega*omega) )   +   rho_HR_output[k]*( 2.0*f*radius_cm_HR_output[k]*grav_HR_output[k]/(m*m*omega*omega)  + f*radius_cm_HR_output[k]*radius_cm_HR_output[k]*( 1.0 - (radius_cm_HR_output[k]*radius_cm_HR_output[k]*dgrr_dr)/(m*m*omega*omega) ) )   );
+            
+            V_analytic_hydro_i = (1.0/(D_analytic*m*m*omega*omega*radius_cm_HR_output[k]*rho_HR_output[k]))  *  (   (grav_HR_output[k]*ddeltaP_dr_hydro_i)/(m*m*omega*omega)   +   deltaP_hydro_i*( 1.0 - (radius_cm_HR_output[k]*radius_cm_HR_output[k]*dgrr_dr)/(m*m*omega*omega) )   );
+            
+        } else {
+            
+            
+            // Here I set up delta to be used for this case (because xi_r and xi_h are both evaluated at the cell face)
+            
+            delta[0] = ( rmid_cm_HR_output[k+1] - radius_cm_HR_output[k] )/( rmid_cm_HR_output[k+1] - rmid_cm_HR_output[k] );
+            
+            delta[1] = ( radius_cm_HR_output[k] - rmid_cm_HR_output[k] )/( rmid_cm_HR_output[k+1] - rmid_cm_HR_output[k] );
+            
+            
+            D_analytic = (1.0  -  l*(l+1.0)*grav_HR_output[k]*grav_HR_output[k]/(rmid_cm_HR_output[k]*rmid_cm_HR_output[k]*m*m*m*m*omega*omega*omega*omega)   -   (rmid_cm_HR_output[k]*rmid_cm_HR_output[k]/(m*m*omega*omega))*dgrr_dr  );
+            
+            D_analytic_next = (1.0  -  l*(l+1.0)*grav_HR_output[k+1]*grav_HR_output[k+1]/(rmid_cm_HR_output[k+1]*rmid_cm_HR_output[k+1]*m*m*m*m*omega*omega*omega*omega)   -   (rmid_cm_HR_output[k+1]*rmid_cm_HR_output[k+1]/(m*m*omega*omega))*dgrr_dr  );
+            
+            // Here the analytic expression for xi_r is caluclated using the hydrostatic equilibrium assumption
+            
+            xi_r_analytic_hydro_r = (-1.0/(m*m*omega*omega*rho_HR_output[k]*D_analytic)) * (  -ddeltaP_dr_hydro_r - ( l*(l+1.0)*grav_HR_output[k]*deltaP_hydro_r/(rmid_cm_HR_output[k]*rmid_cm_HR_output[k]*m*m*omega*omega) )  -  rho_HR_output[k]*( 2.0*f*rmid_cm_HR_output[k] + l*(l+1.0)*grav_HR_output[k]*f/(m*m*omega*omega) )  );
+            
+            xi_r_analytic_hydro_i = (-1.0/(m*m*omega*omega*rho_HR_output[k]*D_analytic)) * (  -ddeltaP_dr_hydro_i - ( l*(l+1.0)*grav_HR_output[k]*deltaP_hydro_i/(rmid_cm_HR_output[k]*rmid_cm_HR_output[k]*m*m*omega*omega) )  );
+            
+            xi_r_analytic_hydro_next_r = (-1.0/(m*m*omega*omega*rho_HR_output[k+1]*D_analytic_next)) * (  -ddeltaP_dr_hydro_r - ( l*(l+1.0)*grav_HR_output[k+1]*deltaP_hydro_next_r/(rmid_cm_HR_output[k+1]*rmid_cm_HR_output[k+1]*m*m*omega*omega) )  -  rho_HR_output[k+1]*( 2.0*f*rmid_cm_HR_output[k+1] + l*(l+1.0)*grav_HR_output[k+1]*f/(m*m*omega*omega) )  );
+            
+            xi_r_analytic_hydro_next_i = (-1.0/(m*m*omega*omega*rho_HR_output[k+1]*D_analytic_next)) * (  -ddeltaP_dr_hydro_i - ( l*(l+1.0)*grav_HR_output[k+1]*deltaP_hydro_next_i/(rmid_cm_HR_output[k+1]*rmid_cm_HR_output[k+1]*m*m*omega*omega) )  );
+            
+            // Here the xi_r values are combined as a weighted average
+            
+            xi_r_analytic_hydro_r = delta[0]*xi_r_analytic_hydro_r + delta[1]*xi_r_analytic_hydro_next_r;
+            
+            xi_r_analytic_hydro_i = delta[0]*xi_r_analytic_hydro_i + delta[1]*xi_r_analytic_hydro_next_i;
+            
+            
+            // Here the analytic expression for V is calculated
+            
+            V_analytic_hydro_r = (1.0/(D_analytic*m*m*omega*omega*radius_cm_HR_output[k]*rho_HR_output[k]))  *  (   (grav_HR_output[k]*ddeltaP_dr_hydro_r)/(m*m*omega*omega)   +   deltaP_hydro_r*( 1.0 - (radius_cm_HR_output[k]*radius_cm_HR_output[k]*dgrr_dr)/(m*m*omega*omega) )   +   rho_HR_output[k]*( 2.0*f*radius_cm_HR_output[k]*grav_HR_output[k]/(m*m*omega*omega)  + f*radius_cm_HR_output[k]*radius_cm_HR_output[k]*( 1.0 - (radius_cm_HR_output[k]*radius_cm_HR_output[k]*dgrr_dr)/(m*m*omega*omega) ) )   );
+            
+            V_analytic_hydro_i = (1.0/(D_analytic*m*m*omega*omega*radius_cm_HR_output[k]*rho_HR_output[k]))  *  (   (grav_HR_output[k]*ddeltaP_dr_hydro_i)/(m*m*omega*omega)   +   deltaP_hydro_i*( 1.0 - (radius_cm_HR_output[k]*radius_cm_HR_output[k]*dgrr_dr)/(m*m*omega*omega) )   );
+            
+            V_analytic_hydro_next_r = (1.0/(D_analytic_next*m*m*omega*omega*radius_cm_HR_output[k+1]*rho_HR_output[k+1]))  *  (   (grav_HR_output[k+1]*ddeltaP_dr_hydro_r)/(m*m*omega*omega)   +   deltaP_hydro_next_r*( 1.0 - (radius_cm_HR_output[k+1]*radius_cm_HR_output[k+1]*dgrr_dr)/(m*m*omega*omega) )   +   rho_HR_output[k+1]*( 2.0*f*radius_cm_HR_output[k+1]*grav_HR_output[k+1]/(m*m*omega*omega)  + f*radius_cm_HR_output[k+1]*radius_cm_HR_output[k+1]*( 1.0 - (radius_cm_HR_output[k+1]*radius_cm_HR_output[k+1]*dgrr_dr)/(m*m*omega*omega) ) )   );
+            
+            V_analytic_hydro_next_i = (1.0/(D_analytic_next*m*m*omega*omega*radius_cm_HR_output[k+1]*rho_HR_output[k+1]))  *  (   (grav_HR_output[k+1]*ddeltaP_dr_hydro_i)/(m*m*omega*omega)   +   deltaP_hydro_next_i*( 1.0 - (radius_cm_HR_output[k+1]*radius_cm_HR_output[k+1]*dgrr_dr)/(m*m*omega*omega) )   );
+            
+            // Here the V values are combined as a weighted average
+            
+            V_analytic_hydro_r = delta[0]*V_analytic_hydro_r + delta[1]*V_analytic_hydro_next_r;
+            
+            V_analytic_hydro_i = delta[0]*V_analytic_hydro_i + delta[1]*V_analytic_hydro_next_i;
+            
+        }
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
         
         
         
@@ -4450,6 +4593,38 @@ int main()
         xi_r_eq = (-f*radius_cm_HR_output[k]*radius_cm_HR_output[k]/grav_HR_output[k]);
         
         
+        if (k == J-1 || k == 0) {
+            
+            if (k==0) {
+                
+                V_cont_r = (radius_cm_HR_output[k]/(l*(l+1.0))) * (  0.5*( (1.0/chiRho_HR_output[k])*( vr[k][0][0] - chiT_HR_output[k]*vr[k][1][0] ) + (1.0/chiRho_HR_output[k+1])*( vr[k+1][0][0] - chiT_HR_output[k+1]*vr[k][1][0] ) )    +    R*ur[k][0][0]*(log(rho_HR_output[k+1]) - log(rho_HR_output[k]))/(rmid_cm_HR_output[k+1] - rmid_cm_HR_output[k])   +   (R/(radius_cm_HR_output[k]*radius_cm_HR_output[k]))*( (radius_cm_HR_output[k+1]*radius_cm_HR_output[k+1]*ur[k+1][0][0] - radius_cm_HR_output[k]*radius_cm_HR_output[k]*ur[k][0][0])/(radius_cm_HR_output[k+1] - radius_cm_HR_output[k]) )  );
+                
+                V_cont_i = (radius_cm_HR_output[k]/(l*(l+1.0))) * (  0.5*( (1.0/chiRho_HR_output[k])*( vi[k][0][0] - chiT_HR_output[k]*vi[k][1][0] ) + (1.0/chiRho_HR_output[k+1])*( vi[k+1][0][0] - chiT_HR_output[k+1]*vi[k][1][0] ) )    +    R*ui[k][0][0]*(log(rho_HR_output[k+1]) - log(rho_HR_output[k]))/(rmid_cm_HR_output[k+1] - rmid_cm_HR_output[k])   +   (R/(radius_cm_HR_output[k]*radius_cm_HR_output[k]))*( (radius_cm_HR_output[k+1]*radius_cm_HR_output[k+1]*ui[k+1][0][0] - radius_cm_HR_output[k]*radius_cm_HR_output[k]*ui[k][0][0])/(radius_cm_HR_output[k+1] - radius_cm_HR_output[k]) )  );
+                
+                
+            } else {
+                
+                V_cont_r = (radius_cm_HR_output[k]/(l*(l+1.0))) * (  (1.0/chiRho_HR_output[k])*( vr[k][0][0] - chiT_HR_output[k]*vr[k][1][0] )    +    R*ur[k][0][0]*(log(rho_HR_output[k]) - log(rho_HR_output[k-1]))/(rmid_cm_HR_output[k] - rmid_cm_HR_output[k-1])   +   (R/(radius_cm_HR_output[k]*radius_cm_HR_output[k]))*( (radius_cm_HR_output[k]*radius_cm_HR_output[k]*ur[k][0][0] - radius_cm_HR_output[k-1]*radius_cm_HR_output[k-1]*ur[k-1][0][0])/(radius_cm_HR_output[k] - radius_cm_HR_output[k-1]) )  );
+                
+                V_cont_i = (radius_cm_HR_output[k]/(l*(l+1.0))) * (  (1.0/chiRho_HR_output[k])*( vi[k][0][0] - chiT_HR_output[k]*vi[k][1][0] )    +    R*ui[k][0][0]*(log(rho_HR_output[k]) - log(rho_HR_output[k-1]))/(rmid_cm_HR_output[k] - rmid_cm_HR_output[k-1])   +   (R/(radius_cm_HR_output[k]*radius_cm_HR_output[k]))*( (radius_cm_HR_output[k]*radius_cm_HR_output[k]*ui[k][0][0] - radius_cm_HR_output[k-1]*radius_cm_HR_output[k-1]*ui[k-1][0][0])/(radius_cm_HR_output[k] - radius_cm_HR_output[k-1]) )  );
+                
+            }
+            
+            
+        } else {
+            
+            delta[0] = ( rmid_cm_HR_output[k+1] - radius_cm_HR_output[k] )/( rmid_cm_HR_output[k+1] - rmid_cm_HR_output[k] );
+            
+            delta[1] = ( radius_cm_HR_output[k] - rmid_cm_HR_output[k] )/( rmid_cm_HR_output[k+1] - rmid_cm_HR_output[k] );
+            
+            V_cont_r = (radius_cm_HR_output[k]/(l*(l+1.0))) * (  ( (delta[0]/chiRho_HR_output[k])*( vr[k][0][0] - chiT_HR_output[k]*vr[k][1][0] ) + (delta[1]/chiRho_HR_output[k+1])*( vr[k+1][0][0] - chiT_HR_output[k+1]*vr[k][1][0] ) )    +    R*ur[k][0][0]*(log(rho_HR_output[k+1]) - log(rho_HR_output[k]))/(rmid_cm_HR_output[k+1] - rmid_cm_HR_output[k])   +   (R/(radius_cm_HR_output[k]*radius_cm_HR_output[k]))*( (radius_cm_HR_output[k+1]*radius_cm_HR_output[k+1]*ur[k+1][0][0] - radius_cm_HR_output[k-1]*radius_cm_HR_output[k-1]*ur[k-1][0][0])/(radius_cm_HR_output[k+1] - radius_cm_HR_output[k-1]) )  );
+            
+            V_cont_i = (radius_cm_HR_output[k]/(l*(l+1.0))) * (  ( (delta[0]/chiRho_HR_output[k])*( vi[k][0][0] - chiT_HR_output[k]*vi[k][1][0] ) + (delta[1]/chiRho_HR_output[k+1])*( vi[k+1][0][0] - chiT_HR_output[k+1]*vi[k][1][0] ) )    +    R*ui[k][0][0]*(log(rho_HR_output[k+1]) - log(rho_HR_output[k]))/(rmid_cm_HR_output[k+1] - rmid_cm_HR_output[k])   +   (R/(radius_cm_HR_output[k]*radius_cm_HR_output[k]))*( (radius_cm_HR_output[k+1]*radius_cm_HR_output[k+1]*ui[k+1][0][0] - radius_cm_HR_output[k-1]*radius_cm_HR_output[k-1]*ui[k-1][0][0])/(radius_cm_HR_output[k+1] - radius_cm_HR_output[k-1]) )  );
+            
+        }
+        
+        
+
         
         
         
@@ -4499,7 +4674,7 @@ int main()
          27- p' (c * pressure)
          28- T' (d * temperature)
          29- m * omega * xi_r in units given in Terquem, 1998 (figure 1): ( mp / (mp + Mstar) ) m/s
-         30- a (imaginary part)pl file u
+         30- a (imaginary part)
          31- b (imaginary part)
          32- c (imaginary part)
          33- d (imaginary part)
@@ -4609,6 +4784,25 @@ int main()
          137- xi_h_imaginary / xi_r_eq
          138- xi_r_eq
          139- xi_r_i
+         140- ddeltaP_dr_hydro_r
+         141- ddeltaP_dr_hydro_i
+         142- xi_r_analytic_hydro_r
+         143- xi_r_analytic_hydro_i
+         144- V_analytic_hydro_r
+         145- V_analytic_hydro_i
+         146- -l(l+1) K_0 T'
+         147- manual derivative of r^2 F'
+         148- K0
+         149- DeltaF
+         150- V_cont_r
+         151- V_cont_i
+         152- rho_prime_r / rho0
+         153- rho_prime_i / rho0
+         154- (1/r^2) d(r^2 xi_r)/dr
+         155- (xi_r/rho_0)*(drho0/dr) real part
+         156- (xi_i/rho_0)*(drho0/dr) imaginary part
+         157- delta_rho_r
+         158- delta_rho_i
          
          */
         
@@ -4656,7 +4850,13 @@ int main()
         outfile << dT0_dr*( - 4.0*7.5657e-15*2.99792458e10*temperature_HR_output[k]*temperature_HR_output[k]*temperature_HR_output[k]/( 3.0*opacity_HR_output[k]*rho_HR_output[k] ) ) << "\t\t" << -K_HR_output[k]*dT0_dr << "\t\t" << -rho_HR_output[k]*grav_HR_output[k] << "\t\t" << deltaP_hydro_r << "\t\t" << deltaP_hydro_i << "\t\t" << m*m*omega*omega*rho_HR_output[k]*xi_h_real << "\t\t" << m*m*omega*omega*rho_HR_output[k]*xi_h_imaginary << "\t\t" << (deltaP_hydro_r/rmid_cm_HR_output[k]) + (grav_HR_output[k]*rho_HR_output[k]*R*0.5*(ur[k][0][0]+ur[k-1][0][0])/rmid_cm_HR_output[k]) + (rho_HR_output[k]*f*rmid_cm_HR_output[k]) << "\t\t" << (deltaP_hydro_i/rmid_cm_HR_output[k]) + (grav_HR_output[k]*rho_HR_output[k]*R*0.5*(ui[k][0][0]+ui[k-1][0][0])/rmid_cm_HR_output[k]) << "\t\t" << 0.5*log10(R*R*( ur[k][0][0]*ur[k][0][0] + ui[k][0][0]*ui[k][0][0]  )) << "\t\t";
         
         // 131 to 140
-        outfile << 0.5*log10(flux_BC*flux_BC*( ur[k][1][0]*ur[k][1][0] + ui[k][1][0]*ui[k][1][0]  )) << "\t\t" << 0.5*log10( pressure_HR_output[k]*pressure_HR_output[k]*(vr[k][0][0]*vr[k][0][0] + vi[k][0][0]*vi[k][0][0]  )) << "\t\t" << 0.5*log10( temperature_HR_output[k]*temperature_HR_output[k]*(vr[k][1][0]*vr[k][1][0] + vi[k][1][0]*vi[k][1][0]  )) << "\t\t" << (R*ur[k][0][0])/xi_r_eq << "\t\t" << (R*ui[k][0][0])/xi_r_eq << "\t\t" << xi_h_real/xi_r_eq << "\t\t" << xi_h_imaginary/xi_r_eq << "\t\t" << xi_r_eq << "\t\t" << ui[k][0][0]*R << "\n";
+        outfile << 0.5*log10(flux_BC*flux_BC*( ur[k][1][0]*ur[k][1][0] + ui[k][1][0]*ui[k][1][0]  )) << "\t\t" << 0.5*log10( pressure_HR_output[k]*pressure_HR_output[k]*(vr[k][0][0]*vr[k][0][0] + vi[k][0][0]*vi[k][0][0]  )) << "\t\t" << 0.5*log10( temperature_HR_output[k]*temperature_HR_output[k]*(vr[k][1][0]*vr[k][1][0] + vi[k][1][0]*vi[k][1][0]  )) << "\t\t" << (R*ur[k][0][0])/xi_r_eq << "\t\t" << (R*ui[k][0][0])/xi_r_eq << "\t\t" << xi_h_real/xi_r_eq << "\t\t" << xi_h_imaginary/xi_r_eq << "\t\t" << xi_r_eq << "\t\t" << ui[k][0][0]*R << "\t\t" << ddeltaP_dr_hydro_r << "\t\t";
+        
+        // 141 to 150
+        outfile << ddeltaP_dr_hydro_i << "\t\t" << xi_r_analytic_hydro_r << "\t\t" << xi_r_analytic_hydro_i << "\t\t" << V_analytic_hydro_r << "\t\t" << V_analytic_hydro_i << "\t\t" << -l*(l+1.0)*K_HR_output[k]*temperature_HR_output[k]*vr[k][1][0] << "\t\t" << (radius_cm_HR_output[k+1]*radius_cm_HR_output[k+1]*flux_BC*ur[k+1][1][0]  -  radius_cm_HR_output[k]*radius_cm_HR_output[k]*flux_BC*ur[k][1][0])/(radius_cm_HR_output[k+1]  -  radius_cm_HR_output[k]) << "\t\t" << K_HR_output[k] << "\t\t" << flux_BC*ur[k][1][0] + (R*ur[k][0][0])*((flux_HR_output[k+1]-flux_HR_output[k-1])/(radius_cm_HR_output[k+1]-radius_cm_HR_output[k-1])) << "\t\t" << V_cont_r << "\t\t";
+        
+        // 151 to 160
+        outfile << V_cont_i << "\t\t" << (1.0/chiRho_HR_output[k])*( vr[k][0][0] - chiT_HR_output[k]*vr[k][1][0] ) << "\t\t" << (1.0/chiRho_HR_output[k])*( vi[k][0][0] - chiT_HR_output[k]*vi[k][1][0] ) << "\t\t" << (R/(radius_cm_HR_output[k]*radius_cm_HR_output[k]))*( (radius_cm_HR_output[k+1]*radius_cm_HR_output[k+1]*ui[k+1][0][0] - radius_cm_HR_output[k-1]*radius_cm_HR_output[k-1]*ui[k-1][0][0])/(radius_cm_HR_output[k+1] - radius_cm_HR_output[k-1]) ) << "\t\t" << (R*ur[k][0][0]/rho_HR_output[k])*( (rho_HR_output[k+1]-rho_HR_output[k])/(rmid_cm_HR_output[k+1]-rmid_cm_HR_output[k]) ) << "\t\t" << (R*ui[k][0][0]/rho_HR_output[k])*( (rho_HR_output[k+1]-rho_HR_output[k])/(rmid_cm_HR_output[k+1]-rmid_cm_HR_output[k]) ) << "\t\t" << (rho_HR_output[k]/chiRho_HR_output[k])*( vr[k][0][0] - chiT_HR_output[k]*vr[k][1][0] ) + R*ur[k][0][0]*( (rho_HR_output[k+1]-rho_HR_output[k])/(rmid_cm_HR_output[k+1]-rmid_cm_HR_output[k]) ) << "\t\t" << (rho_HR_output[k]/chiRho_HR_output[k])*( vi[k][0][0] - chiT_HR_output[k]*vi[k][1][0] ) + R*ui[k][0][0]*( (rho_HR_output[k+1]-rho_HR_output[k])/(rmid_cm_HR_output[k+1]-rmid_cm_HR_output[k]) ) << "\n";
         
         
         
@@ -5416,7 +5616,7 @@ int FunctionF(double* xadd, double* f)
     
     x = *xadd;
     
-    *f = 0.00005 + 0.00015*x*x; //0.01+0.03*x*x; //0.00005 + 0.00015*x*x;
+    *f = 0.00006 + 0.00015*x*x; //0.01+0.03*x*x; //0.00005 + 0.00015*x*x;
     
     return (0);
 }
