@@ -443,7 +443,7 @@ int main()
     
     // Here I artificially modify JUST omega, and nothing else -- this is an unphysical situation because it leaves the orbital distance and masses unchanged, but alters the frequency in isolation
     
-    omega = omega*1.00;
+    omega = omega*1.0;
     
     
     
@@ -515,7 +515,7 @@ int main()
     
     
     // This changes how much non-adiabaticity comes into play: 1.0 = non-adiabatic, larger makes it less so (approaches the adiabatic limit)
-    prop = 10000000000.0;
+    prop = 1.0;
     
     
     
