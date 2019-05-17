@@ -21,7 +21,7 @@ int main()
 
     
     ifstream infile;
-    infile.open("Input/non-adiabatic_layer_1_0.txt");
+    infile.open("Input/non-adiabatic_layer_1_4.txt");
     
     k=0;
     
@@ -32,7 +32,7 @@ int main()
     no_of_lines = 0;
     
     ifstream linefile;
-    linefile.open("Input/non-adiabatic_layer_1_0.txt");
+    linefile.open("Input/non-adiabatic_layer_1_4.txt");
     
     getline(linefile,line);
     while (linefile) {
@@ -136,7 +136,7 @@ int main()
     
     
     
-    double omega, pi, m_H, N_A;
+    double omega, pi, m_H, N_A, k_B, R;
     
     pi = 3.14159265358979;
     
@@ -146,11 +146,15 @@ int main()
     
     N_A = 6.0221367e23;
     
+    k_B = 1.3806485e-16;
+    
+    R = radius_cm[J-1];
     
     
     
     
-    double dE, E_internal, dE_scaled, E_internal_scaled;
+    
+    double dE, E_internal, dE_scaled, E_internal_scaled, dE_manual_Cv, dE_scaled_manual_Cv, E_internal_manual_Cv, E_scaled_manual_Cv;
     
     dE = 0.0;
     
@@ -160,10 +164,18 @@ int main()
     
     E_internal_scaled = 0.0;
     
+    dE_manual_Cv = 0.0;
+    
+    dE_scaled_manual_Cv = 0.0;
+    
+    E_internal_manual_Cv = 0.0;
+    
+    E_scaled_manual_Cv = 0.0;
+    
     
     ofstream write_file;
     
-    write_file.open("Output/non-adiabatic_layer_1_0.txt", ios::out);
+    write_file.open("Output/non-adiabatic_layer_1_4.txt", ios::out);
     
     write_file.precision(10);
     
@@ -173,12 +185,20 @@ int main()
         
         dE = ( 4 * pi / (m_H * N_A) ) * (  ( cv[k] * rho[k] * temperature[k] * rmid_cm[k] * rmid_cm[k] ) / ( mu[k] )  ) * dr[k];
         
+        dE_manual_Cv = ( ( 6 * pi * k_B ) / m_H ) * (  ( rho[k] * temperature[k] * rmid_cm[k] * rmid_cm[k] ) / ( mu[k] )  ) * dr[k];
+        
         E_internal = E_internal + dE;
+        
+        E_internal_manual_Cv = E_internal_manual_Cv + dE_manual_Cv;
         
         
         dE_scaled = dE * 2.0 * omega / luminosity[k];
         
+        dE_scaled_manual_Cv = dE_manual_Cv * 2.0 * omega / luminosity[k];
+        
         E_internal_scaled = E_internal_scaled + dE_scaled;
+        
+        E_scaled_manual_Cv = E_scaled_manual_Cv + dE_scaled_manual_Cv;
         
         
         // 1 - radius_cm
@@ -186,8 +206,13 @@ int main()
         // 3 - dE
         // 4 - E_internal_scaled (that is, E_internal * omega / L )
         // 5 - dE_scaled (that is, dE * omega / L )
+        // 6 - E_internal_manual_Cv
+        // 7 - dE_manual_Cv
+        // 8 - E_scaled_manual_Cv
+        // 9 - dE_scaled_manual_Cv
+        //10 - r / R
         
-        write_file << radius_cm[k] << "\t\t" << E_internal << "\t\t" << dE << "\t\t" << E_internal_scaled << "\t\t" << dE_scaled << "\n";
+        write_file << radius_cm[k] << "\t\t" << E_internal << "\t\t" << dE << "\t\t" << E_internal_scaled << "\t\t" << dE_scaled << "\t\t" << E_internal_manual_Cv << "\t\t" << dE_manual_Cv << "\t\t" << E_scaled_manual_Cv << "\t\t" << dE_scaled_manual_Cv << "\t\t" << radius_cm[k] / R << "\n";
         
     }
     
